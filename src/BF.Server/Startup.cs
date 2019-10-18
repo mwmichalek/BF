@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BF.Server.Data;
+using BF.Server.Hubs;
 
 namespace BF.Server {
     public class Startup {
@@ -23,6 +24,7 @@ namespace BF.Server {
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services) {
             services.AddRazorPages();
+            services.AddSignalR();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
         }
@@ -44,6 +46,7 @@ namespace BF.Server {
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapBlazorHub();
+                endpoints.MapHub<BFHub>("/bfHub");
                 endpoints.MapFallbackToPage("/_Host");
             });
         }

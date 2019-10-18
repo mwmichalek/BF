@@ -16,6 +16,7 @@ using Windows.UI.Xaml;
 using Serilog;
 using BF.Service.Events;
 using BF.Service.Prism.Events;
+using BF.Services.UWP.Controllers;
 
 namespace BF.Appliance {
     [Windows.UI.Xaml.Data.Bindable]
@@ -42,10 +43,11 @@ namespace BF.Appliance {
             Container.RegisterType<ITemperatureControllerService, SerialUsbArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
             //Container.RegisterType<ITemperatureControllerService, FakeArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
 
-
+            Container.RegisterType<IServerProxyClient, ServerProxyClient>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IBeerFactory, BeerFactory>(new ContainerControlledLifetimeManager());
 
             var temperatureControllerService = Container.Resolve<ITemperatureControllerService>();
+            var proxyClient = Container.Resolve<IServerProxyClient>();
             var beerFactory = Container.Resolve<IBeerFactory>();
 
             Task.Run(() => {

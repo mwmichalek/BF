@@ -1,5 +1,11 @@
 ﻿@page "/"
 
+using Services
+
+inject IHubContext<BFHub, IChatClient> hubContext
+
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+//https://docs.microsoft.com/en-us/aspnet/core/signalr/hubcontext?view=aspnetcore-3.0
