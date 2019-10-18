@@ -97,7 +97,8 @@ namespace BF.Service.Components {
 
         private void Run() {
             while (isRunning) {
-                if (millisOn > 0) {
+                // Something is causing a random blip.
+                if (Percentage != 0 && millisOn > 0) {
                     On();
                     Thread.Sleep(millisOn);
                 }
@@ -107,15 +108,19 @@ namespace BF.Service.Components {
         }
 
         private void On() {
-            pin?.Write(GpioPinValue.High);
-            IsEngaged = true;
-            SendNotification();
+            if (!IsEngaged) {
+                pin?.Write(GpioPinValue.High);
+                IsEngaged = true;
+                SendNotification();
+            }
         }
 
         private void Off() {
-            pin?.Write(GpioPinValue.Low);
-            IsEngaged = false;
-            SendNotification();
+            if (IsEngaged) {
+                pin?.Write(GpioPinValue.Low);
+                IsEngaged = false;
+                SendNotification();
+            }
         }
 
         private void SendNotification() {

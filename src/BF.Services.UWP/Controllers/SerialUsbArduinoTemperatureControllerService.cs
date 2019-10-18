@@ -19,9 +19,13 @@ using BF.Service.Events;
 using BF.Common.Events;
 using BF.Common.Ids;
 using BF.Service.Controllers;
+using Serilog;
 
 namespace BF.Service.UWP.Controllers {
     public class SerialUsbArduinoTemperatureControllerService : TemperatureControllerService {
+
+        private ILogger Logger { get; set; }
+
         private string[] stringSeparators = new string[] { "\r\n" };
 
         public bool IsConnected { get; set; }
@@ -42,6 +46,7 @@ namespace BF.Service.UWP.Controllers {
 
         public SerialUsbArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler) {
             _eventHandler = eventHandler;
+            Logger = Log.Logger;
         }
 
         public override async Task Run() {
@@ -134,6 +139,7 @@ namespace BF.Service.UWP.Controllers {
 
                         var thermometerId = (ThermometerId)Enum.Parse(typeof(ThermometerId), (index).ToString());
 
+                        Log.Information($"Serial Temp Update: {thermometerId} - {temperature}");
                         _eventHandler.ThermometerChangeFired(            
                             new ThermometerChange {
                                 Id = thermometerId,
@@ -141,7 +147,7 @@ namespace BF.Service.UWP.Controllers {
                                 Timestamp = DateTime.Now
                             }
                         );
-   
+                    
                     }
                 }
             } catch (OperationCanceledException /*exception*/) {

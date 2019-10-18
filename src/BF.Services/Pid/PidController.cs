@@ -71,6 +71,7 @@ namespace BF.Service.Pid {
 
         private void RegisterEvents() {
             _eventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
+            _eventHandler.PidRequestOccured(PidRequestOccured);
         }
 
         private bool isEngaged = false;
@@ -87,6 +88,36 @@ namespace BF.Service.Pid {
             }
         }
 
+        public void PidRequestOccured(PidRequest pidRequest) {
+            if (pidRequest.Id == Id) {
+                IsEngaged = pidRequest.IsEngaged;
+                PidMode = pidRequest.PidMode;
+                SetPoint = pidRequest.SetPoint;
+                GainDerivative = pidRequest.GainDerivative;
+                GainIntegral = pidRequest.GainIntegral;
+                GainProportional = pidRequest.GainProportional;
+
+                _eventHandler.PidChangeFired(new PidChange {
+                    Id = pidRequest.Id,
+                    IsEngaged = pidRequest.IsEngaged,
+                    PidMode = pidRequest.PidMode,
+                    SetPoint = pidRequest.SetPoint,
+                    GainDerivative = pidRequest.GainDerivative,
+                    GainIntegral = pidRequest.GainIntegral,
+                    GainProportional = pidRequest.GainProportional
+                });
+
+                
+            }
+
+            if (pidRequest.Id != Id && pidRequest.IsEngaged) {
+                // Disengage all other PIDs 
+                IsEngaged = false;
+            }
+
+            Process();
+        }
+
         /// <summary>
         /// The controller output
         /// </summary>
@@ -100,36 +131,41 @@ namespace BF.Service.Pid {
             if (!isEngaged)
                 Ssr.Percentage = 0;
 
-            if (ProcessVariable != 0 && isEngaged) {
-                var currentTime = DateTime.Now;
-                if (lastRun == null)
+            if (isEngaged) {
+                if (PidMode == PidMode.Temperature && ProcessVariable != 0) {
+                    var currentTime = DateTime.Now;
+                    if (lastRun == null)
+                        lastRun = currentTime;
+
+
+                    var secondsSinceLastUpdate = (currentTime - lastRun).Seconds;
+
+                    double error = SetPoint - ProcessVariable;
+
+                    // integral term calculation
+                    IntegralTerm += (GainIntegral * error * secondsSinceLastUpdate);
+                    IntegralTerm = Clamp(IntegralTerm);
+
+                    // derivative term calculation
+                    double dInput = processVariable - ProcessVariableLast;
+                    double derivativeTerm = GainDerivative * (dInput / secondsSinceLastUpdate);
+
+                    // proportional term calcullation
+                    double proportionalTerm = GainProportional * error;
+
+                    double output = proportionalTerm + IntegralTerm - derivativeTerm;
+
+                    output = Clamp(output);
+
                     lastRun = currentTime;
 
+                    //Debug.WriteLine($"Temperature: {ProcessVariable}  SSR: {output}");
 
-                var secondsSinceLastUpdate = (currentTime - lastRun).Seconds;
-
-                double error = SetPoint - ProcessVariable;
-
-                // integral term calculation
-                IntegralTerm += (GainIntegral * error * secondsSinceLastUpdate);
-                IntegralTerm = Clamp(IntegralTerm);
-
-                // derivative term calculation
-                double dInput = processVariable - ProcessVariableLast;
-                double derivativeTerm = GainDerivative * (dInput / secondsSinceLastUpdate);
-
-                // proportional term calcullation
-                double proportionalTerm = GainProportional * error;
-
-                double output = proportionalTerm + IntegralTerm - derivativeTerm;
-
-                output = Clamp(output);
-
-                lastRun = currentTime;
-
-                Debug.WriteLine($"Temperature: {ProcessVariable}  SSR: {output}");
-
-                Ssr.Percentage = (int)output;
+                    Ssr.Percentage = (int)output;
+                } else {
+                    // If PidMode is Percentage, SetPoint is a Percentage
+                    Ssr.Percentage = (int)SetPoint;
+                }
             }
         }
 
@@ -197,6 +233,8 @@ namespace BF.Service.Pid {
         /// The desired value
         /// </summary>
         public double SetPoint { get; set; } = 0;
+
+        public PidMode PidMode { get; set; } = PidMode.Temperature;
 
         /// <summary>
         /// Limit a variable to the set OutputMax and OutputMin properties

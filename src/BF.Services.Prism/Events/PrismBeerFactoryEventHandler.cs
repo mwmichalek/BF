@@ -2,6 +2,7 @@
 using BF.Service.Events;
 using Prism.Events;
 using Prism.Mvvm;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,13 @@ namespace BF.Service.Prism.Events {
 
     public class PrismBeerFactoryEventHandler : IBeerFactoryEventHandler {
 
+        private ILogger Logger { get; set; }
+
         private IEventAggregator _eventAggregator;
 
         public PrismBeerFactoryEventHandler(IEventAggregator eventAggregator) {
             _eventAggregator = eventAggregator;
+            Logger = Log.Logger;
         }
 
         public void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler) {
@@ -60,6 +64,7 @@ namespace BF.Service.Prism.Events {
         }
 
         public void ThermometerChangeFired(ThermometerChange thermometerChange) {
+            Log.Information($"Handler Temp Update: {thermometerChange.Id} - {thermometerChange.Value}");
             _eventAggregator.GetEvent<ThermometerChangeEvent>().Publish(thermometerChange);
         }
 

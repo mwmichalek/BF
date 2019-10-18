@@ -33,6 +33,7 @@ namespace BF.Service.Components {
             _eventHandler = eventHandler;
             Logger = Log.Logger;
             Id = id;
+            RegisterEvents();
         }
 
         public Thermometer(IBeerFactoryEventHandler eventHandler, ThermometerId id, int changeThreshold, int changeWindowInMillis, int changeEventRetentionInMins) {
@@ -42,6 +43,7 @@ namespace BF.Service.Components {
             _changeWindowInMillis = changeWindowInMillis;
             _changeWindowInMillis = changeWindowInMillis;
             Id = id;
+            RegisterEvents();
         }
 
         private void RegisterEvents() {

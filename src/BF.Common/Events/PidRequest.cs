@@ -20,7 +20,13 @@ namespace BF.Common.Events {
 
         public PidMode PidMode { get; set; }
 
-        public int SetPoint { get; set; }
+        public double SetPoint { get; set; }
+
+        public double GainDerivative { get; set; }
+
+        public double GainIntegral { get; set; }
+
+        public double GainProportional { get; set; }
 
     }
 }
