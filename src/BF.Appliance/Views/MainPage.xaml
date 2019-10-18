@@ -7,24 +7,117 @@
     Style="{StaticResource PageStyle}"
     xmlns:prismMvvm="using:Prism.Windows.Mvvm"
     prismMvvm:ViewModelLocator.AutoWireViewModel="True" 
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    RequestedTheme="Dark">
     <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}">
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="48" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="7*" />
+            <!--<RowDefinition Height="*" />-->
         </Grid.RowDefinitions>
 
-        <TextBlock
-            Grid.Row="0"
-            x:Uid="Main_Title"
-            Style="{StaticResource PageTitleStyle}" />
-        <Grid
-            Grid.Row="1" 
-            Background="{ThemeResource SystemControlPageBackgroundChromeLowBrush}">
-            <!--
-                The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
-                Place your content here.
-            -->
-        </Grid>
+        <!-- ***** HEADER *****-->
+        <Border Background="Black"
+                
+                        Margin="5"
+                        Grid.Row="0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" 
+                            HorizontalAlignment="Left" VerticalAlignment="Top"
+                            FontSize="20" FontFamily="Consolas"
+                                   Margin="5"
+                                   Width="70"
+                                   TextWrapping="WrapWholeWords"
+                           Text="PHASE:" />
+
+                <TextBlock Grid.Column="0" 
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            FontSize="50" FontFamily="Consolas" Foreground="Red"
+                                   Margin="5"
+                                   Width="170"
+                                   TextWrapping="WrapWholeWords"
+                           Text="{Binding Stage, Mode=TwoWay}" />
+
+                <TextBlock Grid.Column="1" 
+                            HorizontalAlignment="Left" VerticalAlignment="Top"
+                            FontSize="20" FontFamily="Consolas"
+                                   Margin="5"
+                                   Width="140"
+                                   TextWrapping="WrapWholeWords"
+                           Text="ELAPSE TIME:" />
+
+                <TextBlock Grid.Column="1" 
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            FontSize="50" FontFamily="Consolas" Foreground="Red"
+                                   Margin="5"
+                                   Width="140"
+                                   TextWrapping="WrapWholeWords"
+                           Text="00:00" />
+
+                <TextBlock Grid.Column="2" 
+                            HorizontalAlignment="Left" VerticalAlignment="Top"
+                            FontSize="20" FontFamily="Consolas"
+                                   Margin="5"
+                                   Width="100"
+                                   TextWrapping="WrapWholeWords"
+                           Text="SETPOINT:" />
+
+                <TextBlock Grid.Column="2" 
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            FontSize="50" FontFamily="Consolas" Foreground="Red"
+                                   Margin="5"
+                                   Width="90"
+                                   TextWrapping="WrapWholeWords"
+                           Text="{Binding SetPoint, Mode=TwoWay}" />
+                
+            </Grid>
+            
+
+        </Border>
+   
+
+        <!-- ***** HEADER *****-->
+        <Border Background="Black"
+                        Margin="5"
+                        Grid.Row="1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" 
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            FontSize="100" FontFamily="Consolas" Foreground="Red"
+                                   Margin="5"
+                                   Width="120"
+                                   TextWrapping="WrapWholeWords"
+                           Text="{Binding SsrPercentage, Mode=TwoWay}" />
+
+                <TextBlock Grid.Column="1" 
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                            FontSize="100" FontFamily="Consolas" Foreground="Red"
+                                   Margin="5"
+                                   Width="220"
+                                   TextWrapping="WrapWholeWords"
+                           Text="{Binding TemperatureStr, Mode=TwoWay}" />
+
+            </Grid>
+
+
+        </Border>
+
+        <!--<Grid Grid.Row="2">
+
+        </Grid>-->
+
+
     </Grid>
 </Page>

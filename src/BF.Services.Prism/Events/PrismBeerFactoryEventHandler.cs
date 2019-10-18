@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 
 namespace BF.Service.Prism.Events {
 
+    
+
     public class PrismBeerFactoryEventHandler : IBeerFactoryEventHandler {
 
         private ILogger Logger { get; set; }
@@ -23,7 +25,7 @@ namespace BF.Service.Prism.Events {
         }
 
         public void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler) {
-            _eventAggregator.GetEvent<TemperatureChangeEvent>().Subscribe(temperatureChangeHandler);
+            _eventAggregator.GetEvent<TemperatureChangeEvent>().Subscribe(temperatureChangeHandler, ThreadOption.UIThread);
         }
 
         public void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler) {
@@ -64,7 +66,6 @@ namespace BF.Service.Prism.Events {
         }
 
         public void ThermometerChangeFired(ThermometerChange thermometerChange) {
-            Log.Information($"Handler Temp Update: {thermometerChange.Id} - {thermometerChange.Value}");
             _eventAggregator.GetEvent<ThermometerChangeEvent>().Publish(thermometerChange);
         }
 

@@ -139,7 +139,7 @@ namespace BF.Service.UWP.Controllers {
 
                         var thermometerId = (ThermometerId)Enum.Parse(typeof(ThermometerId), (index).ToString());
 
-                        Log.Information($"Serial Temp Update: {thermometerId} - {temperature}");
+                        //Log.Information($"Serial Temp Update: {thermometerId} - {temperature}");
                         _eventHandler.ThermometerChangeFired(            
                             new ThermometerChange {
                                 Id = thermometerId,

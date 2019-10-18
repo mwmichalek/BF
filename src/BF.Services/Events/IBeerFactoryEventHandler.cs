@@ -10,6 +10,12 @@ namespace BF.Service.Events {
 
     //************************************************* CHANGE EVENTS ***********************************************
 
+    public enum ThreadType {
+        UIThread,
+        BackgroundThread,
+        PublisherThread
+    }
+
     public interface IBeerFactoryEventHandler {
 
         void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler);

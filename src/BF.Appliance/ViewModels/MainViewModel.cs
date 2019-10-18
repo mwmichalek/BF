@@ -12,6 +12,7 @@ using Serilog;
 
 
 namespace BF.Appliance.ViewModels {
+
     public class MainViewModel : ViewModelBase {
 
         private ILogger Logger { get; set; }
@@ -23,22 +24,15 @@ namespace BF.Appliance.ViewModels {
         public MainViewModel(IBeerFactory beerFactory, IBeerFactoryEventHandler eventHandler)  {
             Logger = Log.Logger;
             _eventHandler = eventHandler;
-            //MyAwesomeCommand = new DelegateCommand<string>(ExecuteMyAwesomeCommand, (str) => Test == "Balls").ObservesProperty(() => Test);
-
-            UpdatePidEnabledCommand = new DelegateCommand(UpdatePid);
-            //UpdatePidSetPointCommand = new DelegateCommand(UpdatePid);
-
+            
             var hltThermometer = beerFactory.Thermometers.GetById(ThermometerId.HLT);
             if (hltThermometer != null)
-                HltTemperature = (double)hltThermometer.Temperature;
+                Temperature = (double)hltThermometer.Temperature;
 
 
             var hltPidController = beerFactory.PidControllers.GetById(PidControllerId.HLT);
             if (hltPidController != null)
-                HltSetpoint = (int)hltPidController.SetPoint;
-
-
-
+                SetPoint = (int)hltPidController.SetPoint;
 
             _eventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
             _eventHandler.SsrChangeOccured(SsrChangeOccured);
@@ -58,17 +52,14 @@ namespace BF.Appliance.ViewModels {
             //} catch (Exception ex) {
 
             //}
-
         }
-
-
-        //public DelegateCommand<string> MyAwesomeCommand { get; private set; }
 
         public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
 
             if (temperatureChange.Id == ThermometerId.HLT) {
                 Logger.Information($"HLT Change: {temperatureChange.Value}");
-                HltTemperature = Math.Round((double)temperatureChange.Value, 1);
+                Temperature = (double)temperatureChange.Value;
+                //Temperature = Math.Round((double)temperatureChange.Value, 1);
                 //connection.InvokeAsync("SendMessage",
                 //    "Temp Change", temperatureChange.Value.ToString());
             }
@@ -76,7 +67,7 @@ namespace BF.Appliance.ViewModels {
 
         public void SsrChangeOccured(SsrChange ssrChange) {
             if (ssrChange.Id == SsrId.HLT) {
-                HltSsrPercentage = ssrChange.Percentage;
+                SsrPercentage = ssrChange.Percentage;
             }
         }
 
@@ -84,71 +75,49 @@ namespace BF.Appliance.ViewModels {
             //Title = $"ConnectionStatus: {connectionStatus.Status.ToString()}";
         }
 
-
-        public DelegateCommand UpdatePidEnabledCommand { get; private set; }
-
-
-        public void UpdatePid() {
-            _eventHandler.PidRequestFired(new PidRequest {
-                Id = PidControllerId.HLT,
-                IsEngaged = Engaged,
-                SetPoint = _hltSetpoint,
-                PidMode = PidMode.Temperature
-            });
-        }
-
         private bool _engaged;
 
         public bool Engaged {
             get { return _engaged; }
+            set { SetProperty(ref _engaged, value); }
+        }
+
+        private string _stage = "STRIKE";
+
+        public string Stage {
+            get { return _stage; }
+            set { SetProperty(ref _stage, value); }
+        }
+
+        private double _temperature;
+
+        public double Temperature {
+            get { return _temperature; }
             set {
-                SetProperty(ref _engaged, value);
-                //TODO: Switch to delegate
-                //UpdatePid();
+                SetProperty(ref _temperature, value);
+                TemperatureStr = _temperature.ToString("0.0");
             }
         }
 
-        private double _hltTemperature;
+        private string _temperatureStr;
 
-        public double HltTemperature {
-            get { return _hltTemperature; }
-            set {
-                SetProperty(ref _hltTemperature, value);
-                HltTemperatureStr = _hltTemperature.ToString("0.0");
-            }
+        public string  TemperatureStr {
+            get { return _temperatureStr; }
+            set { SetProperty(ref _temperatureStr, value); }
         }
 
-        private string _hltTemperatureStr;
+        private int _setPoint;
 
-        public string HltTemperatureStr {
-            get { return _hltTemperatureStr; }
-            set {
-                SetProperty(ref _hltTemperatureStr, value);
-            }
+        public int SetPoint {
+            get { return _setPoint; }
+            set { SetProperty(ref _setPoint, value); }
         }
 
-        public DelegateCommand UpdatePidSetPointCommand { get; private set; }
+        private int _ssrPercentage;
 
-        private int _hltSetpoint;
-
-        public int HltSetpoint {
-            get { return _hltSetpoint; }
-            set {
-                SetProperty(ref _hltSetpoint, value);
-                //TODO: Switch to delegate
-                //UpdatePid();
-            }
-        }
-
-        private int _hltSsrPercentage;
-
-        public int HltSsrPercentage {
-            get { return _hltSsrPercentage; }
-            set {
-                SetProperty(ref _hltSsrPercentage, value);
-                //TODO: Switch to delegate
-                //UpdatePid();
-            }
+        public int SsrPercentage {
+            get { return _ssrPercentage; }
+            set { SetProperty(ref _ssrPercentage, value); }
         }
     }
 }

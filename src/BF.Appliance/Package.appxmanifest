@@ -49,9 +49,12 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
-    <Device Id="any">
-      <Function Type="name:serialPort" />
-    </Device>
+    <DeviceCapability Name="serialcommunication">
+
+      <Device Id="any">
+        <Function Type="name:serialPort" />
+      </Device>
+    </DeviceCapability>
   </Capabilities>
 
   <genTemplate:Metadata>
