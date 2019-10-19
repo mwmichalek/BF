@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BF.Server.Data;
 using BF.Server.Hubs;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace BF.Server {
     public class Startup {
@@ -26,6 +27,7 @@ namespace BF.Server {
             services.AddRazorPages();
             services.AddSignalR();
             services.AddServerSideBlazor();
+            services.AddTransient<HubConnectionBuilder>();
             services.AddSingleton<WeatherForecastService>();
         }
 
@@ -46,8 +48,8 @@ namespace BF.Server {
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapBlazorHub();
-                endpoints.MapHub<BFHub>("/bfHub");
                 endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapHub<BFHub>("/bfHub");
             });
         }
     }

@@ -9,8 +9,16 @@ namespace BF.Server.Hubs {
 
     public class BFHub : Hub {
 
-        public async Task TemperatureChangeOccured(TemperatureChange temperatureChange) {
-            await Clients.Others.SendAsync("TemperatureChangeOccured", temperatureChange);
+        public async Task TemperatureChangeOccured(string temperatureChangeJson) {
+            await Clients.All.SendAsync("TemperatureChangeOccured", temperatureChangeJson);
+        }
+
+        public async Task Message(string messageReceived) {
+            await Clients.All.SendAsync("Message", messageReceived);
+        }
+
+        public async Task SendMessage(string user, string message) {
+            await Clients.All.SendAsync("ReceiveMessage", user, message);
         }
 
     }

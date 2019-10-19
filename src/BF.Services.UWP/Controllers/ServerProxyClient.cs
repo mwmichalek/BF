@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using Serilog;
 using BF.Common.Events;
+using Newtonsoft.Json;
 
 namespace BF.Services.UWP.Controllers {
 
@@ -20,7 +21,8 @@ namespace BF.Services.UWP.Controllers {
         public ServerProxyClient(IBeerFactoryEventHandler eventHandler) {
 
             connection = new HubConnectionBuilder()
-                .WithUrl("https://emrsd-ws-bf.azurewebsites.net/BFHub")
+                .WithUrl("https://emrsd-ws-bf.azurewebsites.net/bfHub")
+                //.WithUrl("https://localhost:44355/bfHub")
                 .Build();
 
             //connection.On<string, string>("ReceiveMessage", (user, message) => {
@@ -38,7 +40,9 @@ namespace BF.Services.UWP.Controllers {
         }
 
         public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
-            connection.InvokeAsync("TemperatureChangeOccured", temperatureChange);
+            var temperatureChangeJson = JsonConvert.SerializeObject(temperatureChange);
+            
+            connection.InvokeAsync("TemperatureChangeOccured", temperatureChangeJson);
         }
 
     }
