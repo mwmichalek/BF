@@ -12,7 +12,7 @@ namespace BF.Common.Events {
         Percentage
     }
     
-    public class PidRequest {
+    public class PidRequest : IEventPayload {
 
         public PidControllerId Id { get; set; }
 

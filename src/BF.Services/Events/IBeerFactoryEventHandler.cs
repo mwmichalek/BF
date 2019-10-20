@@ -36,9 +36,9 @@ namespace BF.Service.Events {
         void SsrChangeOccured(Action<SsrChange> ssrChangeHandler);
 
 
-        void ConnectionStatusChangeOccured(Action<ConnectionStatus> connectionStatusChangeHandler);
+        void ConnectionStatusRequestOccured(Action<ConnectionStatusRequest> connectionStatusRequestHandler);
 
-
+        void ConnectionStatusChangeOccured(Action<ConnectionStatusChange> connectionStatusChangeHandler);
 
 
 
@@ -60,8 +60,9 @@ namespace BF.Service.Events {
         
         void SsrChangeFired(SsrChange ssrChange);
 
+        void ConnectionStatusRequestFired(ConnectionStatusRequest connectionStatusRequest);
 
-        void ConnectionStatusChangeFired(ConnectionStatus connectionStatusChange);
+        void ConnectionStatusChangeFired(ConnectionStatusChange connectionStatusChange);
     }
 
 

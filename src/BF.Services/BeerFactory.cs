@@ -96,7 +96,7 @@ namespace BF.Service {
 
             PidControllers.Add(_hltPidController);
 
-            //_hltPidController.Start();
+            _hltPidController.IsEngaged = true;
 
             _eventHandler.PidRequestOccured(PidRequestOccured);
 

@@ -57,7 +57,7 @@ namespace BF.Service.UWP.Controllers {
                     if (setupResult) {
 
                         //await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
-                        _eventHandler.ConnectionStatusChangeFired(new ConnectionStatus { ConnectionState = ConnectionState.Disconnected });
+                        _eventHandler.ConnectionStatusChangeFired(new ConnectionStatusChange { ConnectionState = ConnectionState.Disconnected });
                         //});
 
                         await RequestAllTemperatures();
@@ -67,7 +67,7 @@ namespace BF.Service.UWP.Controllers {
                         }
                     } else {
                         //await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
-                        _eventHandler.ConnectionStatusChangeFired(new ConnectionStatus { ConnectionState = ConnectionState.NotConnected });
+                        _eventHandler.ConnectionStatusChangeFired(new ConnectionStatusChange { ConnectionState = ConnectionState.NotConnected });
                         //});
                     }
                     

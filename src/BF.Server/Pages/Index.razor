@@ -6,17 +6,17 @@
 
 <h1>Hello, world!</h1>
 
-This app sucks.
+This app sucks.<br />
 
 
 USER:
-<input placeholder="Type User's Name" @bind="User" />
+<input placeholder="Type User's Name" @bind="User" /><br />
 MESSAGE:
-<input placeholder="Type Message" @bind="Message" />
-<button @onclick="SendMessage">SEND</button>
+<input placeholder="Type Message" @bind="Message" /><br />
+<button @onclick="SendMessage">SEND</button><br/>
 
 @foreach (var message in messages) {
-    <h3>@message</h3>
+    @message
     <br />
 }
 
@@ -33,27 +33,62 @@ MESSAGE:
         //connection = _hubConnectionBuilder.WithUrl("https://localhost:44355/bfHub").Build();
         connection = _hubConnectionBuilder.WithUrl("https://emrsd-ws-bf.azurewebsites.net/bfHub").Build();
 
-        connection.On<string, string>("ReceiveMessage", this.OnReceiveMessage);
-        connection.On<string>("TemperatureChangeOccured", this.TemperatureChangeOccured);
-        await connection.StartAsync();
+        connection.On<string, string>("ReceiveMessage", OnReceiveMessage);
 
+        connection.On<string>("TemperatureChangeOccured", TemperatureChangeOccured);
+        connection.On<string>("PumpChangeOccured", PumpChangeOccured);
+        connection.On<string>("PidChangeOccured", PidChangeOccured);
+        connection.On<string>("SsrChangeOccured", SsrChangeOccured);
+        connection.On<string>("ConnectionStatusChangeOccured", ConnectionStatusChangeOccured);
+
+        await connection.StartAsync();
     }
 
-    Task OnReceiveMessage(string name, string message) {
-        messages.Add(name + " : " + message);
+
+
+    Task TemperatureChangeOccured(string temperatureChangeJson) {
+        var temperatureChange = JsonConvert.DeserializeObject<TemperatureChange>(temperatureChangeJson);
+        messages.Insert(0, $"TEMP: {temperatureChange.Id} - {temperatureChange.Value} {temperatureChange.PercentChange}");
         StateHasChanged();
         return Task.CompletedTask;
     }
 
-    Task TemperatureChangeOccured(string temperatureChangeJson) {
-        var temperatureChange = JsonConvert.DeserializeObject<TemperatureChange>(temperatureChangeJson);
-        messages.Add($"{temperatureChange.Id} - {temperatureChange.Value} {temperatureChange.PercentChange}");
+    Task PumpChangeOccured(string pumpChangeJson) {
+        var pumpChange = JsonConvert.DeserializeObject<PumpChange>(pumpChangeJson);
+        messages.Insert(0, $"PUMP: {pumpChange.Id} - {pumpChange.IsEngaged}");
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    Task PidChangeOccured(string pidChangeJson) {
+        var pidChange = JsonConvert.DeserializeObject<PidChange>(pidChangeJson);
+        messages.Insert(0, $"PID: {pidChange.Id} - {pidChange.IsEngaged} {pidChange.SetPoint}");
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    Task SsrChangeOccured(string ssrChangeJson) {
+        var ssrChange = JsonConvert.DeserializeObject<SsrChange>(ssrChangeJson);
+        messages.Insert(0, $"SSR: {ssrChange.Id} - {ssrChange.IsEngaged} {ssrChange.Percentage}");
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    Task ConnectionStatusChangeOccured(string connectionStatusChangeJson) {
+        var connectionStatusChange = JsonConvert.DeserializeObject<ConnectionStatusChange>(connectionStatusChangeJson);
+        messages.Insert(0, $"CONNECTION: {connectionStatusChange.ConnectionState}");
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     async Task SendMessage() {
         await connection.InvokeAsync("SendMessage", User, Message);
+    }
+
+        Task OnReceiveMessage(string name, string message) {
+        messages.Add(name + " : " + message);
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 }
 

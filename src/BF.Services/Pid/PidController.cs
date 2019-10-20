@@ -78,7 +78,11 @@ namespace BF.Service.Pid {
 
         public bool IsEngaged {
             get { return isEngaged; }
-            set { isEngaged = value; }
+            set { 
+                isEngaged = value;
+                if (isEngaged)
+                    Process();
+            }
         }
 
 

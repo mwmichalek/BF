@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BF.Common.Events {
 
-    public class PidChange {
+    public class PidChange : IEventPayload {
 
         public PidControllerId Id { get; set; }
 

@@ -55,9 +55,12 @@ namespace BF.Service.Prism.Events {
             _eventAggregator.GetEvent<SsrChangeEvent>().Subscribe(ssrChangeHandler);
         }
 
+        public void ConnectionStatusRequestOccured(Action<ConnectionStatusRequest> connectionStatusRequestHandler) {
+            _eventAggregator.GetEvent<ConnectionStatusRequestEvent>().Subscribe(connectionStatusRequestHandler);
+        }
 
-        public void ConnectionStatusChangeOccured(Action<ConnectionStatus> connectionStatusChangeHandler) {
-            _eventAggregator.GetEvent<ConnectionStatusEvent>().Subscribe(connectionStatusChangeHandler);
+        public void ConnectionStatusChangeOccured(Action<ConnectionStatusChange> connectionStatusChangeHandler) {
+            _eventAggregator.GetEvent<ConnectionStatusChangeEvent>().Subscribe(connectionStatusChangeHandler);
         }
 
 
@@ -89,9 +92,15 @@ namespace BF.Service.Prism.Events {
             _eventAggregator.GetEvent<SsrChangeEvent>().Publish(ssrChange);
         }
 
-        public void ConnectionStatusChangeFired(ConnectionStatus connectionStatusChange) {
-            _eventAggregator.GetEvent<ConnectionStatusEvent>().Publish(connectionStatusChange);
+        public void ConnectionStatusRequestFired(ConnectionStatusRequest connectionStatusRequest) {
+            _eventAggregator.GetEvent<ConnectionStatusRequestEvent>().Publish(connectionStatusRequest);
         }
+
+        public void ConnectionStatusChangeFired(ConnectionStatusChange connectionStatusChange) {
+            _eventAggregator.GetEvent<ConnectionStatusChangeEvent>().Publish(connectionStatusChange);
+        }
+
+        
         
     }
 

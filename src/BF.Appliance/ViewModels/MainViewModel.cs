@@ -71,7 +71,7 @@ namespace BF.Appliance.ViewModels {
             }
         }
 
-        public void ConnectionStatusChangeOccured(ConnectionStatus connectionStatus) {
+        public void ConnectionStatusChangeOccured(ConnectionStatusChange connectionStatus) {
             //Title = $"ConnectionStatus: {connectionStatus.Status.ToString()}";
         }
 

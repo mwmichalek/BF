@@ -13,6 +13,25 @@ namespace BF.Server.Hubs {
             await Clients.All.SendAsync("TemperatureChangeOccured", temperatureChangeJson);
         }
 
+        public async Task PumpChangeOccured(string pumpChangeJson) {
+            await Clients.All.SendAsync("PumpChangeOccured", pumpChangeJson);
+        }
+
+        public async Task PidChangeOccured(string pidChangeJson) {
+            await Clients.All.SendAsync("PidChangeOccured", pidChangeJson);
+        }
+
+        public async Task SsrChangeOccured(string ssrChangeJson) {
+            await Clients.All.SendAsync("SsrChangeOccured", ssrChangeJson);
+        }
+
+        public async Task ConnectionStatusChangeOccured(string connectionStatusChangeJson) {
+            await Clients.All.SendAsync("ConnectionStatusChangeOccured", connectionStatusChangeJson);
+        }
+
+
+
+
         public async Task Message(string messageReceived) {
             await Clients.All.SendAsync("Message", messageReceived);
         }

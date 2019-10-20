@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace BF.Service.Prism.Events {
 
-    public class ConnectionStatusEvent : PubSubEvent<ConnectionStatus> { }
+    public class ConnectionStatusRequestEvent : PubSubEvent<ConnectionStatusRequest> { }
+
+    public class ConnectionStatusChangeEvent : PubSubEvent<ConnectionStatusChange> { }
 
     public class HeaterChangeEvent : PubSubEvent<HeaterChange> { }
 

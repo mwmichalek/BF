@@ -1,16 +1,10 @@
-﻿//using Microsoft.IoT.DeviceCore.Pwm;
-//using Microsoft.IoT.Devices.Pwm;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-//using Windows.Devices.Gpio;
-//using Windows.Devices.Pwm;
-//using Windows.UI.Core;
 using BF.Service.Events;
 using BF.Common.Ids;
 using BF.Common.Events;
