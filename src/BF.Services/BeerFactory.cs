@@ -88,26 +88,39 @@ namespace BF.Service {
             //_hltPidController.GainIntegral = 1.5;
             //_hltPidController.GainDerivative = 22.5;
 
-            _hltPidController.GainProportional = 0.5;
-            _hltPidController.GainIntegral = 0.5;
-            _hltPidController.GainDerivative = 0.5;
+            //_hltPidController.GainProportional = 0.5;
+            //_hltPidController.GainIntegral = 0.5;
+            //_hltPidController.GainDerivative = 0.5;
 
-            _hltPidController.SetPoint = 120;
+            //_hltPidController.SetPoint = 120;
 
             PidControllers.Add(_hltPidController);
+            _hltPidController.Process();
 
-            _hltPidController.IsEngaged = true;
 
-            _eventHandler.PidRequestOccured(PidRequestOccured);
+            _eventHandler.PidRequestFired(new PidRequest {
+                Id = PidControllerId.HLT,
+                IsEngaged = true,
+                PidMode = PidMode.Temperature,
+                SetPoint = 130,
+                GainDerivative = 22.5,
+                GainIntegral = 1.5,
+                GainProportional = 18
+            });
+
+
+
+
+            //_eventHandler.PidRequestOccured(PidRequestOccured);
 
         }
 
-        public void PidRequestOccured(PidRequest pidRequest) {
+        //public void PidRequestOccured(PidRequest pidRequest) {
 
-            var pidController = PidControllers.SingleOrDefault(pid => pid.Id == pidRequest.Id);
-            pidController.IsEngaged = pidRequest.IsEngaged;
-            pidController.SetPoint = pidRequest.SetPoint;
-        }
+        //    var pidController = PidControllers.SingleOrDefault(pid => pid.Id == pidRequest.Id);
+        //    pidController.IsEngaged = pidRequest.IsEngaged;
+        //    pidController.SetPoint = pidRequest.SetPoint;
+        //}
 
     }
 }

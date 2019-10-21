@@ -9,11 +9,14 @@ using BF.Service.Events;
 using BF.Common.Ids;
 using BF.Common.Events;
 using Windows.Devices.Gpio;
+using Serilog;
 
 namespace BF.Service.Components {
     
 
     public class Ssr {
+
+        private ILogger Logger { get; set; }
 
         public SsrId Id { get; set; }
 
@@ -46,9 +49,11 @@ namespace BF.Service.Components {
                 return _percentage;
             }
             set {
-                _percentage = value;
-                CalculateDurations();
-                SendNotification();
+                if (value != _percentage) {
+                    _percentage = value;
+                    CalculateDurations();
+                    SendNotification();
+                }
             }
         }
 
@@ -63,6 +68,7 @@ namespace BF.Service.Components {
         private IBeerFactoryEventHandler _eventHandler;
 
         public Ssr(IBeerFactoryEventHandler eventHandler, SsrId id) {
+            Logger = Log.Logger;
             _eventHandler = eventHandler;
             Id = id;
             Pin = (int)id;
@@ -71,6 +77,7 @@ namespace BF.Service.Components {
             if (gpio != null) {
                 pin = gpio.OpenPin(Pin);
                 pin.SetDriveMode(GpioPinDriveMode.Output);
+                pin.Write(GpioPinValue.Low);
             }
         }
 
@@ -87,6 +94,7 @@ namespace BF.Service.Components {
             decimal fraction = ((decimal)_percentage / 100.0m);
             millisOn = (int)(fraction * (decimal)_dutyCycleInMillis);
             millisOff = _dutyCycleInMillis - millisOn;
+            Log.Information($"SSR: {Id} - CALC PERC {Percentage}, FRAC {fraction}, MILLISON {millisOn}, MILLISOFF {millisOff}");
         }
 
         private void Run() {
@@ -96,13 +104,17 @@ namespace BF.Service.Components {
                     On();
                     Thread.Sleep(millisOn);
                 }
-                Off();
-                Thread.Sleep(millisOff);
+                if (Percentage != 100 && millisOff > 0) {
+                    Off();
+                    Thread.Sleep(millisOff);
+                }
+                Log.Information($"SSR: {Id} - PERCENTAGE {Percentage}");
             }
         }
 
         private void On() {
             if (!IsEngaged) {
+                Log.Information($"SSR: {Id} - ON {millisOn}");
                 pin?.Write(GpioPinValue.High);
                 IsEngaged = true;
                 SendNotification();
@@ -110,7 +122,9 @@ namespace BF.Service.Components {
         }
 
         private void Off() {
+
             if (IsEngaged) {
+                Log.Information($"SSR: {Id} - OFF {millisOff}");
                 pin?.Write(GpioPinValue.Low);
                 IsEngaged = false;
                 SendNotification();

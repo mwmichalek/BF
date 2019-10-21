@@ -105,7 +105,7 @@
                             HorizontalAlignment="Center" VerticalAlignment="Center"
                             FontSize="100" FontFamily="Consolas" Foreground="Red"
                                    Margin="5"
-                                   Width="220"
+                                   Width="260"
                                    TextWrapping="WrapWholeWords"
                            Text="{Binding TemperatureStr, Mode=TwoWay}" />
 

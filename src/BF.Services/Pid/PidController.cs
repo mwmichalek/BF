@@ -78,11 +78,7 @@ namespace BF.Service.Pid {
 
         public bool IsEngaged {
             get { return isEngaged; }
-            set { 
-                isEngaged = value;
-                if (isEngaged)
-                    Process();
-            }
+            set { isEngaged = value; }
         }
 
 
@@ -114,10 +110,10 @@ namespace BF.Service.Pid {
                 
             }
 
-            if (pidRequest.Id != Id && pidRequest.IsEngaged) {
+            //if (pidRequest.Id != Id && pidRequest.IsEngaged) {
                 // Disengage all other PIDs 
-                IsEngaged = false;
-            }
+            //    IsEngaged = false;
+            //}
 
             Process();
         }
@@ -166,7 +162,7 @@ namespace BF.Service.Pid {
                     //Debug.WriteLine($"Temperature: {ProcessVariable}  SSR: {output}");
 
                     Ssr.Percentage = (int)output;
-                } else {
+                } else if (PidMode == PidMode.Percentage) {
                     // If PidMode is Percentage, SetPoint is a Percentage
                     Ssr.Percentage = (int)SetPoint;
                 }
