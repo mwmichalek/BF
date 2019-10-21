@@ -19,9 +19,9 @@ namespace BF.Service.Components {
 
         public ThermometerId Id { get; private set; }
 
-        public decimal Change { get; set; }
+        public double Change { get; set; }
 
-        private decimal _changeThreshold = 0.10m;
+        private double _changeThreshold = 0.10d;
 
         private int _changeWindowInMillis = 1000;
 
@@ -50,9 +50,9 @@ namespace BF.Service.Components {
             _eventHandler.ThermometerChangeOccured(ThermometerChangeOccured);
         }
 
-        private decimal _temperature;
+        private double _temperature;
 
-        public decimal Temperature {
+        public double Temperature {
             get { return _temperature; }
             set {
                 //Change = value - _temperature;

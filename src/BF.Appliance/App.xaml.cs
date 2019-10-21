@@ -40,8 +40,8 @@ namespace BF.Appliance {
             Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
 
             Container.RegisterType<IBeerFactoryEventHandler, PrismBeerFactoryEventHandler>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<ITemperatureControllerService, SerialUsbArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
-            //Container.RegisterType<ITemperatureControllerService, FakeArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
+            //Container.RegisterType<ITemperatureControllerService, SerialUsbArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ITemperatureControllerService, FakeArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IServerProxyClient, ServerProxyClient>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IBeerFactory, BeerFactory>(new ContainerControlledLifetimeManager());

@@ -24,11 +24,27 @@ namespace BF.Service.Controllers {
 
         public FakeArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler) {
             _eventHandler = eventHandler;
+            _eventHandler.SsrChangeOccured(SsrChangeOccured);
         }
 
-        private List<decimal> temperatures = new List<decimal> { 70.01m, 69.54m, 70.12m,
-                                                                 70.43m, 69.72m, 68.91m,
-                                                                 71.44m, 70.54m, 69.87m };
+        public void SsrChangeOccured(SsrChange ssr) {
+            if (ssr.Id == SsrId.HLT) {
+                // If above Z, add that amount to the temp
+                temperatures[0] = (ssr.Percentage == 0) ? 
+                    temperatures[0] - 1 : 
+                    temperatures[0] + (ssr.Percentage * .01);
+
+                _eventHandler.ThermometerChangeFired(new ThermometerChange {
+                    Id = ThermometerId.HLT,
+                    Value = temperatures[0],
+                    Timestamp = DateTime.Now
+                });
+            }
+        }
+
+        private List<double> temperatures = new List<double> { 70.01d, 69.54d, 70.12d,
+                                                                 70.43d, 69.72d, 68.91d,
+                                                                 71.44d, 70.54d, 69.87d };
 
         private Random rnd = new Random();
 
@@ -48,8 +64,8 @@ namespace BF.Service.Controllers {
             while (true) {
                 try {
                     int index = rnd.Next(0, 10);
-                    temperatures[index] += rnd.NextDecimal();
-
+                    if (index != 0)
+                        temperatures[index] += rnd.NextDouble();
 
                     var thermometerId = (ThermometerId)Enum.Parse(typeof(ThermometerId), (index + 1).ToString());
 
@@ -58,6 +74,9 @@ namespace BF.Service.Controllers {
                         Value = temperatures[index],
                         Timestamp = DateTime.Now
                     });
+
+
+
 
                     //await _beerFactory.UpdateTemperatureAsync((ThermometerId)(index + 1), temperatures[index]);
 
@@ -75,12 +94,13 @@ namespace BF.Service.Controllers {
 
         }
 
+
     }
 
     public static class Bullshit {
 
-        public static decimal NextDecimal(this Random rnd) {
-            decimal tempChange = (rnd.Next(0, 20) / 100) - 0.10m;
+        public static double NextDouble(this Random rnd) {
+            double tempChange = (rnd.Next(0, 20) / 100) - 0.10d;
             return tempChange;
         }
     }

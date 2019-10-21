@@ -11,11 +11,11 @@ namespace BF.Common.Events {
 
         public ThermometerId Id { get; set; }
 
-        public decimal Value { get; set; }
+        public double Value { get; set; }
 
-        public decimal Change { get; set; }
+        public double Change { get; set; }
 
-        public decimal PercentChange { get; set; }
+        public double PercentChange { get; set; }
 
         public DateTime Timestamp { get; set; }
 

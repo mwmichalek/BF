@@ -135,7 +135,7 @@ namespace BF.Service.UWP.Controllers {
 
                     if (tempReadingValues.Length == 2) {
                         int.TryParse(tempReadingValues[0], out int index);
-                        decimal.TryParse(tempReadingValues[1], out decimal temperature);
+                        double.TryParse(tempReadingValues[1], out double temperature);
 
                         var thermometerId = (ThermometerId)Enum.Parse(typeof(ThermometerId), (index).ToString());
 
