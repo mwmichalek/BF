@@ -4,29 +4,75 @@
 @using BF.Common.Ids
 @using Newtonsoft.Json
 @using Syncfusion.EJ2.Blazor
-@using Syncfusion.EJ2.Blazor.Calendars
+@using Syncfusion.EJ2.Blazor.Layouts
+@using Syncfusion.EJ2.Blazor.CircularGauge
 
 <h1>Hello, world!</h1>
 
 This app sucks.
 <br />
 
-<EjsCalendar></EjsCalendar><br/>
+<EjsDashboardLayout CellSpacing="@(new double[]{10 ,10 })" CellAspectRatio="1" Columns="7">
+    <DashboardLayoutPanels>
+        <DashboardLayoutPanel Col="0" SizeX="3">
+            <ContentTemplate>
+
+                <EjsCircularGauge>
+                    <CircularGaugeAxes>
+                        <CircularGaugeAxis>
+                            <CircularGaugePointers>
+                                <CircularGaugePointer Value="@Temperature">
+                                </CircularGaugePointer>
+                            </CircularGaugePointers>
+                        </CircularGaugeAxis>
+                    </CircularGaugeAxes>
+                </EjsCircularGauge>
+
+            </ContentTemplate>
+        </DashboardLayoutPanel>
 
 
-USER:
-<input placeholder="Type User's Name" @bind="User" />
-<br />
-MESSAGE:
-<input placeholder="Type Message" @bind="Message" />
-<br />
-<button @onclick="SendMessage">SEND</button>
-<br />
 
-@foreach (var message in messages) {
-@message
-<br />
-}
+        <DashboardLayoutPanel Col="3" SizeX="3">
+            <ContentTemplate>
+                asdfasf
+            </ContentTemplate>
+        </DashboardLayoutPanel>
+
+        <DashboardLayoutPanel Col="0" Row="1" SizeX="3">
+            <ContentTemplate>
+                USER:
+                <input placeholder="Type User's Name" @bind="User" />
+                <br />
+                MESSAGE:
+                <input placeholder="Type Message" @bind="Message" />
+                <br />
+                <button @onclick="SendMessage">SEND</button>
+                <br />
+            </ContentTemplate>
+        </DashboardLayoutPanel>
+
+        <DashboardLayoutPanel Col="3" Row="1" SizeX="3">
+            <ContentTemplate>
+                @foreach (var message in messages) {
+                    @message<br />
+                }
+            </ContentTemplate>
+        </DashboardLayoutPanel>
+
+        @*<DashboardLayoutPanel SizeY=2 Col=3>
+                <ContentTemplate><div>2</div></ContentTemplate>
+            </DashboardLayoutPanel>
+            <DashboardLayoutPanel Row=1>
+                <ContentTemplate><div>3</div></ContentTemplate>
+            </DashboardLayoutPanel>*@
+    </DashboardLayoutPanels>
+</EjsDashboardLayout>
+
+
+
+
+
 
 @code {
 
@@ -35,6 +81,8 @@ MESSAGE:
     HubConnection connection;
     string User = "";
     string Message = "";
+    double Temperature = 50;
+
     IList<string> messages = new List<string>();
 
     protected override async Task OnInitializedAsync() {
@@ -57,6 +105,12 @@ MESSAGE:
     Task TemperatureChangeOccured(string temperatureChangeJson) {
         var temperatureChange = JsonConvert.DeserializeObject<TemperatureChange>(temperatureChangeJson);
         messages.Insert(0, $"TEMP: {temperatureChange.Id} - {temperatureChange.Value} {temperatureChange.PercentChange.ToString("#.00")}");
+
+
+        if (temperatureChange.Id == ThermometerId.HLT) {
+            Temperature = (double) temperatureChange.Value;
+        }
+
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -93,7 +147,7 @@ MESSAGE:
         await connection.InvokeAsync("SendMessage", User, Message);
     }
 
-        Task OnReceiveMessage(string name, string message) {
+    Task OnReceiveMessage(string name, string message) {
         messages.Add(name + " : " + message);
         StateHasChanged();
         return Task.CompletedTask;
