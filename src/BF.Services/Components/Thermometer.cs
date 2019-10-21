@@ -21,7 +21,7 @@ namespace BF.Service.Components {
 
         public double Change { get; set; }
 
-        private double _changeThreshold = 0.10d;
+        private double _changeThreshold = 0.0d;
 
         private int _changeWindowInMillis = 1000;
 

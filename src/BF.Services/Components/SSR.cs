@@ -94,7 +94,7 @@ namespace BF.Service.Components {
             decimal fraction = ((decimal)_percentage / 100.0m);
             millisOn = (int)(fraction * (decimal)_dutyCycleInMillis);
             millisOff = _dutyCycleInMillis - millisOn;
-            Log.Information($"SSR: {Id} - CALC PERC {Percentage}, FRAC {fraction}, MILLISON {millisOn}, MILLISOFF {millisOff}");
+            Log.Information($"SSR: {Id} - CALC PERC {Percentage}, FRACTION {fraction}, MILLISON {millisOn}, MILLISOFF {millisOff}");
         }
 
         private void Run() {
@@ -108,7 +108,6 @@ namespace BF.Service.Components {
                     Off();
                     Thread.Sleep(millisOff);
                 }
-                Log.Information($"SSR: {Id} - PERCENTAGE {Percentage}");
             }
         }
 

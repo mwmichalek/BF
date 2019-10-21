@@ -102,7 +102,7 @@ namespace BF.Service {
                 Id = PidControllerId.HLT,
                 IsEngaged = true,
                 PidMode = PidMode.Temperature,
-                SetPoint = 130,
+                SetPoint = 90,
                 GainDerivative = 22.5,
                 GainIntegral = 1.5,
                 GainProportional = 18

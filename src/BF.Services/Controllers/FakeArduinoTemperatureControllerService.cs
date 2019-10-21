@@ -16,29 +16,26 @@ using System.Linq;
 using BF.Common.Ids;
 using BF.Service.Events;
 using BF.Common.Events;
+using Serilog;
 
 namespace BF.Service.Controllers {
     public class FakeArduinoTemperatureControllerService : TemperatureControllerService {
 
+        private ILogger Logger { get; set; }
+
         private IBeerFactoryEventHandler _eventHandler;
 
         public FakeArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler) {
+            Logger = Log.Logger;
             _eventHandler = eventHandler;
             _eventHandler.SsrChangeOccured(SsrChangeOccured);
         }
 
+        private int hltSsrPercentage = 0;
+
         public void SsrChangeOccured(SsrChange ssr) {
             if (ssr.Id == SsrId.HLT) {
-                // If above Z, add that amount to the temp
-                temperatures[0] = (ssr.Percentage == 0) ? 
-                    temperatures[0] - 1 : 
-                    temperatures[0] + (ssr.Percentage * .01);
-
-                _eventHandler.ThermometerChangeFired(new ThermometerChange {
-                    Id = ThermometerId.HLT,
-                    Value = temperatures[0],
-                    Timestamp = DateTime.Now
-                });
+                hltSsrPercentage = ssr.Percentage;
             }
         }
 
@@ -50,41 +47,41 @@ namespace BF.Service.Controllers {
 
         public override async Task Run() {
 
-            foreach (var temperature in temperatures.Select((value, index) => new { Value = value, Index = index + 1 })) {
-                //await _beerFactory.UpdateTemperatureAsync((ThermometerId)temperature.Index, temperature.Value);
-
-                //await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
-                //    _eventAggregator.GetEvent<TemperatureChangeEvent>().Publish(new TemperatureChange { Index = temperature.Index, Value = temperature.Value });
-                //});
-
-                //_eventManager.Publish<ThermometerChangeEvent>(new ThermometerChange { Index = temperature.Index, Value = temperature.Value });
-
-            }
-
             while (true) {
                 try {
-                    int index = rnd.Next(0, 10);
-                    if (index != 0)
-                        temperatures[index] += rnd.NextDouble();
+                    //int index = rnd.Next(0, 10);
+                    //if (index != 0)
+                    //    temperatures[index] += rnd.NextDouble();
 
-                    var thermometerId = (ThermometerId)Enum.Parse(typeof(ThermometerId), (index + 1).ToString());
+                    //var thermometerId = (ThermometerId)Enum.Parse(typeof(ThermometerId), (index + 1).ToString());
 
-                    _eventHandler.ThermometerChangeFired(new ThermometerChange {
-                        Id = thermometerId,
-                        Value = temperatures[index],
-                        Timestamp = DateTime.Now
-                    });
-
-
-
-
-                    //await _beerFactory.UpdateTemperatureAsync((ThermometerId)(index + 1), temperatures[index]);
-
-                    //await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
-                    //    _eventAggregator.GetEvent<TemperatureChangeEvent>().Publish(new TemperatureChange { Index = index + 1, Value = temperatures[index] });
+                    //_eventHandler.ThermometerChangeFired(new ThermometerChange {
+                    //    Id = thermometerId,
+                    //    Value = temperatures[index],
+                    //    Timestamp = DateTime.Now
                     //});
 
-                    //_eventAggregator.Publish<TemperatureChange>(new TemperatureChange { Index = index + 1, Value = temperatures[index] });
+                    var newTemperature = (hltSsrPercentage == 0) ?
+                        temperatures[0] - 0.2 :
+                        temperatures[0] + (hltSsrPercentage * .01);
+
+
+
+                    if (newTemperature < 70)
+                        newTemperature = 70;
+
+                    if (newTemperature != temperatures[0]) {
+                        Logger.Information($"Fake: OLD: {temperatures[0]} - NEW: {newTemperature}");
+                        _eventHandler.ThermometerChangeFired(new ThermometerChange {
+                            Id = ThermometerId.HLT,
+                            Value = newTemperature,
+                            Timestamp = DateTime.Now
+                        });
+
+                        temperatures[0] = newTemperature;
+                    }
+
+                    
                 } catch (Exception) {
 
                 }

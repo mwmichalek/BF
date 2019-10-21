@@ -2,6 +2,7 @@
 using BF.Common.Ids;
 using BF.Service.Components;
 using BF.Service.Events;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -23,6 +24,8 @@ namespace BF.Service.Pid {
     /// <see cref="https://en.wikipedia.org/wiki/PID_controller"/>
     public class PidController {
 
+        private ILogger Logger { get; set; }
+
         public PidControllerId Id { get; private set; }
 
         public Thermometer Thermometer { get; private set; }
@@ -37,6 +40,7 @@ namespace BF.Service.Pid {
         private int dutyCycleInMillis = 2000;
 
         public PidController(IBeerFactoryEventHandler eventHandler, PidControllerId id, Ssr ssr, Thermometer thermometer) {
+            Logger = Log.Logger;
             _eventHandler = eventHandler;
             Id = id;
             Ssr = ssr;
@@ -45,6 +49,7 @@ namespace BF.Service.Pid {
         }
 
         public PidController(IBeerFactoryEventHandler eventHandler, PidControllerId id, Ssr ssr, Thermometer thermometer, double setPoint) {
+            Logger = Log.Logger; 
             _eventHandler = eventHandler;
             Id = id;
             Ssr = ssr;
@@ -54,6 +59,7 @@ namespace BF.Service.Pid {
         }
 
         public PidController(IBeerFactoryEventHandler eventHandler, PidControllerId id, Ssr ssr, Thermometer thermometer, double gainProportional, double gainIntegral, double gainDerivative, double outputMin, double outputMax, double setPoint) {
+            Logger = Log.Logger; 
             _eventHandler = eventHandler;
             if (OutputMax < OutputMin)
                 throw new FormatException("OutputMax is less than OutputMin");
@@ -157,11 +163,16 @@ namespace BF.Service.Pid {
 
                     output = Clamp(output);
 
+                    
+
                     lastRun = currentTime;
+
+                    Logger.Information($"PID Temp: {ProcessVariable}, SSR: {output}, SetPoint: {SetPoint}");
 
                     //Debug.WriteLine($"Temperature: {ProcessVariable}  SSR: {output}");
 
                     Ssr.Percentage = (int)output;
+
                 } else if (PidMode == PidMode.Percentage) {
                     // If PidMode is Percentage, SetPoint is a Percentage
                     Ssr.Percentage = (int)SetPoint;
