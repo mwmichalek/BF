@@ -49,6 +49,7 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
+    <Capability Name="privateNetworkClientServer"/>
     <DeviceCapability Name="serialcommunication">
 
       <Device Id="any">

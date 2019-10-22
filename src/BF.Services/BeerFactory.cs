@@ -14,7 +14,6 @@ using Windows.Devices.Gpio;
 //using Microsoft.IoT.Devices.Pwm;
 
 using BF.Service.Components;
-using BF.Service.Pid;
 using BF.Service.Events;
 using BF.Common.Ids;
 using BF.Common.Events;

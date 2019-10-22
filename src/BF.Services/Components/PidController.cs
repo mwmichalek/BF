@@ -11,7 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BF.Service.Pid {
+namespace BF.Service.Components {
 
     /// <summary>
     /// A (P)roportional, (I)ntegral, (D)erivative Controller

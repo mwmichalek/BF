@@ -4,7 +4,6 @@ using BF.Common.Ids;
 using BF.Service;
 using BF.Service.Events;
 using BF.Service.Components;
-using BF.Service.Pid;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Windows.Mvvm;
