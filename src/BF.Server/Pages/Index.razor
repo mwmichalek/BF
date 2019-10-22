@@ -9,6 +9,10 @@
 @using System.Net.Http;
 @using System.Security.Cryptography.X509Certificates;
 @using System.Net.Security;
+@using Syncfusion.EJ2.Blazor.Buttons
+@using Syncfusion.EJ2.Blazor.Inputs
+@using Syncfusion.EJ2.Blazor.Lists
+
 
 <h1>Hello, world!</h1>
 
@@ -48,22 +52,20 @@ This app sucks.
 
         <DashboardLayoutPanel Col="0" Row="1" SizeX="3">
             <ContentTemplate>
-                USER:
-                <input placeholder="Type User's Name" @bind="User" />
+                <EjsTextBox FloatLabelType='@FloatLabelType.Auto' Placeholder="UserName" Value="@User"></EjsTextBox>
                 <br />
-                MESSAGE:
-                <input placeholder="Type Message" @bind="Message" />
+
+                <EjsTextBox FloatLabelType='@FloatLabelType.Auto' Placeholder="Message" Value="@Message"></EjsTextBox>
                 <br />
-                <button @onclick="SendMessage">SEND</button>
+
+                <EjsButton CssClass="e-primary" @onclick="SendMessage">SEND</EjsButton>
                 <br />
             </ContentTemplate>
         </DashboardLayoutPanel>
 
         <DashboardLayoutPanel Col="3" Row="1" SizeX="3">
             <ContentTemplate>
-                @foreach (var message in messages) {
-                    @message<br />
-                }
+                <EjsListView DataSource="@Messages"></EjsListView>
             </ContentTemplate>
         </DashboardLayoutPanel>
 
@@ -76,7 +78,9 @@ This app sucks.
     </DashboardLayoutPanels>
 </EjsDashboardLayout>
 
-
+@foreach (var msg in Messages) {
+    @msg <br/>
+}
 
 
 
@@ -90,7 +94,7 @@ This app sucks.
     string Message = "";
     double Temperature = 50;
 
-    IList<string> messages = new List<string>();
+    IList<string> Messages = new List<string>();
 
     protected override async Task OnInitializedAsync() {
         connection = _hubConnectionBuilder
@@ -122,7 +126,7 @@ This app sucks.
 
     Task TemperatureChangeOccured(string temperatureChangeJson) {
         var temperatureChange = JsonConvert.DeserializeObject<TemperatureChange>(temperatureChangeJson);
-        messages.Insert(0, $"TEMP: {temperatureChange.Id} - {temperatureChange.Value} {temperatureChange.PercentChange.ToString("#.00")}");
+        Messages.Insert(0, $"TEMP: {temperatureChange.Id} - {temperatureChange.Value} {temperatureChange.PercentChange.ToString("#.00")}");
 
 
         if (temperatureChange.Id == ThermometerId.HLT) {
@@ -135,28 +139,28 @@ This app sucks.
 
     Task PumpChangeOccured(string pumpChangeJson) {
         var pumpChange = JsonConvert.DeserializeObject<PumpChange>(pumpChangeJson);
-        messages.Insert(0, $"PUMP: {pumpChange.Id} - {pumpChange.IsEngaged}");
+        Messages.Insert(0, $"PUMP: {pumpChange.Id} - {pumpChange.IsEngaged}");
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     Task PidChangeOccured(string pidChangeJson) {
         var pidChange = JsonConvert.DeserializeObject<PidChange>(pidChangeJson);
-        messages.Insert(0, $"PID: {pidChange.Id} - {pidChange.IsEngaged} {pidChange.SetPoint}");
+        Messages.Insert(0, $"PID: {pidChange.Id} - {pidChange.IsEngaged} {pidChange.SetPoint}");
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     Task SsrChangeOccured(string ssrChangeJson) {
         var ssrChange = JsonConvert.DeserializeObject<SsrChange>(ssrChangeJson);
-        messages.Insert(0, $"SSR: {ssrChange.Id} - {ssrChange.IsEngaged} {ssrChange.Percentage}");
+        Messages.Insert(0, $"SSR: {ssrChange.Id} - {ssrChange.IsEngaged} {ssrChange.Percentage}");
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     Task ConnectionStatusChangeOccured(string connectionStatusChangeJson) {
         var connectionStatusChange = JsonConvert.DeserializeObject<ConnectionStatusChange>(connectionStatusChangeJson);
-        messages.Insert(0, $"CONNECTION: {connectionStatusChange.ConnectionState}");
+        Messages.Insert(0, $"CONNECTION: {connectionStatusChange.ConnectionState}");
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -166,7 +170,7 @@ This app sucks.
     }
 
     Task OnReceiveMessage(string name, string message) {
-        messages.Add(name + " : " + message);
+        Messages.Insert(0, name + " : " + message);
         StateHasChanged();
         return Task.CompletedTask;
     }
