@@ -12,33 +12,32 @@
 @using Syncfusion.EJ2.Blazor.Buttons
 @using Syncfusion.EJ2.Blazor.Inputs
 @using Syncfusion.EJ2.Blazor.Lists
+@using BF.Service.Events
 
-
-<h1>Hello, world!</h1>
-
-This app sucks.
-<br />
-
-<EjsDashboardLayout CellSpacing="@(new double[]{10 ,10 })" CellAspectRatio="1" Columns="7">
+<EjsDashboardLayout CellSpacing="@(new double[]{10 ,10 })" CellAspectRatio="1" Columns="7" AllowDragging="false" AllowResizing="false">
     <DashboardLayoutPanels>
+
         <DashboardLayoutPanel Col="0" SizeX="3">
+            <HeaderTemplate><div>Temperature</div></HeaderTemplate>
             <ContentTemplate>
-
-                <EjsCircularGauge Width="200px" Height="200px">
-                    <CircularGaugeAxes>
-                        <CircularGaugeAxis Minimum="20" Maximum="220" StartAngle="270" EndAngle="90">
-                            <CircularGaugePointers>
-                                <CircularGaugePointer Value="@Temperature">
-                                </CircularGaugePointer>
-                            </CircularGaugePointers>
-                            <CircularGaugeRanges>
-                                <CircularGaugeRange Start="20" End="32" Color="Blue" />
-                                <CircularGaugeRange Start="212" End="220" Color="Red" />
-                            </CircularGaugeRanges>
-                        </CircularGaugeAxis>
-                    </CircularGaugeAxes>
-                </EjsCircularGauge>
-
+                <div class="control-section">
+                    <div class="content-wrapper">
+                        <EjsCircularGauge Width="200" Height="200">
+                            <CircularGaugeAxes>
+                                <CircularGaugeAxis Minimum="20" Maximum="220" StartAngle="240" EndAngle="120" Radius="90%">
+                                    <CircularGaugePointers>
+                                        <CircularGaugePointer Value="@Temperature">
+                                        </CircularGaugePointer>
+                                    </CircularGaugePointers>
+                                    <CircularGaugeRanges>
+                                        <CircularGaugeRange Start="20" End="32" Color="Blue" />
+                                        <CircularGaugeRange Start="212" End="220" Color="Red" />
+                                    </CircularGaugeRanges>
+                                </CircularGaugeAxis>
+                            </CircularGaugeAxes>
+                        </EjsCircularGauge>
+                    </div>
+                </div>
             </ContentTemplate>
         </DashboardLayoutPanel>
 
@@ -46,7 +45,11 @@ This app sucks.
 
         <DashboardLayoutPanel Col="3" SizeX="3">
             <ContentTemplate>
-                asdfasf
+                <div class="control-section">
+                    <div class="content-wrapper">
+                        <EjsSlider Value="30"></EjsSlider>
+                    </div>
+                </div>
             </ContentTemplate>
         </DashboardLayoutPanel>
 
@@ -65,7 +68,12 @@ This app sucks.
 
         <DashboardLayoutPanel Col="3" Row="1" SizeX="3">
             <ContentTemplate>
-                <EjsListView DataSource="@Messages"></EjsListView>
+
+                <div class="control-section">
+                    <div class="content-wrapper">
+                        <EjsListView DataSource="@Messages"></EjsListView>
+                    </div>
+                </div>
             </ContentTemplate>
         </DashboardLayoutPanel>
 
@@ -79,20 +87,56 @@ This app sucks.
 </EjsDashboardLayout>
 
 @foreach (var msg in Messages) {
-    @msg <br/>
+    @msg
+    <br />
 }
 
+<style>
+    .content-wrapper {
+        width: 40%;
+        margin: auto auto;
+        min-width: 185px;
+    }
 
+    .sliderwrap {
+        margin-top: 40px;
+    }
 
+    .e-bigger .content-wrapper {
+        width: 80%;
+    }
+
+    .sliderwrap label {
+        padding-bottom: 26px;
+        font-size: 13px;
+        font-weight: 500;
+        margin-top: 15px;
+    }
+
+    .userselect {
+        -webkit-user-select: none; /* Safari 3.1+ */
+        -moz-user-select: none; /* Firefox 2+ */
+        -ms-user-select: none; /* IE 10+ */
+        user-select: none; /* Standard syntax */
+    }
+</style>
 
 @code {
 
     [Inject]
     HubConnectionBuilder _hubConnectionBuilder { get; set; }
+
+    [Inject]
+    IBeerFactoryEventHandler BeerFactoryEventHandler { get; set; }
+
+
+
+
     HubConnection connection;
     string User = "";
     string Message = "";
-    double Temperature = 50;
+    double Temperature = 70;
+    int SetPoint = 70;
 
     IList<string> Messages = new List<string>();
 
@@ -173,6 +217,11 @@ This app sucks.
         Messages.Insert(0, name + " : " + message);
         StateHasChanged();
         return Task.CompletedTask;
+    }
+
+    async Task UpdateSetPoint(int setPoint) {
+
+        //await connection.InvokeAsync("PidRequestOccured", )
     }
 
     bool ValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {

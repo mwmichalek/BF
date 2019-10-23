@@ -30,6 +30,12 @@ namespace BF.Server.Hubs {
         }
 
 
+        public async Task PidRequestOccured(string pidRequestJson) {
+            await Clients.All.SendAsync("PidRequestOccured", pidRequestJson);
+        }
+
+
+
 
 
         public async Task Message(string messageReceived) {

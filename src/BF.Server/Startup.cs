@@ -12,6 +12,9 @@ using Microsoft.Extensions.Hosting;
 using BF.Server.Data;
 using BF.Server.Hubs;
 using Microsoft.AspNetCore.SignalR.Client;
+using Prism.Events;
+using BF.Service.Prism.Events;
+using BF.Service.Events;
 
 namespace BF.Server {
     public class Startup {
@@ -29,6 +32,8 @@ namespace BF.Server {
             services.AddServerSideBlazor();
             services.AddTransient<HubConnectionBuilder>();
             services.AddSingleton<WeatherForecastService>();
+            services.AddSingleton<IEventAggregator, EventAggregator>();
+            services.AddSingleton<IBeerFactoryEventHandler, PrismBeerFactoryEventHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
