@@ -16,7 +16,7 @@ using Windows.UI.Xaml;
 using Serilog;
 using BF.Service.Events;
 using BF.Service.Prism.Events;
-using BF.Services.UWP.Events;
+using BF.Services.Prism.Events;
 
 namespace BF.Appliance {
     [Windows.UI.Xaml.Data.Bindable]

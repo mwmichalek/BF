@@ -13,7 +13,7 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
-namespace BF.Services.UWP.Events {
+namespace BF.Services.Prism.Events {
     public class SignalRPrismBeerFactoryEventHandler : PrismBeerFactoryEventHandler {
 
         private ILogger Logger { get; set; }

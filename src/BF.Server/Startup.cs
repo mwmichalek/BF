@@ -14,8 +14,8 @@ using BF.Server.Hubs;
 using Microsoft.AspNetCore.SignalR.Client;
 using Prism.Events;
 using BF.Service.Prism.Events;
-using BF.Services.UWP.Events;
 using BF.Service.Events;
+using BF.Services.Prism.Events;
 
 namespace BF.Server {
     public class Startup {

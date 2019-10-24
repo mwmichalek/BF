@@ -123,7 +123,6 @@
     <Compile Include="Controllers\EventHandlerForDevice.cs" />
     <Compile Include="Controllers\OldUsbArduinoControllerService.cs" />
     <Compile Include="Controllers\SerialUsbArduinoTemperatureControllerService.cs" />
-    <Compile Include="Events\SignalRPrismBeerFactoryEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\BF.Services.UWP.rd.xml" />
   </ItemGroup>
@@ -168,6 +167,9 @@
       <Project>{6c58a602-5dd4-49d1-9063-5c69657c729f}</Project>
       <Name>CommandMessengerTransportSerialStandard</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Events\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
