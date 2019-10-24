@@ -67,47 +67,47 @@ namespace BF.Services.Prism.Events {
         }
 
         public override void TemperatureChangeFired(TemperatureChange temperatureChange) {
-            _connection.InvokeAsync("TemperatureChangeFired", temperatureChange.ToJson());
+            if (_connection.IsConnected()) _connection.InvokeAsync("TemperatureChangeFired", temperatureChange.ToJson());
             base.TemperatureChangeFired(temperatureChange);
         }
 
         public override void ThermometerChangeFired(ThermometerChange thermometerChange) {
-            _connection.InvokeAsync("ThermometerChangeFired", thermometerChange.ToJson());
+            if (_connection.IsConnected()) _connection.InvokeAsync("ThermometerChangeFired", thermometerChange.ToJson());
             base.ThermometerChangeFired(thermometerChange);
         }
 
         public override void PumpRequestFired(PumpRequest pumpRequest) {
-            _connection.InvokeAsync("PumpRequestFired", pumpRequest.ToJson());
+            if (_connection.IsConnected()) _connection.InvokeAsync("PumpRequestFired", pumpRequest.ToJson());
             base.PumpRequestFired(pumpRequest);
         }
 
         public override void PumpChangeFired(PumpChange pumpChange) {
-            _connection.InvokeAsync("PumpChangeFired", pumpChange.ToJson());
+            if (_connection.IsConnected()) _connection.InvokeAsync("PumpChangeFired", pumpChange.ToJson());
             base.PumpChangeFired(pumpChange);
         }
 
         public override void PidRequestFired(PidRequest pidRequest) {
-            _connection.InvokeAsync("PidRequestFired", pidRequest.ToJson());
+            if (_connection.IsConnected()) _connection.InvokeAsync("PidRequestFired", pidRequest.ToJson());
             base.PidRequestFired(pidRequest);
         }
 
         public override void PidChangeFired(PidChange pidChange) {
-            _connection.InvokeAsync("PidChangeFired", pidChange.ToJson());
+            if (_connection.IsConnected()) if (_connection.IsConnected()) _connection.InvokeAsync("PidChangeFired", pidChange.ToJson());
             base.PidChangeFired(pidChange);
         }
 
         public override void SsrChangeFired(SsrChange ssrChange) {
-            _connection.InvokeAsync("SsrChangeFired", ssrChange.ToJson());
+            if (_connection.IsConnected()) _connection.InvokeAsync("SsrChangeFired", ssrChange.ToJson());
             base.SsrChangeFired(ssrChange);
         }
 
         public override void ConnectionStatusRequestFired(ConnectionStatusRequest connectionStatusRequest) {
-            _connection.InvokeAsync("ConnectionStatusRequestFired", connectionStatusRequest.ToJson());
+            if (_connection.IsConnected()) _connection.InvokeAsync("ConnectionStatusRequestFired", connectionStatusRequest.ToJson());
             base.ConnectionStatusRequestFired(connectionStatusRequest);
         }
 
         public override void ConnectionStatusChangeFired(ConnectionStatusChange connectionStatusChange) {
-            _connection.InvokeAsync("ConnectionStatusChangeFired", connectionStatusChange.ToJson());
+            if (_connection.IsConnected()) _connection.InvokeAsync("ConnectionStatusChangeFired", connectionStatusChange.ToJson());
             base.ConnectionStatusChangeFired(connectionStatusChange);
         }
 
@@ -166,6 +166,14 @@ namespace BF.Services.Prism.Events {
 
         private bool ValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
             return true;
+        }
+    }
+
+    public static class HubConnectionHelper {
+
+        public static bool IsConnected(this HubConnection hubConnection) {
+            return hubConnection != null && 
+                   hubConnection.State == HubConnectionState.Connected;
         }
     }
 }

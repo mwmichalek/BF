@@ -1,0 +1,86 @@
+﻿@using BF.Common.Events
+@using Syncfusion.EJ2.Blazor
+@using Syncfusion.EJ2.Blazor.Lists
+@using BF.Service.Events
+
+MESSAGES!
+
+<EjsListView DataSource="@Messages">
+
+</EjsListView>
+
+@foreach (var msg in Messages) {
+    @msg
+    <br />
+}
+
+@code {
+    [Inject]
+    public IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
+
+    public List<string> Messages = new List<string>();
+
+
+    protected override async Task OnInitializedAsync() {
+
+        _beerFactoryEventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
+        _beerFactoryEventHandler.ThermometerChangeOccured(ThermometerChangeOccured);
+        _beerFactoryEventHandler.PumpRequestOccured(PumpRequestOccured);
+        _beerFactoryEventHandler.PumpChangeOccured(PumpChangeOccured);
+        _beerFactoryEventHandler.PidRequestOccured(PidRequestOccured);
+        _beerFactoryEventHandler.PidChangeOccured(PidChangeOccured);
+        _beerFactoryEventHandler.SsrChangeOccured(SsrChangeOccured);
+        _beerFactoryEventHandler.ConnectionStatusRequestOccured(ConnectionStatusRequestOccured);
+        _beerFactoryEventHandler.ConnectionStatusChangeOccured(ConnectionStatusChangeOccured);
+
+
+    }
+
+    public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
+        Messages.Insert(0, $"TemperatureChangeOccured: {temperatureChange.Id} - {temperatureChange.Value}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void ThermometerChangeOccured(ThermometerChange thermometerChange) {
+        Messages.Insert(0, $"ThermometerChangeOccured: {thermometerChange.Id} - {thermometerChange.Value}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void PumpRequestOccured(PumpRequest pumpRequest) {
+        Messages.Insert(0, $"PumpRequestOccured: {pumpRequest.Id} - {pumpRequest.IsEngaged}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void PumpChangeOccured(PumpChange pumpChange) {
+        Messages.Insert(0, $"PumpChangeOccured: {pumpChange.Id} - {pumpChange.IsEngaged}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+
+    public void PidRequestOccured(PidRequest pidRequest) {
+        Messages.Insert(0, $"PidRequestOccured: {pidRequest.Id} - {pidRequest.IsEngaged} {pidRequest.SetPoint}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void PidChangeOccured(PidChange pidChange) {
+        Messages.Insert(0, $"PidChangeOccured: {pidChange.Id} - {pidChange.IsEngaged} {pidChange.SetPoint}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+
+    public void SsrChangeOccured(SsrChange ssrChange) {
+        Messages.Insert(0, $"SsrChangeOccured: {ssrChange.Id} - {ssrChange.Percentage}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void ConnectionStatusRequestOccured(ConnectionStatusRequest connectionStatusRequest) {
+        Messages.Insert(0, $"ConnectionStatusRequestOccured: {connectionStatusRequest.ClientId}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void ConnectionStatusChangeOccured(ConnectionStatusChange connectionStatusChange) {
+        Messages.Insert(0, $"ConnectionStatusChangeOccured: {connectionStatusChange.ClientId} - {connectionStatusChange.ConnectionState}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+}

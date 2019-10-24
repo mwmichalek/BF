@@ -1,11 +1,10 @@
 ﻿@using Syncfusion.EJ2.Blazor
 @using Syncfusion.EJ2.Blazor.CircularGauge
 @using Syncfusion.EJ2.Blazor.Inputs
-@using Microsoft.AspNetCore.SignalR
 @using BF.Service.Events
 @using BF.Common.Events
 @using BF.Common.Ids
-@using BF.Server.Hubs
+
 
 <EjsSlider Value="30" Min="40" Max="212"
            Type=SliderType.MinRange>
@@ -29,10 +28,6 @@
     [Inject]
     IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
 
-    [Inject]
-    IHubContext<BFHub> _bfHub { get; set; }
-
-
     void SetPointChange(SliderChangeEventArgs<int> eventArgs) {
         //_beerFactoryEventHandler.
 
@@ -43,8 +38,7 @@
             SetPoint = eventArgs.Value
         };
 
-        _bfHub.Clients.All.SendAsync("PidRequestOccured", pidRequest.ToJson());
-
+        _beerFactoryEventHandler.PidRequestFired(pidRequest);
     }
 
 }

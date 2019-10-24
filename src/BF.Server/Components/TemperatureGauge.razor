@@ -4,10 +4,6 @@
 @using BF.Common.Events
 @using BF.Common.Ids
 
-<h3>TemperatureGauge</h3>
-
-
-
 <EjsCircularGauge Width="200" Height="200">
     <CircularGaugeAxes>
         <CircularGaugeAxis Minimum="20" Maximum="220" StartAngle="240" EndAngle="120" Radius="90%">
@@ -31,9 +27,9 @@
     [Inject]
     IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
 
-    
 
-    double Temperature = 70;
+
+    public double Temperature = 70;
 
     protected override async Task OnInitializedAsync() {
         _beerFactoryEventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
@@ -42,6 +38,7 @@
     void TemperatureChangeOccured(TemperatureChange temperatureChange) {
         if (temperatureChange.Id == ThermometerId) {
             Temperature = (double)temperatureChange.Value;
+            InvokeAsync(() => StateHasChanged());
         }
     }
 
