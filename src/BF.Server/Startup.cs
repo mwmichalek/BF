@@ -34,6 +34,11 @@ namespace BF.Server {
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<IEventAggregator, EventAggregator>();
             services.AddSingleton<IBeerFactoryEventHandler, PrismBeerFactoryEventHandler>();
+            services.AddAuthorization(options => {
+                options.AddPolicy("ComponentRestricted", policy => {
+                    policy.Requirements.Add(new ComponentRestrictedRequirement());
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

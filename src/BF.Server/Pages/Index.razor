@@ -13,6 +13,7 @@
 @using Syncfusion.EJ2.Blazor.Inputs
 @using Syncfusion.EJ2.Blazor.Lists
 @using BF.Service.Events
+@using BF.Service.Components
 
 <EjsDashboardLayout CellSpacing="@(new double[]{10 ,10 })" CellAspectRatio="1" Columns="7" AllowDragging="false" AllowResizing="false">
     <DashboardLayoutPanels>
@@ -127,9 +128,7 @@
     HubConnectionBuilder _hubConnectionBuilder { get; set; }
 
     [Inject]
-    IBeerFactoryEventHandler BeerFactoryEventHandler { get; set; }
-
-
+    IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
 
 
     HubConnection connection;
@@ -163,18 +162,26 @@
         connection.On<string>("SsrChangeOccured", SsrChangeOccured);
         connection.On<string>("ConnectionStatusChangeOccured", ConnectionStatusChangeOccured);
 
+        _beerFactoryEventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
+
         await connection.StartAsync();
+    }
+
+    void TemperatureChangeOccured(TemperatureChange temperatureChange) {
+        if (temperatureChange.Id == ThermometerId.HLT) {
+            Temperature = (double)temperatureChange.Value;
+        }
     }
 
 
 
     Task TemperatureChangeOccured(string temperatureChangeJson) {
         var temperatureChange = JsonConvert.DeserializeObject<TemperatureChange>(temperatureChangeJson);
-        Messages.Insert(0, $"TEMP: {temperatureChange.Id} - {temperatureChange.Value} {temperatureChange.PercentChange.ToString("#.00")}");
+        Messages.Insert(0, $"SIGNALR-TEMP: {temperatureChange.Id} - {temperatureChange.Value} {temperatureChange.PercentChange.ToString("#.00")}");
 
 
         if (temperatureChange.Id == ThermometerId.HLT) {
-            Temperature = (double)temperatureChange.Value;
+            //Temperature = (double)temperatureChange.Value;
         }
 
         StateHasChanged();
@@ -183,28 +190,28 @@
 
     Task PumpChangeOccured(string pumpChangeJson) {
         var pumpChange = JsonConvert.DeserializeObject<PumpChange>(pumpChangeJson);
-        Messages.Insert(0, $"PUMP: {pumpChange.Id} - {pumpChange.IsEngaged}");
+        Messages.Insert(0, $"SIGNALR-PUMP: {pumpChange.Id} - {pumpChange.IsEngaged}");
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     Task PidChangeOccured(string pidChangeJson) {
         var pidChange = JsonConvert.DeserializeObject<PidChange>(pidChangeJson);
-        Messages.Insert(0, $"PID: {pidChange.Id} - {pidChange.IsEngaged} {pidChange.SetPoint}");
+        Messages.Insert(0, $"SIGNALR-PID: {pidChange.Id} - {pidChange.IsEngaged} {pidChange.SetPoint}");
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     Task SsrChangeOccured(string ssrChangeJson) {
         var ssrChange = JsonConvert.DeserializeObject<SsrChange>(ssrChangeJson);
-        Messages.Insert(0, $"SSR: {ssrChange.Id} - {ssrChange.IsEngaged} {ssrChange.Percentage}");
+        Messages.Insert(0, $"SIGNALR-SSR: {ssrChange.Id} - {ssrChange.IsEngaged} {ssrChange.Percentage}");
         StateHasChanged();
         return Task.CompletedTask;
     }
 
     Task ConnectionStatusChangeOccured(string connectionStatusChangeJson) {
         var connectionStatusChange = JsonConvert.DeserializeObject<ConnectionStatusChange>(connectionStatusChangeJson);
-        Messages.Insert(0, $"CONNECTION: {connectionStatusChange.ConnectionState}");
+        Messages.Insert(0, $"SIGNALR-CONNECTION: {connectionStatusChange.ConnectionState}");
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -214,7 +221,7 @@
     }
 
     Task OnReceiveMessage(string name, string message) {
-        Messages.Insert(0, name + " : " + message);
+        Messages.Insert(0, $"SIGNALR-MESSAGE{name} : {message}");
         StateHasChanged();
         return Task.CompletedTask;
     }
