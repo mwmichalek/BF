@@ -17,44 +17,41 @@ namespace BF.Server.Hubs {
             _eventHandler = eventHandler;
         }
 
-        public async Task TemperatureChangeOccured(string temperatureChangeJson) {
-            _eventHandler.TemperatureChangeFired(temperatureChangeJson.ToEvent<TemperatureChange>());
-            await Clients.All.SendAsync("TemperatureChangeOccured", temperatureChangeJson);
+        public async Task TemperatureChangeFired(string jsonEvent) {
+            await Clients.Others.SendAsync("TemperatureChangeFired", jsonEvent);
         }
 
-        public async Task PumpChangeOccured(string pumpChangeJson) {
-            _eventHandler.PumpChangeFired(pumpChangeJson.ToEvent<PumpChange>());
-            await Clients.All.SendAsync("PumpChangeOccured", pumpChangeJson);
+        public async Task ThermometerChangeFired(string jsonEvent) {
+            await Clients.Others.SendAsync("ThermometerChangeFired", jsonEvent);
         }
 
-        public async Task PidChangeOccured(string pidChangeJson) {
-            _eventHandler.PidChangeFired(pidChangeJson.ToEvent<PidChange>());
-            await Clients.All.SendAsync("PidChangeOccured", pidChangeJson);
+        public async Task PumpRequestFired(string jsonEvent) {
+            await Clients.Others.SendAsync("PumpRequestFired", jsonEvent);
         }
 
-        public async Task SsrChangeOccured(string ssrChangeJson) {
-            _eventHandler.SsrChangeFired(ssrChangeJson.ToEvent<SsrChange>());
-            await Clients.All.SendAsync("SsrChangeOccured", ssrChangeJson);
+        public async Task PumpChangeFired(string jsonEvent) {
+            await Clients.Others.SendAsync("PumpChangeFired", jsonEvent);
         }
 
-        public async Task ConnectionStatusChangeOccured(string connectionStatusChangeJson) {
-            _eventHandler.ConnectionStatusChangeFired(connectionStatusChangeJson.ToEvent<ConnectionStatusChange>());
-            await Clients.All.SendAsync("ConnectionStatusChangeOccured", connectionStatusChangeJson);
+        public async Task PidRequestFired(string jsonEvent) {
+            await Clients.Others.SendAsync("PidRequestFired", jsonEvent);
         }
 
-        // Only to Raspberry PI
-        public async Task PidRequestOccured(string pidRequestJson) {
-            _eventHandler.PidRequestFired(pidRequestJson.ToEvent<PidRequest>());
-            await Clients.All.SendAsync("PidRequestOccured", pidRequestJson);
+        public async Task PidChangeFired(string jsonEvent) {
+            await Clients.Others.SendAsync("PidChangeFired", jsonEvent);
         }
 
-        // Only to Raspberry PI
-        public async Task PumpRequestOccured(string pumpRequestJson) {
-            _eventHandler.PidRequestFired(pumpRequestJson.ToEvent<PidRequest>());
-            await Clients.All.SendAsync("PumpRequestOccured", pumpRequestJson);
+        public async Task SsrChangeFired(string jsonEvent) {
+            await Clients.Others.SendAsync("SsrChangeFired", jsonEvent);
         }
 
+        public async Task ConnectionStatusRequestFired(string jsonEvent) {
+            await Clients.Others.SendAsync("ConnectionStatusRequestFired", jsonEvent);
+        }
 
+        public async Task ConnectionStatusChangeFired(string jsonEvent) {
+            await Clients.Others.SendAsync("ConnectionStatusChangeFired", jsonEvent);
+        }
 
         public async Task Message(string messageReceived) {
             await Clients.All.SendAsync("Message", messageReceived);

@@ -99,9 +99,10 @@ namespace BF.Service.Components {
                 IsEngaged = pidRequest.IsEngaged;
                 PidMode = pidRequest.PidMode;
                 SetPoint = pidRequest.SetPoint;
-                GainDerivative = pidRequest.GainDerivative;
-                GainIntegral = pidRequest.GainIntegral;
-                GainProportional = pidRequest.GainProportional;
+
+                if (pidRequest.GainDerivative != double.MinValue) GainDerivative = pidRequest.GainDerivative;
+                if (pidRequest.GainIntegral != double.MinValue) GainIntegral = pidRequest.GainIntegral;
+                if (pidRequest.GainProportional != double.MinValue) GainProportional = pidRequest.GainProportional;
 
                 _eventHandler.PidChangeFired(new PidChange {
                     Id = pidRequest.Id,

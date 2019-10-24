@@ -35,7 +35,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BF.Services.UWP", "src\BF.S
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Mwm.BeerFactoryV2.Mega", "src\Mwm.BeerFactoryV2.Mega\Mwm.BeerFactoryV2.Mega.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BF.Server", "src\BF.Server\BF.Server.csproj", "{9C9F3686-EF5E-48E6-B7E9-A9287B2572EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BF.Server", "src\BF.Server\BF.Server.csproj", "{9C9F3686-EF5E-48E6-B7E9-A9287B2572EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

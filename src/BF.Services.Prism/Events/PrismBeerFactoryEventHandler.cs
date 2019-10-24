@@ -17,7 +17,7 @@ namespace BF.Service.Prism.Events {
 
         private ILogger Logger { get; set; }
 
-        private IEventAggregator _eventAggregator;
+        protected IEventAggregator _eventAggregator;
 
         public PrismBeerFactoryEventHandler(IEventAggregator eventAggregator) {
             _eventAggregator = eventAggregator;
@@ -31,7 +31,6 @@ namespace BF.Service.Prism.Events {
         public void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler) {
             _eventAggregator.GetEvent<ThermometerChangeEvent>().Subscribe(thermometerChangeHandler);
         }
-
 
         public void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler) {
             _eventAggregator.GetEvent<PumpRequestEvent>().Subscribe(pumpRequestHandler);
@@ -64,39 +63,39 @@ namespace BF.Service.Prism.Events {
         }
 
 
-        public void TemperatureChangeFired(TemperatureChange temperatureChange) {
+        public virtual void TemperatureChangeFired(TemperatureChange temperatureChange) {
             _eventAggregator.GetEvent<TemperatureChangeEvent>().Publish(temperatureChange);
         }
 
-        public void ThermometerChangeFired(ThermometerChange thermometerChange) {
+        public virtual void ThermometerChangeFired(ThermometerChange thermometerChange) {
             _eventAggregator.GetEvent<ThermometerChangeEvent>().Publish(thermometerChange);
         }
 
-        public void PumpRequestFired(PumpRequest pumpRequest) {
+        public virtual void PumpRequestFired(PumpRequest pumpRequest) {
             _eventAggregator.GetEvent<PumpRequestEvent>().Publish(pumpRequest);
         }
 
-        public void PumpChangeFired(PumpChange pumpChange) {
+        public virtual void PumpChangeFired(PumpChange pumpChange) {
             _eventAggregator.GetEvent<PumpChangeEvent>().Publish(pumpChange);
         }
 
-        public void PidRequestFired(PidRequest pidRequest) {
+        public virtual void PidRequestFired(PidRequest pidRequest) {
             _eventAggregator.GetEvent<PidRequestEvent>().Publish(pidRequest);
         }
 
-        public void PidChangeFired(PidChange pidChange) {
+        public virtual void PidChangeFired(PidChange pidChange) {
             _eventAggregator.GetEvent<PidChangeEvent>().Publish(pidChange);
         }
 
-        public void SsrChangeFired(SsrChange ssrChange) {
+        public virtual void SsrChangeFired(SsrChange ssrChange) {
             _eventAggregator.GetEvent<SsrChangeEvent>().Publish(ssrChange);
         }
 
-        public void ConnectionStatusRequestFired(ConnectionStatusRequest connectionStatusRequest) {
+        public virtual void ConnectionStatusRequestFired(ConnectionStatusRequest connectionStatusRequest) {
             _eventAggregator.GetEvent<ConnectionStatusRequestEvent>().Publish(connectionStatusRequest);
         }
 
-        public void ConnectionStatusChangeFired(ConnectionStatusChange connectionStatusChange) {
+        public virtual void ConnectionStatusChangeFired(ConnectionStatusChange connectionStatusChange) {
             _eventAggregator.GetEvent<ConnectionStatusChangeEvent>().Publish(connectionStatusChange);
         }
 

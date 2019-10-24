@@ -1,0 +1,48 @@
+﻿@using Syncfusion.EJ2.Blazor
+@using Syncfusion.EJ2.Blazor.CircularGauge
+@using BF.Service.Events
+@using BF.Common.Events
+@using BF.Common.Ids
+
+<h3>TemperatureGauge</h3>
+
+
+
+<EjsCircularGauge Width="200" Height="200">
+    <CircularGaugeAxes>
+        <CircularGaugeAxis Minimum="20" Maximum="220" StartAngle="240" EndAngle="120" Radius="90%">
+            <CircularGaugePointers>
+                <CircularGaugePointer Value="@Temperature">
+                </CircularGaugePointer>
+            </CircularGaugePointers>
+            <CircularGaugeRanges>
+                <CircularGaugeRange Start="20" End="32" Color="Blue" />
+                <CircularGaugeRange Start="212" End="220" Color="Red" />
+            </CircularGaugeRanges>
+        </CircularGaugeAxis>
+    </CircularGaugeAxes>
+</EjsCircularGauge>
+
+@code {
+
+    [Parameter]
+    public ThermometerId ThermometerId { get; set; }
+
+    [Inject]
+    IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
+
+    
+
+    double Temperature = 70;
+
+    protected override async Task OnInitializedAsync() {
+        _beerFactoryEventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
+    }
+
+    void TemperatureChangeOccured(TemperatureChange temperatureChange) {
+        if (temperatureChange.Id == ThermometerId) {
+            Temperature = (double)temperatureChange.Value;
+        }
+    }
+
+}

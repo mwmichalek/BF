@@ -14,6 +14,7 @@
 @using Syncfusion.EJ2.Blazor.Lists
 @using BF.Service.Events
 @using BF.Service.Components
+@using BF.Server.Components
 
 <EjsDashboardLayout CellSpacing="@(new double[]{10 ,10 })" CellAspectRatio="1" Columns="7" AllowDragging="false" AllowResizing="false">
     <DashboardLayoutPanels>
@@ -23,20 +24,9 @@
             <ContentTemplate>
                 <div class="control-section">
                     <div class="content-wrapper">
-                        <EjsCircularGauge Width="200" Height="200">
-                            <CircularGaugeAxes>
-                                <CircularGaugeAxis Minimum="20" Maximum="220" StartAngle="240" EndAngle="120" Radius="90%">
-                                    <CircularGaugePointers>
-                                        <CircularGaugePointer Value="@Temperature">
-                                        </CircularGaugePointer>
-                                    </CircularGaugePointers>
-                                    <CircularGaugeRanges>
-                                        <CircularGaugeRange Start="20" End="32" Color="Blue" />
-                                        <CircularGaugeRange Start="212" End="220" Color="Red" />
-                                    </CircularGaugeRanges>
-                                </CircularGaugeAxis>
-                            </CircularGaugeAxes>
-                        </EjsCircularGauge>
+
+                        <TemperatureGauge ThermometerId="@ThermometerId.HLT" />
+
                     </div>
                 </div>
             </ContentTemplate>
@@ -45,10 +35,13 @@
 
 
         <DashboardLayoutPanel Col="3" SizeX="3">
+            <HeaderTemplate><div>SetPoint</div></HeaderTemplate>
             <ContentTemplate>
                 <div class="control-section">
                     <div class="content-wrapper">
-                        <EjsSlider Value="30"></EjsSlider>
+
+                        <SetPointComponent PidControllerId="PidControllerId.HLT" />
+
                     </div>
                 </div>
             </ContentTemplate>
@@ -124,8 +117,8 @@
 
 @code {
 
-    [Inject]
-    HubConnectionBuilder _hubConnectionBuilder { get; set; }
+    //[Inject]
+    //HubConnectionBuilder _hubConnectionBuilder { get; set; }
 
     [Inject]
     IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
@@ -140,81 +133,104 @@
     IList<string> Messages = new List<string>();
 
     protected override async Task OnInitializedAsync() {
-        connection = _hubConnectionBuilder
-            .WithUrl("https://localhost:44355/bfHub", options => {
-                options.HttpMessageHandlerFactory = (handler) => {
-                    if (handler is HttpClientHandler clientHandler) {
-                        clientHandler.ServerCertificateCustomValidationCallback = ValidateCertificate;
-                    }
-                    return handler;
-                };
-            }).Build();
+        //connection = _hubConnectionBuilder
+        //    .WithUrl("https://localhost:44355/bfHub", options => {
+        //        options.HttpMessageHandlerFactory = (handler) => {
+        //            if (handler is HttpClientHandler clientHandler) {
+        //                clientHandler.ServerCertificateCustomValidationCallback = ValidateCertificate;
+        //            }
+        //            return handler;
+        //        };
+        //    }).Build();
 
 
 
-        //connection = _hubConnectionBuilder.WithUrl("https://emrsd-ws-bf.azurewebsites.net/bfHub").Build();
+        ////connection = _hubConnectionBuilder.WithUrl("https://emrsd-ws-bf.azurewebsites.net/bfHub").Build();
 
-        connection.On<string, string>("ReceiveMessage", OnReceiveMessage);
+        //connection.On<string, string>("ReceiveMessage", OnReceiveMessage);
 
-        connection.On<string>("TemperatureChangeOccured", TemperatureChangeOccured);
-        connection.On<string>("PumpChangeOccured", PumpChangeOccured);
-        connection.On<string>("PidChangeOccured", PidChangeOccured);
-        connection.On<string>("SsrChangeOccured", SsrChangeOccured);
-        connection.On<string>("ConnectionStatusChangeOccured", ConnectionStatusChangeOccured);
+        //connection.On<string>("TemperatureChangeOccured", TemperatureChangeOccured);
+        //connection.On<string>("PumpChangeOccured", PumpChangeOccured);
+        //connection.On<string>("PidChangeOccured", PidChangeOccured);
+        //connection.On<string>("SsrChangeOccured", SsrChangeOccured);
+        //connection.On<string>("ConnectionStatusChangeOccured", ConnectionStatusChangeOccured);
 
         _beerFactoryEventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
+        _beerFactoryEventHandler.ThermometerChangeOccured(ThermometerChangeOccured);
+        _beerFactoryEventHandler.PumpRequestOccured(PumpRequestOccured);
+        _beerFactoryEventHandler.PumpChangeOccured(PumpChangeOccured);
+        _beerFactoryEventHandler.PidRequestOccured(PidRequestOccured);
+        _beerFactoryEventHandler.PidChangeOccured(PidChangeOccured);
+        _beerFactoryEventHandler.SsrChangeOccured(SsrChangeOccured);
+        _beerFactoryEventHandler.ConnectionStatusRequestOccured(ConnectionStatusRequestOccured);
+        _beerFactoryEventHandler.ConnectionStatusChangeOccured(ConnectionStatusChangeOccured);
 
-        await connection.StartAsync();
+
+        //await connection.StartAsync();
     }
 
-    void TemperatureChangeOccured(TemperatureChange temperatureChange) {
-        if (temperatureChange.Id == ThermometerId.HLT) {
-            Temperature = (double)temperatureChange.Value;
-        }
+    //void TemperatureChangeOccured(TemperatureChange temperatureChange) {
+    //    if (temperatureChange.Id == ThermometerId.HLT) {
+    //        Temperature = (double)temperatureChange.Value;
+    //    }
+    //}
+
+   
+
+    public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
+        Messages.Insert(0, $"TemperatureChangeOccured: {temperatureChange.Id} - {temperatureChange.Value}");
+    }
+
+    public void ThermometerChangeOccured(ThermometerChange thermometerChange) {
+        Messages.Insert(0, $"ThermometerChangeOccured: {thermometerChange.Id} - {thermometerChange.Value}");
+    }
+
+    public void PumpRequestOccured(PumpRequest pumpRequest) {
+        Messages.Insert(0, $"PumpRequestOccured: {pumpRequest.Id} - {pumpRequest.IsEngaged}");
+    }
+
+    public void PumpChangeOccured(PumpChange pumpChange) {
+        Messages.Insert(0, $"PumpChangeOccured: {pumpChange.Id} - {pumpChange.IsEngaged}");
+    }
+
+
+    public void PidRequestOccured(PidRequest pidRequest) {
+        Messages.Insert(0, $"PidRequestOccured: {pidRequest.Id} - {pidRequest.IsEngaged} {pidRequest.SetPoint}");
+    }
+
+    public void PidChangeOccured(PidChange pidChange) {
+        Messages.Insert(0, $"PidChangeOccured: {pidChange.Id} - {pidChange.IsEngaged} {pidChange.SetPoint}");
+    }
+
+
+    public void SsrChangeOccured(SsrChange ssrChange) {
+        Messages.Insert(0, $"SsrChangeOccured: {ssrChange.Id} - {ssrChange.Percentage}");
+    }
+
+    public void ConnectionStatusRequestOccured(ConnectionStatusRequest connectionStatusRequest) {
+        Messages.Insert(0, $"ConnectionStatusRequestOccured: {connectionStatusRequest.ClientId}");
+    }
+
+    public void ConnectionStatusChangeOccured(ConnectionStatusChange connectionStatusChange) {
+        Messages.Insert(0, $"ConnectionStatusChangeOccured: {connectionStatusChange.ClientId} - {connectionStatusChange.ConnectionState}");
     }
 
 
 
-    Task TemperatureChangeOccured(string temperatureChangeJson) {
-        var temperatureChange = JsonConvert.DeserializeObject<TemperatureChange>(temperatureChangeJson);
-        Messages.Insert(0, $"SIGNALR-TEMP: {temperatureChange.Id} - {temperatureChange.Value} {temperatureChange.PercentChange.ToString("#.00")}");
 
 
-        if (temperatureChange.Id == ThermometerId.HLT) {
-            //Temperature = (double)temperatureChange.Value;
-        }
 
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
 
-    Task PumpChangeOccured(string pumpChangeJson) {
-        var pumpChange = JsonConvert.DeserializeObject<PumpChange>(pumpChangeJson);
-        Messages.Insert(0, $"SIGNALR-PUMP: {pumpChange.Id} - {pumpChange.IsEngaged}");
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
 
-    Task PidChangeOccured(string pidChangeJson) {
-        var pidChange = JsonConvert.DeserializeObject<PidChange>(pidChangeJson);
-        Messages.Insert(0, $"SIGNALR-PID: {pidChange.Id} - {pidChange.IsEngaged} {pidChange.SetPoint}");
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
 
-    Task SsrChangeOccured(string ssrChangeJson) {
-        var ssrChange = JsonConvert.DeserializeObject<SsrChange>(ssrChangeJson);
-        Messages.Insert(0, $"SIGNALR-SSR: {ssrChange.Id} - {ssrChange.IsEngaged} {ssrChange.Percentage}");
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
 
-    Task ConnectionStatusChangeOccured(string connectionStatusChangeJson) {
-        var connectionStatusChange = JsonConvert.DeserializeObject<ConnectionStatusChange>(connectionStatusChangeJson);
-        Messages.Insert(0, $"SIGNALR-CONNECTION: {connectionStatusChange.ConnectionState}");
-        StateHasChanged();
-        return Task.CompletedTask;
-    }
+
+
+
+
+
+
+
 
     async Task SendMessage() {
         await connection.InvokeAsync("SendMessage", User, Message);
@@ -242,3 +258,53 @@
 
 
 
+
+
+
+
+
+    @*Task TemperatureChangeOccured(string temperatureChangeJson) {
+        var temperatureChange = JsonConvert.DeserializeObject<TemperatureChange>
+    (temperatureChangeJson);
+    Messages.Insert(0, $"SIGNALR-TEMP: {temperatureChange.Id} - {temperatureChange.Value} {temperatureChange.PercentChange.ToString("#.00")}");
+
+
+    if (temperatureChange.Id == ThermometerId.HLT) {
+    //Temperature = (double)temperatureChange.Value;
+    }
+
+    StateHasChanged();
+    return Task.CompletedTask;
+    }
+
+    Task PumpChangeOccured(string pumpChangeJson) {
+    var pumpChange = JsonConvert.DeserializeObject<PumpChange>
+        (pumpChangeJson);
+        Messages.Insert(0, $"SIGNALR-PUMP: {pumpChange.Id} - {pumpChange.IsEngaged}");
+        StateHasChanged();
+        return Task.CompletedTask;
+        }
+
+        Task PidChangeOccured(string pidChangeJson) {
+        var pidChange = JsonConvert.DeserializeObject<PidChange>
+            (pidChangeJson);
+            Messages.Insert(0, $"SIGNALR-PID: {pidChange.Id} - {pidChange.IsEngaged} {pidChange.SetPoint}");
+            StateHasChanged();
+            return Task.CompletedTask;
+            }
+
+            Task SsrChangeOccured(string ssrChangeJson) {
+            var ssrChange = JsonConvert.DeserializeObject<SsrChange>
+                (ssrChangeJson);
+                Messages.Insert(0, $"SIGNALR-SSR: {ssrChange.Id} - {ssrChange.IsEngaged} {ssrChange.Percentage}");
+                StateHasChanged();
+                return Task.CompletedTask;
+                }
+
+                Task ConnectionStatusChangeOccured(string connectionStatusChangeJson) {
+                var connectionStatusChange = JsonConvert.DeserializeObject<ConnectionStatusChange>
+                    (connectionStatusChangeJson);
+                    Messages.Insert(0, $"SIGNALR-CONNECTION: {connectionStatusChange.ConnectionState}");
+                    StateHasChanged();
+                    return Task.CompletedTask;
+                    }*@

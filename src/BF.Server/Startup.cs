@@ -14,6 +14,7 @@ using BF.Server.Hubs;
 using Microsoft.AspNetCore.SignalR.Client;
 using Prism.Events;
 using BF.Service.Prism.Events;
+using BF.Services.UWP.Events;
 using BF.Service.Events;
 
 namespace BF.Server {
@@ -33,7 +34,7 @@ namespace BF.Server {
             services.AddTransient<HubConnectionBuilder>();
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<IEventAggregator, EventAggregator>();
-            services.AddSingleton<IBeerFactoryEventHandler, PrismBeerFactoryEventHandler>();
+            services.AddSingleton<IBeerFactoryEventHandler, SignalRPrismBeerFactoryEventHandler>();
             services.AddAuthorization(options => {
                 options.AddPolicy("ComponentRestricted", policy => {
                     policy.Requirements.Add(new ComponentRestrictedRequirement());

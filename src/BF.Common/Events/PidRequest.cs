@@ -22,11 +22,11 @@ namespace BF.Common.Events {
 
         public double SetPoint { get; set; }
 
-        public double GainDerivative { get; set; }
+        public double GainDerivative { get; set; } = double.MinValue;
 
-        public double GainIntegral { get; set; }
+        public double GainIntegral { get; set; } = double.MinValue;
 
-        public double GainProportional { get; set; }
+        public double GainProportional { get; set; } = double.MinValue;
 
     }
 }

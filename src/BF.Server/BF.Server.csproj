@@ -15,6 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BF.Common\BF.Common.csproj" />
     <ProjectReference Include="..\BF.Services.Prism\BF.Services.Prism.csproj" />
+    <ProjectReference Include="..\BF.Services.UWP\BF.Services.UWP.csproj" />
   </ItemGroup>
 
 </Project>

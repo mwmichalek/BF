@@ -123,7 +123,7 @@
     <Compile Include="Controllers\EventHandlerForDevice.cs" />
     <Compile Include="Controllers\OldUsbArduinoControllerService.cs" />
     <Compile Include="Controllers\SerialUsbArduinoTemperatureControllerService.cs" />
-    <Compile Include="Controllers\ServerProxyClient.cs" />
+    <Compile Include="Events\SignalRPrismBeerFactoryEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\BF.Services.UWP.rd.xml" />
   </ItemGroup>
@@ -140,6 +140,9 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.9</Version>
     </PackageReference>
+    <PackageReference Include="Prism.Core">
+      <Version>7.2.0.1367</Version>
+    </PackageReference>
     <PackageReference Include="SerialPortLib">
       <Version>1.0.18</Version>
     </PackageReference>
@@ -148,6 +151,10 @@
     <ProjectReference Include="..\BF.Common\BF.Common.csproj">
       <Project>{00a363fd-242f-4a52-bc7c-9657ca3ab9de}</Project>
       <Name>BF.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BF.Services.Prism\BF.Services.Prism.csproj">
+      <Project>{61628A41-EC77-4F64-80A5-0312405F1A63}</Project>
+      <Name>BF.Services.Prism</Name>
     </ProjectReference>
     <ProjectReference Include="..\BF.Services\BF.Services.csproj">
       <Project>{237d5daf-44ed-430b-8566-c8bbab3eaff2}</Project>

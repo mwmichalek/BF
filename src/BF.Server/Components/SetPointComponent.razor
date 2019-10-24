@@ -1,0 +1,50 @@
+﻿@using Syncfusion.EJ2.Blazor
+@using Syncfusion.EJ2.Blazor.CircularGauge
+@using Syncfusion.EJ2.Blazor.Inputs
+@using Microsoft.AspNetCore.SignalR
+@using BF.Service.Events
+@using BF.Common.Events
+@using BF.Common.Ids
+@using BF.Server.Hubs
+
+<EjsSlider Value="30" Min="40" Max="212"
+           Type=SliderType.MinRange>
+    <SliderTooltipData IsVisible="true" Placement="TooltipPlacement.Before" ShowOn="TooltipShowOn.Always" />
+    <SliderTicksData Placement="Placement.After"
+                     ShowSmallTicks="false"
+                     LargeStep="10"
+                     SmallStep="1" />
+    <SliderEvents TValue="int"
+                  OnChange="@SetPointChange" />
+
+</EjsSlider>
+
+
+
+@code {
+
+    [Parameter]
+    public PidControllerId PidControllerId { get; set; }
+
+    [Inject]
+    IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
+
+    [Inject]
+    IHubContext<BFHub> _bfHub { get; set; }
+
+
+    void SetPointChange(SliderChangeEventArgs<int> eventArgs) {
+        //_beerFactoryEventHandler.
+
+        var pidRequest = new PidRequest {
+            Id = PidControllerId,
+            IsEngaged = true,
+            PidMode = PidMode.Temperature,
+            SetPoint = eventArgs.Value
+        };
+
+        _bfHub.Clients.All.SendAsync("PidRequestOccured", pidRequest.ToJson());
+
+    }
+
+}
