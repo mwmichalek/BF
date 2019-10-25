@@ -1,4 +1,5 @@
-﻿using BF.Common.Ids;
+﻿using BF.Common.Components;
+using BF.Common.Ids;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace BF.Common.Events {
 
     public class PidChange : IEventPayload {
 
-        public PidControllerId Id { get; set; }
+        public ComponentId Id { get; set; }
 
         public bool IsEngaged { get; set; }
 
@@ -17,11 +18,11 @@ namespace BF.Common.Events {
 
         public double SetPoint { get; set; }
 
-        public double GainDerivative { get; set; }
+        public double GainProportional { get; set; }
 
         public double GainIntegral { get; set; }
 
-        public double GainProportional { get; set; }
+        public double GainDerivative { get; set; }
 
     }
 }

@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.SignalR.Client
 @using BF.Common.Events
-@using BF.Common.Ids
+@using BF.Common.Components
 @using Newtonsoft.Json
 @using Syncfusion.EJ2.Blazor
 @using Syncfusion.EJ2.Blazor.Layouts
@@ -25,7 +25,7 @@
                 <div class="control-section">
                     <div class="content-wrapper">
 
-                        <TemperatureGauge ThermometerId="@ThermometerId.HLT" />
+                        <TemperatureGauge ComponentId="@ComponentId.HLT" />
 
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                 <div class="control-section">
                     <div class="content-wrapper">
 
-                        <SetPointComponent PidControllerId="PidControllerId.HLT" />
+                        <SetPointComponent ComponentId="ComponentId.HLT" />
 
                     </div>
                 </div>
@@ -53,7 +53,7 @@
                 <div class="control-section">
                     <div class="content-wrapper">
 
-                        <SsrPercentageGauge SsrId="SsrId.HLT" />
+                        <SsrPercentageGauge ComponentId="ComponentId.HLT" />
 
                     </div>
                 </div>

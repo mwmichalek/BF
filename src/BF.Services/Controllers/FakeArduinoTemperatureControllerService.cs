@@ -17,6 +17,7 @@ using BF.Common.Ids;
 using BF.Service.Events;
 using BF.Common.Events;
 using Serilog;
+using BF.Common.Components;
 
 namespace BF.Service.Controllers {
     public class FakeArduinoTemperatureControllerService : TemperatureControllerService {
@@ -34,7 +35,7 @@ namespace BF.Service.Controllers {
         private int hltSsrPercentage = 0;
 
         public void SsrChangeOccured(SsrChange ssr) {
-            if (ssr.Id == SsrId.HLT) {
+            if (ssr.Id == ComponentId.HLT) {
                 hltSsrPercentage = ssr.Percentage;
             }
         }
@@ -73,7 +74,7 @@ namespace BF.Service.Controllers {
                     if (newTemperature != temperatures[0]) {
                         Logger.Information($"Fake: OLD: {temperatures[0]} - NEW: {newTemperature}");
                         _eventHandler.ThermometerChangeFired(new ThermometerChange {
-                            Id = ThermometerId.HLT,
+                            Id = ComponentId.HLT,
                             Value = newTemperature,
                             Timestamp = DateTime.Now
                         });

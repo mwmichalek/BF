@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace BF.Service.Prism.Events {
 
+    public class InitializationChangeEvent : PubSubEvent<InitializationChange> { }
+
     public class ConnectionStatusRequestEvent : PubSubEvent<ConnectionStatusRequest> { }
 
     public class ConnectionStatusChangeEvent : PubSubEvent<ConnectionStatusChange> { }

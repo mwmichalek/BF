@@ -1,4 +1,5 @@
-﻿using BF.Common.Ids;
+﻿using BF.Common.Components;
+using BF.Common.Ids;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,8 @@ namespace BF.Common.Events {
 
     public class ConnectionStatusChange : IEventPayload {
 
+        public ComponentId Id { get; set; }
+
         public string ClientId { get; set; }
 
         public ConnectionState ConnectionState { get; set; }
@@ -25,6 +28,8 @@ namespace BF.Common.Events {
         public List<SsrChange> SsrChanges { get; set; }
 
         public List<PumpChange> PumpChanges { get; set; }
+
+        public List<PidChange> PidChanges { get; set; }
 
     }
 

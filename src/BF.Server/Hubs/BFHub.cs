@@ -17,6 +17,14 @@ namespace BF.Server.Hubs {
             _eventHandler = eventHandler;
         }
 
+        public override Task OnConnectedAsync() {
+            return base.OnConnectedAsync();
+        }
+
+        public async Task InitializationChangeFired(string jsonEvent) {
+            await Clients.Others.SendAsync("InitializationChangeFired", jsonEvent);
+        }
+
         public async Task TemperatureChangeFired(string jsonEvent) {
             await Clients.Others.SendAsync("TemperatureChangeFired", jsonEvent);
         }

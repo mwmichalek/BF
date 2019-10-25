@@ -1,6 +1,6 @@
 ﻿using System;
 using BF.Common.Events;
-using BF.Common.Ids;
+using BF.Common.Components;
 using BF.Service;
 using BF.Service.Events;
 using BF.Service.Components;
@@ -24,18 +24,18 @@ namespace BF.Appliance.ViewModels {
             Logger = Log.Logger;
             _eventHandler = eventHandler;
             
-            var hltThermometer = beerFactory.Thermometers.GetById(ThermometerId.HLT);
+            var hltThermometer = beerFactory.Thermometers.GetById<Thermometer>(ComponentId.HLT);
             if (hltThermometer != null)
                 Temperature = (double)hltThermometer.Temperature;
 
 
-            var hltPidController = beerFactory.PidControllers.GetById(PidControllerId.HLT);
+            var hltPidController = beerFactory.PidControllers.GetById<PidController>(ComponentId.HLT);
             if (hltPidController != null)
                 SetPoint = (int)hltPidController.SetPoint;
 
-            _eventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
-            _eventHandler.SsrChangeOccured(SsrChangeOccured);
-            _eventHandler.ConnectionStatusChangeOccured(ConnectionStatusChangeOccured);
+            _eventHandler.TemperatureChangeOccured(TemperatureChangeOccured, ThreadType.UIThread);
+            _eventHandler.SsrChangeOccured(SsrChangeOccured, ThreadType.UIThread);
+            _eventHandler.ConnectionStatusChangeOccured(ConnectionStatusChangeOccured, ThreadType.UIThread);
 
             //connection = new HubConnectionBuilder()
             //    .WithUrl("https://emrsd-ws-bf.azurewebsites.net/ChatHub")
@@ -55,7 +55,7 @@ namespace BF.Appliance.ViewModels {
 
         public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
 
-            if (temperatureChange.Id == ThermometerId.HLT) {
+            if (temperatureChange.Id == ComponentId.HLT) {
                 Logger.Information($"HLT Change: {temperatureChange.Value}");
                 Temperature = (double)temperatureChange.Value;
                 //Temperature = Math.Round((double)temperatureChange.Value, 1);
@@ -65,7 +65,7 @@ namespace BF.Appliance.ViewModels {
         }
 
         public void SsrChangeOccured(SsrChange ssrChange) {
-            if (ssrChange.Id == SsrId.HLT) {
+            if (ssrChange.Id == ComponentId.HLT) {
                 SsrPercentage = ssrChange.Percentage;
             }
         }

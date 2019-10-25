@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BF.Common.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace BF.Common.Events {
 
     public class HeaterChange : IEventPayload {
 
-        public int Index { get; set; }
+        public ComponentId Id { get; set; }
 
         public bool IsEngaged { get; set; }
     }

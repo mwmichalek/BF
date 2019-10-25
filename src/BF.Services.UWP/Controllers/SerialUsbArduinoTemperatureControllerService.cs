@@ -20,6 +20,7 @@ using BF.Common.Events;
 using BF.Common.Ids;
 using BF.Service.Controllers;
 using Serilog;
+using BF.Common.Components;
 
 namespace BF.Service.UWP.Controllers {
     public class SerialUsbArduinoTemperatureControllerService : TemperatureControllerService {
@@ -137,12 +138,12 @@ namespace BF.Service.UWP.Controllers {
                         int.TryParse(tempReadingValues[0], out int index);
                         double.TryParse(tempReadingValues[1], out double temperature);
 
-                        var thermometerId = (ThermometerId)Enum.Parse(typeof(ThermometerId), (index).ToString());
+                        var componentId = (ComponentId)Enum.Parse(typeof(ComponentId), (index).ToString());
 
                         //Log.Information($"Serial Temp Update: {thermometerId} - {temperature}");
                         _eventHandler.ThermometerChangeFired(            
                             new ThermometerChange {
-                                Id = thermometerId,
+                                Id = componentId,
                                 Value = temperature,
                                 Timestamp = DateTime.Now
                             }

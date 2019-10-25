@@ -1,4 +1,5 @@
-﻿using BF.Common.Events;
+﻿using BF.Common.Components;
+using BF.Common.Events;
 using BF.Common.Ids;
 using BF.Service.Components;
 using BF.Service.Events;
@@ -22,11 +23,11 @@ namespace BF.Service.Components {
     /// process that will affect the measured value.
     /// </remarks>
     /// <see cref="https://en.wikipedia.org/wiki/PID_controller"/>
-    public class PidController {
+    public class PidController : IComponent {
 
         private ILogger Logger { get; set; }
 
-        public PidControllerId Id { get; private set; }
+        public ComponentId Id { get; private set; }
 
         public Thermometer Thermometer { get; private set; }
 
@@ -39,7 +40,7 @@ namespace BF.Service.Components {
 
         private int dutyCycleInMillis = 2000;
 
-        public PidController(IBeerFactoryEventHandler eventHandler, PidControllerId id, Ssr ssr, Thermometer thermometer) {
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer) {
             Logger = Log.Logger;
             _eventHandler = eventHandler;
             Id = id;
@@ -48,7 +49,7 @@ namespace BF.Service.Components {
             RegisterEvents();
         }
 
-        public PidController(IBeerFactoryEventHandler eventHandler, PidControllerId id, Ssr ssr, Thermometer thermometer, double setPoint) {
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer, double setPoint) {
             Logger = Log.Logger; 
             _eventHandler = eventHandler;
             Id = id;
@@ -58,7 +59,7 @@ namespace BF.Service.Components {
             RegisterEvents();
         }
 
-        public PidController(IBeerFactoryEventHandler eventHandler, PidControllerId id, Ssr ssr, Thermometer thermometer, double gainProportional, double gainIntegral, double gainDerivative, double outputMin, double outputMax, double setPoint) {
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer, double gainProportional, double gainIntegral, double gainDerivative, double outputMin, double outputMax, double setPoint) {
             Logger = Log.Logger; 
             _eventHandler = eventHandler;
             if (OutputMax < OutputMin)
@@ -96,25 +97,23 @@ namespace BF.Service.Components {
 
         public void PidRequestOccured(PidRequest pidRequest) {
             if (pidRequest.Id == Id) {
-                IsEngaged = pidRequest.IsEngaged;
-                PidMode = pidRequest.PidMode;
-                SetPoint = pidRequest.SetPoint;
+                IsEngaged = pidRequest.IsEngaged.HasValue ? pidRequest.IsEngaged.Value : IsEngaged;
+                PidMode = pidRequest.PidMode.HasValue ? pidRequest.PidMode.Value : PidMode;
+                SetPoint = pidRequest.SetPoint.HasValue ? pidRequest.SetPoint.Value : SetPoint;
 
-                if (pidRequest.GainDerivative != double.MinValue) GainDerivative = pidRequest.GainDerivative;
-                if (pidRequest.GainIntegral != double.MinValue) GainIntegral = pidRequest.GainIntegral;
-                if (pidRequest.GainProportional != double.MinValue) GainProportional = pidRequest.GainProportional;
+                GainDerivative = pidRequest.GainDerivative.HasValue ? pidRequest.GainDerivative.Value : GainDerivative;
+                GainIntegral = pidRequest.GainIntegral.HasValue ? pidRequest.GainIntegral.Value : GainIntegral;
+                GainProportional = pidRequest.GainProportional.HasValue ? pidRequest.GainProportional.Value : GainProportional;
 
                 _eventHandler.PidChangeFired(new PidChange {
-                    Id = pidRequest.Id,
-                    IsEngaged = pidRequest.IsEngaged,
-                    PidMode = pidRequest.PidMode,
-                    SetPoint = pidRequest.SetPoint,
-                    GainDerivative = pidRequest.GainDerivative,
-                    GainIntegral = pidRequest.GainIntegral,
-                    GainProportional = pidRequest.GainProportional
+                    Id = Id,
+                    IsEngaged = IsEngaged,
+                    PidMode = PidMode,
+                    SetPoint = SetPoint,
+                    GainDerivative = GainDerivative,
+                    GainIntegral = GainIntegral,
+                    GainProportional = GainProportional
                 });
-
-                
             }
 
             //if (pidRequest.Id != Id && pidRequest.IsEngaged) {
@@ -164,7 +163,7 @@ namespace BF.Service.Components {
 
                     output = Clamp(output);
 
-                    
+                    Log.Information($"OUTPUT: {output}");
 
                     lastRun = currentTime;
 
@@ -264,11 +263,5 @@ namespace BF.Service.Components {
         }
     }
 
-    public static class PidControllerHelper {
-
-        public static PidController GetById(this List<PidController> pidControllers, PidControllerId pidControllerId) {
-            return pidControllers.SingleOrDefault(s => s.Id == pidControllerId);
-        }
-
-    }
+  
 }

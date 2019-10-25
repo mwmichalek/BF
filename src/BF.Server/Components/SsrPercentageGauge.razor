@@ -2,7 +2,7 @@
 @using Syncfusion.EJ2.Blazor.CircularGauge
 @using BF.Service.Events
 @using BF.Common.Events
-@using BF.Common.Ids
+@using BF.Common.Components
 
 <EjsCircularGauge Width="200" Height="200">
     <CircularGaugeAxes>
@@ -22,7 +22,7 @@
 @code {
 
     [Parameter]
-    public SsrId SsrId { get; set; }
+    public ComponentId ComponentId { get; set; }
 
     [Inject]
     IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
@@ -34,7 +34,7 @@
     }
 
     void SsrChangeOccured(SsrChange ssrChange) {
-        if (ssrChange.Id == SsrId) {
+        if (ssrChange.Id == ComponentId) {
             Percentage = ssrChange.Percentage;
             InvokeAsync(() => StateHasChanged());
         }

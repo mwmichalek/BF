@@ -40,6 +40,7 @@ namespace BF.Server {
                     policy.Requirements.Add(new ComponentRestrictedRequirement());
                 });
             });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,6 +63,8 @@ namespace BF.Server {
                 endpoints.MapFallbackToPage("/_Host");
                 endpoints.MapHub<BFHub>("/bfHub");
             });
+
+            EventLoggerHelper.Environment = "Server";
         }
     }
 }

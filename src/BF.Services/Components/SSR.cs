@@ -10,15 +10,16 @@ using BF.Common.Ids;
 using BF.Common.Events;
 using Windows.Devices.Gpio;
 using Serilog;
+using BF.Common.Components;
 
 namespace BF.Service.Components {
     
 
-    public class Ssr {
+    public class Ssr : IComponent {
 
         private ILogger Logger { get; set; }
 
-        public SsrId Id { get; set; }
+        public ComponentId Id { get; set; }
 
         public int Pin { get; set; }
 
@@ -67,7 +68,7 @@ namespace BF.Service.Components {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public Ssr(IBeerFactoryEventHandler eventHandler, SsrId id) {
+        public Ssr(IBeerFactoryEventHandler eventHandler, ComponentId id) {
             Logger = Log.Logger;
             _eventHandler = eventHandler;
             Id = id;
@@ -141,14 +142,6 @@ namespace BF.Service.Components {
         public void Stop() {
             isRunning = false;
         }
-    }
-
-    public static class SsrHelper {
-
-        public static Ssr GetById(this List<Ssr> ssrs, SsrId ssrId) {
-            return ssrs.SingleOrDefault(s => s.Id == ssrId);
-        }
-
     }
 
 }

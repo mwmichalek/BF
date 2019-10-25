@@ -2,7 +2,7 @@
 @using Syncfusion.EJ2.Blazor.CircularGauge
 @using BF.Service.Events
 @using BF.Common.Events
-@using BF.Common.Ids
+@using BF.Common.Components
 
 <EjsCircularGauge Width="200" Height="200">
     <CircularGaugeAxes>
@@ -22,7 +22,7 @@
 @code {
 
     [Parameter]
-    public ThermometerId ThermometerId { get; set; }
+    public ComponentId ComponentId { get; set; }
 
     [Inject]
     IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
@@ -36,7 +36,7 @@
     }
 
     void TemperatureChangeOccured(TemperatureChange temperatureChange) {
-        if (temperatureChange.Id == ThermometerId) {
+        if (temperatureChange.Id == ComponentId) {
             Temperature = (double)temperatureChange.Value;
             InvokeAsync(() => StateHasChanged());
         }

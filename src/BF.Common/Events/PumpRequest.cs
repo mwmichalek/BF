@@ -1,4 +1,5 @@
-﻿using BF.Common.Ids;
+﻿using BF.Common.Components;
+using BF.Common.Ids;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace BF.Common.Events {
 
     public class PumpRequest : IEventPayload {
 
-        public PumpId Id { get; set; }
+        public ComponentId Id { get; set; }
 
         public bool IsEngaged { get; set; }
     }

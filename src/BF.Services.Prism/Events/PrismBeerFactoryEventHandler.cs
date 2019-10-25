@@ -11,7 +11,18 @@ using System.Threading.Tasks;
 
 namespace BF.Service.Prism.Events {
 
-    
+    public static class ThreadOptionHelper {
+
+        private static IDictionary<ThreadType, ThreadOption> lookup = new Dictionary<ThreadType, ThreadOption> {
+            { ThreadType.BackgroundThread, ThreadOption.BackgroundThread },
+            { ThreadType.PublisherThread, ThreadOption.PublisherThread },
+            { ThreadType.UIThread, ThreadOption.UIThread }
+        };
+
+        public static ThreadOption ToThreadOption(this ThreadType threadType) {
+            return lookup[threadType];
+        }
+    }
 
     public class PrismBeerFactoryEventHandler : IBeerFactoryEventHandler {
 
@@ -24,44 +35,51 @@ namespace BF.Service.Prism.Events {
             Logger = Log.Logger;
         }
 
-        public void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler) {
-            _eventAggregator.GetEvent<TemperatureChangeEvent>().Subscribe(temperatureChangeHandler, ThreadOption.UIThread);
+        public void InitializationChangeOccured(Action<InitializationChange> initializationChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            _eventAggregator.GetEvent<InitializationChangeEvent>().Subscribe(initializationChangeHandler, threadType.ToThreadOption());
         }
 
-        public void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler) {
-            _eventAggregator.GetEvent<ThermometerChangeEvent>().Subscribe(thermometerChangeHandler);
+        public void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            _eventAggregator.GetEvent<TemperatureChangeEvent>().Subscribe(temperatureChangeHandler, threadType.ToThreadOption());
         }
 
-        public void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler) {
-            _eventAggregator.GetEvent<PumpRequestEvent>().Subscribe(pumpRequestHandler);
+        public void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            _eventAggregator.GetEvent<ThermometerChangeEvent>().Subscribe(thermometerChangeHandler, threadType.ToThreadOption());
         }
 
-        public void PumpChangeOccured(Action<PumpChange> pumpChangeHandler) {
-            _eventAggregator.GetEvent<PumpChangeEvent>().Subscribe(pumpChangeHandler);
+        public void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            _eventAggregator.GetEvent<PumpRequestEvent>().Subscribe(pumpRequestHandler, threadType.ToThreadOption());
         }
 
-
-        public void PidRequestOccured(Action<PidRequest> pidRequestHandler) {
-            _eventAggregator.GetEvent<PidRequestEvent>().Subscribe(pidRequestHandler);
-        }
-
-        public void PidChangeOccured(Action<PidChange> pidChangeHandler) {
-            _eventAggregator.GetEvent<PidChangeEvent>().Subscribe(pidChangeHandler);
+        public void PumpChangeOccured(Action<PumpChange> pumpChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            _eventAggregator.GetEvent<PumpChangeEvent>().Subscribe(pumpChangeHandler, threadType.ToThreadOption());
         }
 
 
-        public void SsrChangeOccured(Action<SsrChange> ssrChangeHandler) {
-            _eventAggregator.GetEvent<SsrChangeEvent>().Subscribe(ssrChangeHandler);
+        public void PidRequestOccured(Action<PidRequest> pidRequestHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            _eventAggregator.GetEvent<PidRequestEvent>().Subscribe(pidRequestHandler, threadType.ToThreadOption());
         }
 
-        public void ConnectionStatusRequestOccured(Action<ConnectionStatusRequest> connectionStatusRequestHandler) {
-            _eventAggregator.GetEvent<ConnectionStatusRequestEvent>().Subscribe(connectionStatusRequestHandler);
+        public void PidChangeOccured(Action<PidChange> pidChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            _eventAggregator.GetEvent<PidChangeEvent>().Subscribe(pidChangeHandler, threadType.ToThreadOption());
         }
 
-        public void ConnectionStatusChangeOccured(Action<ConnectionStatusChange> connectionStatusChangeHandler) {
-            _eventAggregator.GetEvent<ConnectionStatusChangeEvent>().Subscribe(connectionStatusChangeHandler);
+
+        public void SsrChangeOccured(Action<SsrChange> ssrChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            _eventAggregator.GetEvent<SsrChangeEvent>().Subscribe(ssrChangeHandler, threadType.ToThreadOption());
         }
 
+        public void ConnectionStatusRequestOccured(Action<ConnectionStatusRequest> connectionStatusRequestHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            _eventAggregator.GetEvent<ConnectionStatusRequestEvent>().Subscribe(connectionStatusRequestHandler, threadType.ToThreadOption());
+        }
+
+        public void ConnectionStatusChangeOccured(Action<ConnectionStatusChange> connectionStatusChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            _eventAggregator.GetEvent<ConnectionStatusChangeEvent>().Subscribe(connectionStatusChangeHandler, threadType.ToThreadOption());
+        }
+
+        public virtual void InitializationChangeFired(InitializationChange initializationChange) {
+            _eventAggregator.GetEvent<InitializationChangeEvent>().Publish(initializationChange);
+        }
 
         public virtual void TemperatureChangeFired(TemperatureChange temperatureChange) {
             _eventAggregator.GetEvent<TemperatureChangeEvent>().Publish(temperatureChange);
@@ -99,8 +117,24 @@ namespace BF.Service.Prism.Events {
             _eventAggregator.GetEvent<ConnectionStatusChangeEvent>().Publish(connectionStatusChange);
         }
 
-        
-        
+
+    }
+
+    public static class EventLoggerHelper {
+
+        public static bool IsVerbose { get; set; } = true;
+
+        public static string Environment { get; set; }
+
+        public static T LogSignalREvent<T>(this IEventPayload eventPayload) where T : IEventPayload {
+            if (IsVerbose) Log.Logger.Debug($"{Environment} : {eventPayload.GetType().Name}");
+            return (T)eventPayload;
+        }
+
+        public static T LogLocalEvent<T>(this IEventPayload eventPayload) where T : IEventPayload {
+            if (IsVerbose) Log.Logger.Debug($"{Environment} : {eventPayload.GetType().Name}");
+            return (T)eventPayload;
+        }
     }
 
 }

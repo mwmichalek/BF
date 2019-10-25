@@ -52,7 +52,7 @@ namespace BF.Appliance {
                 temperatureControllerService.Run();
             });
 
-
+            EventLoggerHelper.Environment = "RaspberryPi";
 
             Log.Information("Initialization complete.");
         }

@@ -1,4 +1,5 @@
-﻿using BF.Common.Events;
+﻿using BF.Common.Components;
+using BF.Common.Events;
 using BF.Common.Ids;
 using BF.Service.Events;
 using Serilog;
@@ -11,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace BF.Service.Components {
 
-    public class Thermometer {
+    public class Thermometer : IComponent {
 
         private ILogger Logger { get; set; }
 
-        private List<ThermometerChange> _thermometerChange = new List<ThermometerChange>();
+        public List<ThermometerChange> ThermometerChanges = new List<ThermometerChange>();
 
-        public ThermometerId Id { get; private set; }
+        public ComponentId Id { get; private set; }
 
         public double Change { get; set; }
 
@@ -29,14 +30,14 @@ namespace BF.Service.Components {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public Thermometer(IBeerFactoryEventHandler eventHandler, ThermometerId id) {
+        public Thermometer(IBeerFactoryEventHandler eventHandler, ComponentId id) {
             _eventHandler = eventHandler;
             Logger = Log.Logger;
             Id = id;
             RegisterEvents();
         }
 
-        public Thermometer(IBeerFactoryEventHandler eventHandler, ThermometerId id, int changeThreshold, int changeWindowInMillis, int changeEventRetentionInMins) {
+        public Thermometer(IBeerFactoryEventHandler eventHandler, ComponentId id, int changeThreshold, int changeWindowInMillis, int changeEventRetentionInMins) {
             _eventHandler = eventHandler; 
             Logger = Log.Logger;
             _changeThreshold = changeThreshold;
@@ -71,15 +72,15 @@ namespace BF.Service.Components {
   
                 // Determin Change - Get all changes at least this old, order by newest, take first
                 var earliestTimeOfChange = DateTime.Now.AddMilliseconds(-_changeWindowInMillis);
-                var previousChange = _thermometerChange.Where(tc => tc.Timestamp < earliestTimeOfChange).OrderByDescending(tc => tc.Timestamp).FirstOrDefault();
+                var previousChange = ThermometerChanges.Where(tc => tc.Timestamp < earliestTimeOfChange).OrderByDescending(tc => tc.Timestamp).FirstOrDefault();
                 if (previousChange != null)
                     Change = thermometerChange.Value - previousChange.Value;
 
                 // Determine Retention
                 var oldestTimeOfChange = DateTime.Now.AddMinutes(-_changeEventRetentionInMins);
-                var changesToRemove = _thermometerChange.RemoveAll(tc => tc.Timestamp < oldestTimeOfChange);
+                var changesToRemove = ThermometerChanges.RemoveAll(tc => tc.Timestamp < oldestTimeOfChange);
 
-                _thermometerChange.Add(thermometerChange);
+                ThermometerChanges.Add(thermometerChange);
 
                 // If change is big enough, broadcast Temperature Change
                 if (Math.Abs(Change) > _changeThreshold) {
@@ -107,11 +108,4 @@ namespace BF.Service.Components {
 
     }
 
-    public static class ThermometerHelper {
-
-        public static Thermometer GetById(this List<Thermometer> thermometers, ThermometerId thermometerId) {
-            return thermometers.SingleOrDefault(t => t.Id == thermometerId);
-        }
-
-    }
 }

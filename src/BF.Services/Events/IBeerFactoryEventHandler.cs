@@ -18,30 +18,32 @@ namespace BF.Service.Events {
 
     public interface IBeerFactoryEventHandler {
 
-        void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler);
+        void InitializationChangeOccured(Action<InitializationChange> initializationHandler, ThreadType threadType = ThreadType.PublisherThread);
 
-        void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler);
+        void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
 
-
-        void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler);
-
-        void PumpChangeOccured(Action<PumpChange> pumpChangeHandler);
+        void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
 
 
-        void PidRequestOccured(Action<PidRequest> pidRequestHandler);
+        void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
 
-        void PidChangeOccured(Action<PidChange> pidChangeHandler);
-
-
-        void SsrChangeOccured(Action<SsrChange> ssrChangeHandler);
+        void PumpChangeOccured(Action<PumpChange> pumpChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
 
 
-        void ConnectionStatusRequestOccured(Action<ConnectionStatusRequest> connectionStatusRequestHandler);
+        void PidRequestOccured(Action<PidRequest> pidRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
 
-        void ConnectionStatusChangeOccured(Action<ConnectionStatusChange> connectionStatusChangeHandler);
+        void PidChangeOccured(Action<PidChange> pidChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
 
 
+        void SsrChangeOccured(Action<SsrChange> ssrChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
 
+
+        void ConnectionStatusRequestOccured(Action<ConnectionStatusRequest> connectionStatusRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
+
+        void ConnectionStatusChangeOccured(Action<ConnectionStatusChange> connectionStatusChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
+
+
+        void InitializationChangeFired(InitializationChange initializationChange);
 
         void TemperatureChangeFired(TemperatureChange temperatureChange);
 

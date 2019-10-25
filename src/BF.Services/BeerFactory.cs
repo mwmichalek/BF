@@ -17,6 +17,8 @@ using BF.Service.Components;
 using BF.Service.Events;
 using BF.Common.Ids;
 using BF.Common.Events;
+using BF.Common.Components;
+using BF.Services.Components;
 
 namespace BF.Service {
 
@@ -25,6 +27,8 @@ namespace BF.Service {
         List<Thermometer> Thermometers { get; }
 
         List<PidController> PidControllers { get; }
+
+        List<Pump> Pumps { get; }
 
         List<Ssr> Ssrs { get; }
     }
@@ -39,6 +43,8 @@ namespace BF.Service {
 
         public List<Ssr> Ssrs { get; set; } = new List<Ssr>();
 
+        public List<Pump> Pumps { get; set; } = new List<Pump>();
+
         public List<Thermometer> Thermometers { get; set; } = new List<Thermometer>();
 
         private IBeerFactoryEventHandler _eventHandler;
@@ -47,15 +53,8 @@ namespace BF.Service {
             _eventHandler = eventHandler;
             Logger = Log.Logger;
 
-            //_eventAggregator.GetEvent<ThermometerChangeEvent>().Subscribe(PrintStatusPub, ThreadOption.PublisherThread);
-            //_eventAggregator.GetEvent<ThermometerChangeEvent>().Subscribe(PrintStatusBack, ThreadOption.BackgroundThread);
-            //_eventAggregator.GetEvent<ThermometerChangeEvent>().Subscribe(PrintStatusUi, ThreadOption.UIThread);
-
-            
-            
-
             for (int index = 1; index <= (int)ThermometerId.FERM; index++ )
-                Thermometers.Add(new Thermometer(_eventHandler, (ThermometerId)index));
+                Thermometers.Add(new Thermometer(_eventHandler, (ComponentId)index));
 
             _phases.Add(new Phase(PhaseId.FillStrikeWater, 20));
             _phases.Add(new Phase(PhaseId.HeatStrikeWater, 40));
@@ -65,24 +64,22 @@ namespace BF.Service {
             _phases.Add(new Phase(PhaseId.Boil, 90));
             _phases.Add(new Phase(PhaseId.Chill, 30));
 
-            var hltSsr = new Ssr(_eventHandler, SsrId.HLT);
+            var hltSsr = new Ssr(_eventHandler, ComponentId.HLT);
             hltSsr.Percentage = 0;
             hltSsr.Start();
 
             Ssrs.Add(hltSsr);
 
-            var bkSsr = new Ssr(_eventHandler, SsrId.BK);
+            var bkSsr = new Ssr(_eventHandler, ComponentId.BK);
             bkSsr.Percentage = 0;
             bkSsr.Start();
 
             Ssrs.Add(bkSsr);
 
-            //ConfigureEvents();
-
             var _hltPidController = new PidController(_eventHandler, 
-                                                      PidControllerId.HLT,
+                                                      ComponentId.HLT,
                                                       hltSsr, 
-                                                      Thermometers.GetById(ThermometerId.HLT));
+                                                      Thermometers.GetById<Thermometer>(ComponentId.HLT));
             //_hltPidController.GainProportional = 18;
             //_hltPidController.GainIntegral = 1.5;
             //_hltPidController.GainDerivative = 22.5;
@@ -98,7 +95,7 @@ namespace BF.Service {
 
 
             _eventHandler.PidRequestFired(new PidRequest {
-                Id = PidControllerId.HLT,
+                Id = ComponentId.HLT,
                 IsEngaged = true,
                 PidMode = PidMode.Temperature,
                 SetPoint = 90,
@@ -107,19 +104,50 @@ namespace BF.Service {
                 GainProportional = 18
             });
 
+            foreach (var id in new []{ ComponentId.HLT, ComponentId.MT, ComponentId.BK }) {
+                Pumps.Add(new Pump {
+                    Id = id
+                });
+            }
 
+            //Used upon reconnection
+            _eventHandler.InitializationChangeOccured(BroadcastBeerFactoryState);
 
+            //Trigger now becuase the first one was missed.
+    
+            _eventHandler.InitializationChangeFired(new InitializationChange {
+                Device = Device.RaspberryPi
+            });
 
-            //_eventHandler.PidRequestOccured(PidRequestOccured);
-
+            
         }
 
-        //public void PidRequestOccured(PidRequest pidRequest) {
-
-        //    var pidController = PidControllers.SingleOrDefault(pid => pid.Id == pidRequest.Id);
-        //    pidController.IsEngaged = pidRequest.IsEngaged;
-        //    pidController.SetPoint = pidRequest.SetPoint;
-        //}
-
+        public void BroadcastBeerFactoryState(InitializationChange initializationChange) {
+            if (initializationChange.Device == Device.RaspberryPi) {
+                _eventHandler.ConnectionStatusChangeFired(new ConnectionStatusChange {
+                    ClientId = "RaspberryPi",
+                    ConnectionState = ConnectionState.Connected,
+                    ThermometerChanges = Thermometers.SelectMany(t => t.ThermometerChanges).ToList(),
+                    SsrChanges = Ssrs.Select(s => new SsrChange {
+                        Id = s.Id,
+                        IsEngaged = s.IsEngaged,
+                        Percentage = s.Percentage
+                    }).ToList(),
+                    PumpChanges = Pumps.Select(p => new PumpChange {
+                        Id = p.Id,
+                        IsEngaged = p.IsEngaged
+                    }).ToList(),
+                    PidChanges = PidControllers.Select(pid => new PidChange {
+                        Id = pid.Id,
+                        IsEngaged = pid.IsEngaged,
+                        PidMode = pid.PidMode,
+                        SetPoint = pid.SetPoint,
+                        GainProportional = pid.GainProportional,
+                        GainIntegral = pid.GainIntegral,
+                        GainDerivative = pid.GainDerivative
+                    }).ToList()
+                });
+            }
+        }
     }
 }
