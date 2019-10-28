@@ -18,21 +18,18 @@ using System.Threading.Tasks;
 namespace BF.Services.Prism.Events {
     public class SignalRPrismBeerFactoryEventHandler : PrismBeerFactoryEventHandler {
 
-        //private ILogger Logger { get; set; }
+        private ILogger Logger { get; set; }
 
         private HubConnection _connection;
 
-   
-
         public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory) : 
             base(eventAggregator, loggerFactory) {
-            ///Logger = Log.Logger;
+            Logger = loggerFactory.CreateLogger<SignalRPrismBeerFactoryEventHandler>();
             Task.Run(() => Connect());
         }
 
         public virtual async Task Connect() {
             
-
             try {
 
                 if (DeviceHelper.GetDevice() == Device.Server || DeviceHelper.GetDevice() == Device.RaspberryPi) {
@@ -99,10 +96,8 @@ namespace BF.Services.Prism.Events {
 
                 await _connection.StartAsync();
 
-                //if (_connection.IsConnected())
-                //    InitializationChangeFired(new InitializationChange());
             } catch (Exception ex) {
-                //Logger.Warning($"Unable to connecto to SignalR server: {ex}");
+                Logger.LogWarning($"Unable to connecto to SignalR server: {ex}");
             }
         }
 

@@ -145,6 +145,7 @@ namespace BF.Service.Components {
 
 
                     var secondsSinceLastUpdate = (currentTime - lastRun).Seconds;
+                    if (secondsSinceLastUpdate == 0) secondsSinceLastUpdate = 1;
 
                     double error = SetPoint - ProcessVariable;
 
@@ -162,8 +163,6 @@ namespace BF.Service.Components {
                     double output = proportionalTerm + IntegralTerm - derivativeTerm;
 
                     output = Clamp(output);
-
-                    Logger.LogInformation($"OUTPUT: {output}");
 
                     lastRun = currentTime;
 

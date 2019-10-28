@@ -51,6 +51,7 @@ namespace BF.Service.Components {
             }
             set {
                 if (value != _percentage) {
+                    Logger.LogInformation($"Setting Percentage to {value}");
                     _percentage = value;
                     CalculateDurations();
                     SendNotification();

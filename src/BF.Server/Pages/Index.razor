@@ -16,114 +16,33 @@
 @using BF.Service.Components
 @using BF.Server.Components
 
-<EjsDashboardLayout CellSpacing="@(new double[] { 10, 10 })" CellAspectRatio="1" Columns="7" AllowDragging="false" AllowResizing="false">
-    <DashboardLayoutPanels>
+<div class="container">
+    <div class="row">
+        <div class="col-9">
+            <div class="row">
+                <div class="col-12">
+                    
+                    <TemperatureGauge ComponentId="@ComponentId.HLT" />
+                   
 
-        <DashboardLayoutPanel Col="0" SizeX="3">
-            <HeaderTemplate><div>Temperature</div></HeaderTemplate>
-            <ContentTemplate>
-                <div class="control-section">
-                    <div class="content-wrapper">
-
-                        <TemperatureGauge ComponentId="@ComponentId.HLT" />
-
-                    </div>
                 </div>
-            </ContentTemplate>
-        </DashboardLayoutPanel>
-
-
-
-        <DashboardLayoutPanel Col="3" SizeX="3">
-            <HeaderTemplate><div>SetPoint</div></HeaderTemplate>
-            <ContentTemplate>
-                <div class="control-section">
-                    <div class="content-wrapper">
-
-                        <SetPointComponent ComponentId="ComponentId.HLT" />
-
-                    </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <SsrPercentageGauge ComponentId="ComponentId.HLT" />
                 </div>
-            </ContentTemplate>
-        </DashboardLayoutPanel>
+            </div>
+        </div>
+        <div class="col-3">
+            <SetPointComponent ComponentId="ComponentId.HLT" />
+        </div>
+    </div>
 
-        <DashboardLayoutPanel Col="0" Row="1" SizeX="3">
-            <ContentTemplate>
-
-                <div class="control-section">
-                    <div class="content-wrapper">
-
-                        <SsrPercentageGauge ComponentId="ComponentId.HLT" />
-
-                    </div>
-                </div>
-
-
-                @*<EjsTextBox FloatLabelType='@FloatLabelType.Auto' Placeholder="UserName" Value="@User"></EjsTextBox>
-        <br />
-
-        <EjsTextBox FloatLabelType='@FloatLabelType.Auto' Placeholder="Message" Value="@Message"></EjsTextBox>
-        <br />
-
-        <EjsButton CssClass="e-primary" @onclick="SendMessage">SEND</EjsButton>
-        <br />*@
-            </ContentTemplate>
-        </DashboardLayoutPanel>
-
-        <DashboardLayoutPanel Col="3" Row="1" SizeX="3">
-            <ContentTemplate>
-
-                <div class="control-section">
-                    <div class="content-wrapper">
-                        
-                        <EventLogger />
-
-
-                    </div>
-                </div>
-            </ContentTemplate>
-        </DashboardLayoutPanel>
-
-        @*<DashboardLayoutPanel SizeY=2 Col=3>
-                <ContentTemplate><div>2</div></ContentTemplate>
-            </DashboardLayoutPanel>
-            <DashboardLayoutPanel Row=1>
-                <ContentTemplate><div>3</div></ContentTemplate>
-            </DashboardLayoutPanel>*@
-    </DashboardLayoutPanels>
-</EjsDashboardLayout>
+</div>
 
 
 
-<style>
-    .content-wrapper {
-        width: 40%;
-        margin: auto auto;
-        min-width: 185px;
-    }
 
-    .sliderwrap {
-        margin-top: 40px;
-    }
-
-    .e-bigger .content-wrapper {
-        width: 80%;
-    }
-
-    .sliderwrap label {
-        padding-bottom: 26px;
-        font-size: 13px;
-        font-weight: 500;
-        margin-top: 15px;
-    }
-
-    .userselect {
-        -webkit-user-select: none; /* Safari 3.1+ */
-        -moz-user-select: none; /* Firefox 2+ */
-        -ms-user-select: none; /* IE 10+ */
-        user-select: none; /* Standard syntax */
-    }
-</style>
 
 @code {
 
@@ -134,7 +53,7 @@
     string Message = "";
 
     protected override async Task OnInitializedAsync() {
-        
+
 
     }
 

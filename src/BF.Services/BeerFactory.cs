@@ -116,7 +116,7 @@ namespace BF.Service {
             //Trigger now becuase the first one was missed.
 
             Task.Run(() => {
-                Thread.Sleep(5000);
+                Thread.Sleep(10000);
                 _eventHandler.InitializationChangeFired(new InitializationChange {
                     Device = Device.RaspberryPi
                 });

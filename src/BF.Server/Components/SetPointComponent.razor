@@ -5,19 +5,21 @@
 @using BF.Common.Events
 @using BF.Common.Components
 
+<div class="content-wrapper" style="height: 100%;">
+    <EjsSlider Orientation="@SliderOrientation.Vertical"
+                Type=SliderType.MinRange
+                Value="@SetPoint"
+                Min="40" Max="212">
+        <SliderTooltipData IsVisible="true" Placement="TooltipPlacement.Before" ShowOn="TooltipShowOn.Always" />
+        <SliderTicksData Placement="Placement.After"
+                            ShowSmallTicks="false"
+                            LargeStep="10"
+                            SmallStep="1" />
+        <SliderEvents TValue="int"
+                        OnChange="@SetPointChange" />
 
-<EjsSlider Value="@SetPoint" Min="40" Max="212"
-           Type=SliderType.MinRange>
-    <SliderTooltipData IsVisible="true" Placement="TooltipPlacement.Before" ShowOn="TooltipShowOn.Always" />
-    <SliderTicksData Placement="Placement.After"
-                     ShowSmallTicks="false"
-                     LargeStep="10"
-                     SmallStep="1" />
-    <SliderEvents TValue="int"
-                  OnChange="@SetPointChange" />
-
-</EjsSlider>
-
+    </EjsSlider>
+</div>
 
 @code {
 
@@ -46,7 +48,7 @@
     }
 
     void SetPointChange(SliderChangeEventArgs<int> eventArgs) {
-        //_beerFactoryEventHandler.
+        SetPoint = eventArgs.Value;
 
         var pidRequest = new PidRequest {
             Id = ComponentId,

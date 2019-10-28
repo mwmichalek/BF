@@ -4,20 +4,63 @@
 @using BF.Common.Events
 @using BF.Common.Components
 
-<EjsCircularGauge Width="200" Height="200">
+<EjsCircularGauge Width="100%" Height="100%">
     <CircularGaugeAxes>
         <CircularGaugeAxis Minimum="20" Maximum="220" StartAngle="240" EndAngle="120" Radius="90%">
             <CircularGaugePointers>
                 <CircularGaugePointer Value="@Temperature">
+                </CircularGaugePointer>
+                <CircularGaugePointer Type="PointerType.RangeBar" Value="@SetPoint" Radius="60%" Color="#8BC34A" PointerWidth="7" RoundedCornerRadius="10">
+                    <CircularGaugePointerAnimation Enable="false" Duration="0">
+                    </CircularGaugePointerAnimation>
                 </CircularGaugePointer>
             </CircularGaugePointers>
             <CircularGaugeRanges>
                 <CircularGaugeRange Start="20" End="32" Color="Blue" />
                 <CircularGaugeRange Start="212" End="220" Color="Red" />
             </CircularGaugeRanges>
+            <CircularGaugeAnnotations>
+                <CircularGaugeAnnotation Radius="40%" Angle="180" ZIndex="1" Content="@TemperatureStr">
+                    <ContentTemplate>
+                        <div><span style="font-size:20px; color:#424242; font-family:Regular; margin-left: -33px">@TemperatureStr</span></div>
+                    </ContentTemplate>
+                </CircularGaugeAnnotation>
+                
+            </CircularGaugeAnnotations>
         </CircularGaugeAxis>
     </CircularGaugeAxes>
 </EjsCircularGauge>
+
+
+        @*<EjsCircularGauge>
+            <CircularGaugeAxes>
+                <CircularGaugeAxis Radius="80%" StartAngle="230" EndAngle="130">
+                    <CircularGaugeAxisLabelStyle Offset="-5">
+                        <CircularGaugeAxisLabelFont FontFamily="Roboto" Size="12px" FontWeight="Regular">
+                        </CircularGaugeAxisLabelFont>
+                    </CircularGaugeAxisLabelStyle>
+                    <CircularGaugeAxisLineStyle Width="8" Color="#E0E0E0">
+                    </CircularGaugeAxisLineStyle>
+                    <CircularGaugeAxisMajorTicks Width="0.01">
+                    </CircularGaugeAxisMajorTicks>
+                    <CircularGaugeAxisMinorTicks Width="0.01">
+                    </CircularGaugeAxisMinorTicks>
+                    <CircularGaugePointers>
+                        <CircularGaugePointer Value=60 Radius="60%" Color="#757575" PointerWidth="7">
+                            <CircularGaugeCap Radius="8" Color="#757575">
+                                <CircularGaugeCapBorder Width="0">
+                                </CircularGaugeCapBorder>
+                            </CircularGaugeCap>
+                            <CircularGaugeNeedleTail Color="#757575" Length="25%">
+                            </CircularGaugeNeedleTail>
+                        </CircularGaugePointer>
+                    </CircularGaugePointers>
+                </CircularGaugeAxis>
+            </CircularGaugeAxes>
+        </EjsCircularGauge>*@
+  
+
+
 
 @code {
 
@@ -27,17 +70,28 @@
     [Inject]
     IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
 
+    public string TemperatureStr { get; set; } = "";
 
+    public double Temperature { get; set; } = 20;
 
-    public double Temperature = 70;
+    public double SetPoint { get; set; } = 20;
 
     protected override async Task OnInitializedAsync() {
         _beerFactoryEventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
+        _beerFactoryEventHandler.PidChangeOccured(PidChangeOccured);
     }
 
     void TemperatureChangeOccured(TemperatureChange temperatureChange) {
         if (temperatureChange.Id == ComponentId) {
             Temperature = (double)temperatureChange.Value;
+            TemperatureStr = temperatureChange.Value.ToString("0.0");
+            InvokeAsync(() => StateHasChanged());
+        }
+    }
+
+    void PidChangeOccured(PidChange pidChange) {
+        if (pidChange.Id == ComponentId) {
+            SetPoint = pidChange.SetPoint;
             InvokeAsync(() => StateHasChanged());
         }
     }
