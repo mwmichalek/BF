@@ -16,6 +16,10 @@ using Prism.Events;
 using BF.Service.Prism.Events;
 using BF.Service.Events;
 using BF.Services.Prism.Events;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Enrichers.AzureWebApps;
+using Serilog.Exceptions;
 
 namespace BF.Server {
     public class Startup {
@@ -28,6 +32,18 @@ namespace BF.Server {
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services) {
+
+            var loggerConfiguration = new LoggerConfiguration()
+                                                .MinimumLevel.Verbose()
+                                                .MinimumLevel.Override("Microsoft.ApplicationInsights", Serilog.Events.LogEventLevel.Warning)
+                                                .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+                                                .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+                                                .Enrich.FromLogContext()
+                                                .Enrich.WithExceptionDetails()
+                                                //.WriteTo.Trace()
+                                                //.WriteTo.Debug()
+                                                .WriteTo.LiterateConsole();
+
             services.AddRazorPages();
             services.AddSignalR();
             services.AddServerSideBlazor();
@@ -41,10 +57,17 @@ namespace BF.Server {
                 });
             });
 
+            Log.Logger = loggerConfiguration.CreateLogger();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory) {
+
+            loggerFactory.AddSerilog();
+            var logger = loggerFactory.CreateLogger<Startup>();
+
+
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             } else {
@@ -64,7 +87,8 @@ namespace BF.Server {
                 endpoints.MapHub<BFHub>("/bfHub");
             });
 
-            EventLoggerHelper.Environment = "Server";
+            HubConnectionHelper.Environment = "Server";
+            HubConnectionHelper.Logger = loggerFactory.CreateLogger("HubConnectionHelper");
         }
     }
 }

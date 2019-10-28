@@ -1,6 +1,4 @@
-﻿using Serilog;
-using Serilog.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,6 +17,7 @@ using BF.Common.Ids;
 using BF.Common.Events;
 using BF.Common.Components;
 using BF.Services.Components;
+using Microsoft.Extensions.Logging;
 
 namespace BF.Service {
 
@@ -49,12 +48,12 @@ namespace BF.Service {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public BeerFactory(IBeerFactoryEventHandler eventHandler) {
+        public BeerFactory(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
-            Logger = Log.Logger;
+            Logger = loggerFactory.CreateLogger<BeerFactory>();
 
             for (int index = 1; index <= (int)ThermometerId.FERM; index++ )
-                Thermometers.Add(new Thermometer(_eventHandler, (ComponentId)index));
+                Thermometers.Add(new Thermometer(_eventHandler, (ComponentId)index, loggerFactory));
 
             _phases.Add(new Phase(PhaseId.FillStrikeWater, 20));
             _phases.Add(new Phase(PhaseId.HeatStrikeWater, 40));
@@ -64,13 +63,13 @@ namespace BF.Service {
             _phases.Add(new Phase(PhaseId.Boil, 90));
             _phases.Add(new Phase(PhaseId.Chill, 30));
 
-            var hltSsr = new Ssr(_eventHandler, ComponentId.HLT);
+            var hltSsr = new Ssr(_eventHandler, ComponentId.HLT, loggerFactory);
             hltSsr.Percentage = 0;
             hltSsr.Start();
 
             Ssrs.Add(hltSsr);
 
-            var bkSsr = new Ssr(_eventHandler, ComponentId.BK);
+            var bkSsr = new Ssr(_eventHandler, ComponentId.BK, loggerFactory);
             bkSsr.Percentage = 0;
             bkSsr.Start();
 
@@ -79,7 +78,8 @@ namespace BF.Service {
             var _hltPidController = new PidController(_eventHandler, 
                                                       ComponentId.HLT,
                                                       hltSsr, 
-                                                      Thermometers.GetById<Thermometer>(ComponentId.HLT));
+                                                      Thermometers.GetById<Thermometer>(ComponentId.HLT),
+                                                      loggerFactory);
             //_hltPidController.GainProportional = 18;
             //_hltPidController.GainIntegral = 1.5;
             //_hltPidController.GainDerivative = 22.5;

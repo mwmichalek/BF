@@ -2,6 +2,7 @@
 using BF.Service.Events;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,10 @@ namespace BF.Server.Hubs {
     public class BFHub : Hub {
 
         private IBeerFactoryEventHandler _eventHandler;
+        private ILogger logger;
 
-        public BFHub(IBeerFactoryEventHandler eventHandler) {
+        public BFHub(IBeerFactoryEventHandler eventHandler, ILogger<BFHub> logger) {
+            this.logger = logger;
             _eventHandler = eventHandler;
         }
 

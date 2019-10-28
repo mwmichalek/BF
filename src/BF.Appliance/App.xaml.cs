@@ -17,6 +17,8 @@ using Serilog;
 using BF.Service.Events;
 using BF.Service.Prism.Events;
 using BF.Services.Prism.Events;
+using Microsoft.Extensions.Logging;
+using Serilog.Exceptions;
 
 namespace BF.Appliance {
     [Windows.UI.Xaml.Data.Bindable]
@@ -30,13 +32,29 @@ namespace BF.Appliance {
             base.ConfigureContainer();
 
 
-            Log.Logger = new LoggerConfiguration()
+            //var loggerConfiguration = new LoggerConfiguration()
+            //                                    .MinimumLevel.Verbose()
+            //                                    .MinimumLevel.Override("Microsoft.ApplicationInsights", Serilog.Events.LogEventLevel.Warning)
+            //                                    .MinimumLevel.Override("System", Serilog.Events.LogEventLevel.Warning)
+            //                                    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+            //                                    .Enrich.FromLogContext()
+            //                                    .Enrich.WithExceptionDetails()
+            //                                    //.WriteTo.Trace()
+            //                                    //.WriteTo.Debug()
+            //                                    .WriteTo.LiterateConsole();
+
+            var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.Trace()
-                .CreateLogger();
+                .WriteTo.Trace();
 
 
-            //Container.RegisterType<IBackgroundTaskService, BackgroundTaskService>(new ContainerControlledLifetimeManager());
+            Log.Logger = loggerConfiguration.CreateLogger();
+
+            ILoggerFactory loggerFactory = new LoggerFactory();
+            loggerFactory.AddSerilog(Log.Logger);
+
+            Container.RegisterInstance<ILoggerFactory>(loggerFactory);
+
             Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
 
             Container.RegisterType<IBeerFactoryEventHandler, SignalRPrismBeerFactoryEventHandler>(new ContainerControlledLifetimeManager());
@@ -52,7 +70,9 @@ namespace BF.Appliance {
                 temperatureControllerService.Run();
             });
 
-            EventLoggerHelper.Environment = "RaspberryPi";
+            HubConnectionHelper.Environment = "RaspberryPi";
+            var msLogger = loggerFactory.CreateLogger("HubConnectionHelper");
+            HubConnectionHelper.Logger = msLogger;
 
             Log.Information("Initialization complete.");
         }

@@ -1,8 +1,8 @@
 ﻿using BF.Common.Events;
 using BF.Service.Events;
+using Microsoft.Extensions.Logging;
 using Prism.Events;
 using Prism.Mvvm;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,9 +30,14 @@ namespace BF.Service.Prism.Events {
 
         protected IEventAggregator _eventAggregator;
 
-        public PrismBeerFactoryEventHandler(IEventAggregator eventAggregator) {
+        //public PrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILogger<IBeerFactoryEventHandler> logger) {
+        //    _eventAggregator = eventAggregator;
+        //    Logger = logger;
+        //}
+
+        public PrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory) {
             _eventAggregator = eventAggregator;
-            Logger = Log.Logger;
+            Logger = loggerFactory.CreateLogger<IBeerFactoryEventHandler>();
         }
 
         public void InitializationChangeOccured(Action<InitializationChange> initializationChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
@@ -61,6 +66,7 @@ namespace BF.Service.Prism.Events {
         }
 
         public void PidChangeOccured(Action<PidChange> pidChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+            
             _eventAggregator.GetEvent<PidChangeEvent>().Subscribe(pidChangeHandler, threadType.ToThreadOption());
         }
 
@@ -120,21 +126,6 @@ namespace BF.Service.Prism.Events {
 
     }
 
-    public static class EventLoggerHelper {
-
-        public static bool IsVerbose { get; set; } = true;
-
-        public static string Environment { get; set; }
-
-        public static T LogSignalREvent<T>(this IEventPayload eventPayload) where T : IEventPayload {
-            if (IsVerbose) Log.Logger.Debug($"{Environment} : {eventPayload.GetType().Name}");
-            return (T)eventPayload;
-        }
-
-        public static T LogLocalEvent<T>(this IEventPayload eventPayload) where T : IEventPayload {
-            if (IsVerbose) Log.Logger.Debug($"{Environment} : {eventPayload.GetType().Name}");
-            return (T)eventPayload;
-        }
-    }
+    
 
 }

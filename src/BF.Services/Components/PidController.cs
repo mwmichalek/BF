@@ -3,7 +3,7 @@ using BF.Common.Events;
 using BF.Common.Ids;
 using BF.Service.Components;
 using BF.Service.Events;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -40,8 +40,8 @@ namespace BF.Service.Components {
 
         private int dutyCycleInMillis = 2000;
 
-        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer) {
-            Logger = Log.Logger;
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer, ILoggerFactory loggerFactory) {
+            Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
             Id = id;
             Ssr = ssr;
@@ -49,8 +49,8 @@ namespace BF.Service.Components {
             RegisterEvents();
         }
 
-        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer, double setPoint) {
-            Logger = Log.Logger; 
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer, double setPoint, ILoggerFactory loggerFactory) {
+            Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
             Id = id;
             Ssr = ssr;
@@ -59,8 +59,8 @@ namespace BF.Service.Components {
             RegisterEvents();
         }
 
-        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer, double gainProportional, double gainIntegral, double gainDerivative, double outputMin, double outputMax, double setPoint) {
-            Logger = Log.Logger; 
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer, double gainProportional, double gainIntegral, double gainDerivative, double outputMin, double outputMax, double setPoint, ILoggerFactory loggerFactory) {
+            Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
             if (OutputMax < OutputMin)
                 throw new FormatException("OutputMax is less than OutputMin");
@@ -163,11 +163,11 @@ namespace BF.Service.Components {
 
                     output = Clamp(output);
 
-                    Log.Information($"OUTPUT: {output}");
+                    Logger.LogInformation($"OUTPUT: {output}");
 
                     lastRun = currentTime;
 
-                    Logger.Information($"PID Temp: {ProcessVariable}, SSR: {output}, SetPoint: {SetPoint}");
+                    Logger.LogInformation($"PID Temp: {ProcessVariable}, SSR: {output}, SetPoint: {SetPoint}");
 
                     //Debug.WriteLine($"Temperature: {ProcessVariable}  SSR: {output}");
 

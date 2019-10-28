@@ -1,9 +1,10 @@
 ﻿using BF.Common.Events;
+using BF.Service.Events;
 using BF.Service.Prism.Events;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 using Prism.Events;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,15 +17,21 @@ using System.Threading.Tasks;
 namespace BF.Services.Prism.Events {
     public class SignalRPrismBeerFactoryEventHandler : PrismBeerFactoryEventHandler {
 
-        private ILogger Logger { get; set; }
+        //private ILogger Logger { get; set; }
 
         private HubConnection _connection;
 
-        public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator) : base(eventAggregator) {
-            Logger = Log.Logger;
+        //public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILogger<IBeerFactoryEventHandler> logger) : 
+        //    base(eventAggregator, logger) {
+            ///Logger = Log.Logger;
+        //    Task.Run(() => Connect());
+        //
+
+        public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory) : 
+            base(eventAggregator, loggerFactory) {
+            ///Logger = Log.Logger;
             Task.Run(() => Connect());
         }
-
 
         public virtual async Task Connect() {
             var processorArchitecture = Assembly.GetExecutingAssembly().GetName().ProcessorArchitecture;
@@ -59,10 +66,10 @@ namespace BF.Services.Prism.Events {
                     (jsonEvent) => {
                         base.TemperatureChangeFired(jsonEvent.ToEvent<TemperatureChange>().LogSignalREvent<TemperatureChange>());
                     }); 
-                _connection.On<string>("ThermometerChangeFired", 
-                    (jsonEvent) => {
-                        base.ThermometerChangeFired(jsonEvent.ToEvent<ThermometerChange>().LogSignalREvent<ThermometerChange>());
-                    });
+                //_connection.On<string>("ThermometerChangeFired", 
+                //    (jsonEvent) => {
+                //       base.ThermometerChangeFired(jsonEvent.ToEvent<ThermometerChange>().LogSignalREvent<ThermometerChange>());
+                //    });
                 _connection.On<string>("PumpRequestFired", 
                     (jsonEvent) => {
                         base.PumpRequestFired(jsonEvent.ToEvent<PumpRequest>().LogSignalREvent<PumpRequest>());
@@ -99,7 +106,7 @@ namespace BF.Services.Prism.Events {
                 //if (_connection.IsConnected())
                 //    InitializationChangeFired(new InitializationChange());
             } catch (Exception ex) {
-                Logger.Warning($"Unable to connecto to SignalR server: {ex}");
+                //Logger.Warning($"Unable to connecto to SignalR server: {ex}");
             }
         }
 
@@ -120,11 +127,11 @@ namespace BF.Services.Prism.Events {
             base.TemperatureChangeFired(temperatureChange);
         }
 
-        public override void ThermometerChangeFired(ThermometerChange thermometerChange) {
-            if (_connection.IsConnected()) _connection.InvokeAsync("ThermometerChangeFired", thermometerChange.LogSignalREvent<ThermometerChange>().ToJson());
-            base.ThermometerChangeFired(thermometerChange);
-        }
-
+        //public override void ThermometerChangeFired(ThermometerChange thermometerChange) {
+        //    if (_connection.IsConnected()) _connection.InvokeAsync("ThermometerChangeFired", thermometerChange.LogSignalREvent<ThermometerChange>().ToJson());
+        //    base.ThermometerChangeFired(thermometerChange);
+        //}
+    
         public override void PumpRequestFired(PumpRequest pumpRequest) {
             if (_connection.IsConnected()) _connection.InvokeAsync("PumpRequestFired", pumpRequest.LogSignalREvent<PumpRequest>().ToJson());
             base.PumpRequestFired(pumpRequest);
@@ -216,13 +223,34 @@ namespace BF.Services.Prism.Events {
         private bool ValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
             return true;
         }
+
+       
+
+        
     }
 
     public static class HubConnectionHelper {
+
+        public static ILogger Logger { get; set; }
 
         public static bool IsConnected(this HubConnection hubConnection) {
             return hubConnection != null && 
                    hubConnection.State == HubConnectionState.Connected;
         }
+
+        public static bool IsVerbose { get; set; } = true;
+
+        public static string Environment { get; set; }
+
+        public static T LogSignalREvent<T>(this IEventPayload eventPayload) where T : IEventPayload {
+            if (IsVerbose) Logger?.LogDebug($"{Environment} : {eventPayload.GetType().Name}");
+            return (T)eventPayload;
+        }
+
+        public static T LogLocalEvent<T>(this IEventPayload eventPayload) where T : IEventPayload {
+            if (IsVerbose) Logger?.LogDebug($"{Environment} : {eventPayload.GetType().Name}");
+            return (T)eventPayload;
+        }
+        
     }
 }

@@ -2,7 +2,7 @@
 using BF.Common.Events;
 using BF.Common.Ids;
 using BF.Service.Events;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,16 +30,18 @@ namespace BF.Service.Components {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public Thermometer(IBeerFactoryEventHandler eventHandler, ComponentId id) {
+        public Thermometer(IBeerFactoryEventHandler eventHandler, ComponentId id, ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
-            Logger = Log.Logger;
+            Logger = loggerFactory.CreateLogger<Thermometer>();
             Id = id;
             RegisterEvents();
         }
 
-        public Thermometer(IBeerFactoryEventHandler eventHandler, ComponentId id, int changeThreshold, int changeWindowInMillis, int changeEventRetentionInMins) {
-            _eventHandler = eventHandler; 
-            Logger = Log.Logger;
+        public Thermometer(IBeerFactoryEventHandler eventHandler, ComponentId id, 
+            int changeThreshold, int changeWindowInMillis, int changeEventRetentionInMins, 
+            ILoggerFactory loggerFactory) {
+            _eventHandler = eventHandler;
+            Logger = loggerFactory.CreateLogger<Thermometer>();
             _changeThreshold = changeThreshold;
             _changeWindowInMillis = changeWindowInMillis;
             _changeWindowInMillis = changeWindowInMillis;

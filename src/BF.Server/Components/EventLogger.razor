@@ -69,7 +69,7 @@ MESSAGES!
 
 
     public void SsrChangeOccured(SsrChange ssrChange) {
-        Messages.Insert(0, $"SsrChangeOccured: {ssrChange.Id} - {ssrChange.Percentage}");
+        Messages.Insert(0, $"SsrChangeOccured: {ssrChange.Id} - {ssrChange.Percentage} {ssrChange.IsEngaged}");
         InvokeAsync(() => StateHasChanged());
     }
 

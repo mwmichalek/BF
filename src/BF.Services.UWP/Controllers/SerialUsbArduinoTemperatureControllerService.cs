@@ -19,8 +19,8 @@ using BF.Service.Events;
 using BF.Common.Events;
 using BF.Common.Ids;
 using BF.Service.Controllers;
-using Serilog;
 using BF.Common.Components;
+using Microsoft.Extensions.Logging;
 
 namespace BF.Service.UWP.Controllers {
     public class SerialUsbArduinoTemperatureControllerService : TemperatureControllerService {
@@ -45,9 +45,9 @@ namespace BF.Service.UWP.Controllers {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public SerialUsbArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler) {
+        public SerialUsbArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
-            Logger = Log.Logger;
+            Logger = loggerFactory.CreateLogger<SerialUsbArduinoTemperatureControllerService>();
         }
 
         public override async Task Run() {

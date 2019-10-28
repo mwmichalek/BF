@@ -9,8 +9,8 @@ using BF.Service.Events;
 using BF.Common.Ids;
 using BF.Common.Events;
 using Windows.Devices.Gpio;
-using Serilog;
 using BF.Common.Components;
+using Microsoft.Extensions.Logging;
 
 namespace BF.Service.Components {
     
@@ -68,8 +68,8 @@ namespace BF.Service.Components {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public Ssr(IBeerFactoryEventHandler eventHandler, ComponentId id) {
-            Logger = Log.Logger;
+        public Ssr(IBeerFactoryEventHandler eventHandler, ComponentId id, ILoggerFactory loggerFactory) {
+            Logger = loggerFactory.CreateLogger<Ssr>();
             _eventHandler = eventHandler;
             Id = id;
             Pin = (int)id;
@@ -95,7 +95,7 @@ namespace BF.Service.Components {
             decimal fraction = ((decimal)_percentage / 100.0m);
             millisOn = (int)(fraction * (decimal)_dutyCycleInMillis);
             millisOff = _dutyCycleInMillis - millisOn;
-            Log.Information($"SSR: {Id} - CALC PERC {Percentage}, FRACTION {fraction}, MILLISON {millisOn}, MILLISOFF {millisOff}");
+            Logger.LogInformation($"SSR: {Id} - CALC PERC {Percentage}, FRACTION {fraction}, MILLISON {millisOn}, MILLISOFF {millisOff}");
         }
 
         private void Run() {
@@ -114,7 +114,7 @@ namespace BF.Service.Components {
 
         private void On() {
             if (!IsEngaged) {
-                Log.Information($"SSR: {Id} - ON {millisOn}");
+                Logger.LogInformation($"SSR: {Id} - ON {millisOn}");
                 pin?.Write(GpioPinValue.High);
                 IsEngaged = true;
                 SendNotification();
@@ -124,7 +124,7 @@ namespace BF.Service.Components {
         private void Off() {
 
             if (IsEngaged) {
-                Log.Information($"SSR: {Id} - OFF {millisOff}");
+                Logger.LogInformation($"SSR: {Id} - OFF {millisOff}");
                 pin?.Write(GpioPinValue.Low);
                 IsEngaged = false;
                 SendNotification();

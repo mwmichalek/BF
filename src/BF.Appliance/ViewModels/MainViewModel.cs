@@ -7,8 +7,7 @@ using BF.Service.Components;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Windows.Mvvm;
-using Serilog;
-
+using Microsoft.Extensions.Logging;
 
 namespace BF.Appliance.ViewModels {
 
@@ -20,8 +19,8 @@ namespace BF.Appliance.ViewModels {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public MainViewModel(IBeerFactory beerFactory, IBeerFactoryEventHandler eventHandler)  {
-            Logger = Log.Logger;
+        public MainViewModel(IBeerFactory beerFactory, IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory)  {
+            Logger = loggerFactory.CreateLogger<MainViewModel>();
             _eventHandler = eventHandler;
             
             var hltThermometer = beerFactory.Thermometers.GetById<Thermometer>(ComponentId.HLT);
@@ -56,7 +55,7 @@ namespace BF.Appliance.ViewModels {
         public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
 
             if (temperatureChange.Id == ComponentId.HLT) {
-                Logger.Information($"HLT Change: {temperatureChange.Value}");
+                Logger.LogInformation($"HLT Change: {temperatureChange.Value}");
                 Temperature = (double)temperatureChange.Value;
                 //Temperature = Math.Round((double)temperatureChange.Value, 1);
                 //connection.InvokeAsync("SendMessage",

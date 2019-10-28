@@ -16,8 +16,8 @@ using System.Linq;
 using BF.Common.Ids;
 using BF.Service.Events;
 using BF.Common.Events;
-using Serilog;
 using BF.Common.Components;
+using Microsoft.Extensions.Logging;
 
 namespace BF.Service.Controllers {
     public class FakeArduinoTemperatureControllerService : TemperatureControllerService {
@@ -26,8 +26,8 @@ namespace BF.Service.Controllers {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public FakeArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler) {
-            Logger = Log.Logger;
+        public FakeArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
+            Logger = loggerFactory.CreateLogger<FakeArduinoTemperatureControllerService>();
             _eventHandler = eventHandler;
             _eventHandler.SsrChangeOccured(SsrChangeOccured);
         }
@@ -72,7 +72,7 @@ namespace BF.Service.Controllers {
                         newTemperature = 70;
 
                     if (newTemperature != temperatures[0]) {
-                        Logger.Information($"Fake: OLD: {temperatures[0]} - NEW: {newTemperature}");
+                        Logger.LogInformation($"Fake: OLD: {temperatures[0]} - NEW: {newTemperature}");
                         _eventHandler.ThermometerChangeFired(new ThermometerChange {
                             Id = ComponentId.HLT,
                             Value = newTemperature,
