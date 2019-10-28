@@ -1,4 +1,5 @@
-﻿using BF.Common.Events;
+﻿using BF.Common.Components;
+using BF.Common.Events;
 using BF.Service.Events;
 using BF.Service.Prism.Events;
 using Microsoft.AspNetCore.SignalR;
@@ -21,11 +22,7 @@ namespace BF.Services.Prism.Events {
 
         private HubConnection _connection;
 
-        //public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILogger<IBeerFactoryEventHandler> logger) : 
-        //    base(eventAggregator, logger) {
-            ///Logger = Log.Logger;
-        //    Task.Run(() => Connect());
-        //
+   
 
         public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory) : 
             base(eventAggregator, loggerFactory) {
@@ -34,12 +31,11 @@ namespace BF.Services.Prism.Events {
         }
 
         public virtual async Task Connect() {
-            var processorArchitecture = Assembly.GetExecutingAssembly().GetName().ProcessorArchitecture;
+            
 
             try {
 
-                if (processorArchitecture == ProcessorArchitecture.Arm ||
-                       processorArchitecture == ProcessorArchitecture.X86) {
+                if (DeviceHelper.GetDevice() == Device.Server || DeviceHelper.GetDevice() == Device.RaspberryPi) {
                     _connection = new HubConnectionBuilder()
                         .WithUrl("https://emrsd-ws-bf.azurewebsites.net/bfHub")
                         .WithAutomaticReconnect()
@@ -66,10 +62,10 @@ namespace BF.Services.Prism.Events {
                     (jsonEvent) => {
                         base.TemperatureChangeFired(jsonEvent.ToEvent<TemperatureChange>().LogSignalREvent<TemperatureChange>());
                     }); 
-                //_connection.On<string>("ThermometerChangeFired", 
-                //    (jsonEvent) => {
-                //       base.ThermometerChangeFired(jsonEvent.ToEvent<ThermometerChange>().LogSignalREvent<ThermometerChange>());
-                //    });
+                _connection.On<string>("ThermometerChangeFired", 
+                    (jsonEvent) => {
+                       base.ThermometerChangeFired(jsonEvent.ToEvent<ThermometerChange>().LogSignalREvent<ThermometerChange>());
+                    });
                 _connection.On<string>("PumpRequestFired", 
                     (jsonEvent) => {
                         base.PumpRequestFired(jsonEvent.ToEvent<PumpRequest>().LogSignalREvent<PumpRequest>());
@@ -127,10 +123,10 @@ namespace BF.Services.Prism.Events {
             base.TemperatureChangeFired(temperatureChange);
         }
 
-        //public override void ThermometerChangeFired(ThermometerChange thermometerChange) {
-        //    if (_connection.IsConnected()) _connection.InvokeAsync("ThermometerChangeFired", thermometerChange.LogSignalREvent<ThermometerChange>().ToJson());
-        //    base.ThermometerChangeFired(thermometerChange);
-        //}
+        public override void ThermometerChangeFired(ThermometerChange thermometerChange) {
+            if (_connection.IsConnected()) _connection.InvokeAsync("ThermometerChangeFired", thermometerChange.LogSignalREvent<ThermometerChange>().ToJson());
+            base.ThermometerChangeFired(thermometerChange);
+        }
     
         public override void PumpRequestFired(PumpRequest pumpRequest) {
             if (_connection.IsConnected()) _connection.InvokeAsync("PumpRequestFired", pumpRequest.LogSignalREvent<PumpRequest>().ToJson());

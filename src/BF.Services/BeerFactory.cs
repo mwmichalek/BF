@@ -114,16 +114,21 @@ namespace BF.Service {
             _eventHandler.InitializationChangeOccured(BroadcastBeerFactoryState);
 
             //Trigger now becuase the first one was missed.
-    
-            _eventHandler.InitializationChangeFired(new InitializationChange {
-                Device = Device.RaspberryPi
+
+            Task.Run(() => {
+                Thread.Sleep(5000);
+                _eventHandler.InitializationChangeFired(new InitializationChange {
+                    Device = Device.RaspberryPi
+                });
             });
 
-            
+
+
         }
 
         public void BroadcastBeerFactoryState(InitializationChange initializationChange) {
             if (initializationChange.Device == Device.RaspberryPi) {
+                Logger.LogInformation("Senting Initial Data");
                 _eventHandler.ConnectionStatusChangeFired(new ConnectionStatusChange {
                     ClientId = "RaspberryPi",
                     ConnectionState = ConnectionState.Connected,
