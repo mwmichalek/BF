@@ -15,18 +15,20 @@
                     </CircularGaugePointerAnimation>
                 </CircularGaugePointer>
             </CircularGaugePointers>
+            <CircularGaugeAnnotations>
+                <CircularGaugeAnnotation Angle="180"
+                                         Radius="20%"
+                                         ZIndex="1">
+                    <ContentTemplate>
+                        <div style="width:150px;margin:auto auto; margin-left:-65px; font-size: 40px; text-align:center;">@TemperatureStr&deg;F</div>
+</ContentTemplate>
+                </CircularGaugeAnnotation>
+            </CircularGaugeAnnotations>
             <CircularGaugeRanges>
                 <CircularGaugeRange Start="20" End="32" Color="Blue" />
                 <CircularGaugeRange Start="212" End="220" Color="Red" />
             </CircularGaugeRanges>
-            <CircularGaugeAnnotations>
-                <CircularGaugeAnnotation Radius="40%" Angle="180" ZIndex="1" Content="@TemperatureStr">
-                    <ContentTemplate>
-                        <div><span style="font-size:20px; color:#424242; font-family:Regular; margin-left: -33px">@TemperatureStr</span></div>
-                    </ContentTemplate>
-                </CircularGaugeAnnotation>
-                
-            </CircularGaugeAnnotations>
+            
         </CircularGaugeAxis>
     </CircularGaugeAxes>
 </EjsCircularGauge>
@@ -70,11 +72,11 @@
     [Inject]
     IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
 
-    public string TemperatureStr { get; set; } = "";
+    public string TemperatureStr { get; set; };
 
-    public double Temperature { get; set; } = 20;
+    public double Temperature { get; set; }
 
-    public double SetPoint { get; set; } = 20;
+    public double SetPoint { get; set; }
 
     protected override async Task OnInitializedAsync() {
         _beerFactoryEventHandler.TemperatureChangeOccured(TemperatureChangeOccured);

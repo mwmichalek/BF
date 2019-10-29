@@ -4,7 +4,7 @@
 @using BF.Common.Events
 @using BF.Common.Components
 
-<EjsCircularGauge>
+@*<EjsCircularGauge>
     <CircularGaugeAxes>
         <CircularGaugeAxis Minimum="0" Maximum="100" StartAngle="240" EndAngle="120" Radius="90%">
             <CircularGaugePointers>
@@ -14,10 +14,41 @@
                 </CircularGaugePointer>
                
             </CircularGaugePointers>
-            @*<CircularGaugeRanges>
-                    <CircularGaugeRange Start="20" End="32" Color="Blue" />
-                    <CircularGaugeRange Start="212" End="220" Color="Red" />
-                </CircularGaugeRanges>*@
+        </CircularGaugeAxis>
+    </CircularGaugeAxes>
+</EjsCircularGauge>*@
+
+<EjsCircularGauge>
+    <CircularGaugeAxes>
+        <CircularGaugeAxis>
+            <CircularGaugeAxisLabelStyle Position="Position.Outside" AutoAngle="true">
+                <CircularGaugeAxisLabelFont Size="10px">
+                </CircularGaugeAxisLabelFont>
+            </CircularGaugeAxisLabelStyle>
+            <CircularGaugeAxisMajorTicks Position="Position.Outside">
+            </CircularGaugeAxisMajorTicks>
+            <CircularGaugeAxisMinorTicks Position="Position.Outside">
+            </CircularGaugeAxisMinorTicks>
+            <CircularGaugePointers>
+                <CircularGaugePointer Value="@Percentage"
+                                      Type="PointerType.RangeBar"
+                                      PointerWidth="20"
+                                      Radius="95%"
+                                      Color="#5cb85c">
+                    <CircularGaugePointerBorder Color="black"
+                                                Width="2">
+                    </CircularGaugePointerBorder>
+                </CircularGaugePointer>
+            </CircularGaugePointers>
+            <CircularGaugeAnnotations>
+                <CircularGaugeAnnotation Angle="180"
+                                         Radius="35%"
+                                         ZIndex="1">
+                    <ContentTemplate>
+                        <div style="width:150px;margin:auto auto; margin-left:-65px; font-size: 40px; text-align:center;">@Percentage%</div>
+                    </ContentTemplate>
+                </CircularGaugeAnnotation>
+            </CircularGaugeAnnotations>
         </CircularGaugeAxis>
     </CircularGaugeAxes>
 </EjsCircularGauge>
@@ -30,7 +61,7 @@
     [Inject]
     IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
 
-    public double Percentage = 70;
+    public double Percentage;
 
     protected override async Task OnInitializedAsync() {
         _beerFactoryEventHandler.SsrChangeOccured(SsrChangeOccured);

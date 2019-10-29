@@ -19,6 +19,7 @@ using BF.Service.Prism.Events;
 using BF.Services.Prism.Events;
 using Microsoft.Extensions.Logging;
 using Serilog.Exceptions;
+using BF.Common.Components;
 
 namespace BF.Appliance {
     [Windows.UI.Xaml.Data.Bindable]
@@ -58,8 +59,11 @@ namespace BF.Appliance {
             Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
 
             Container.RegisterType<IBeerFactoryEventHandler, SignalRPrismBeerFactoryEventHandler>(new ContainerControlledLifetimeManager());
-            //Container.RegisterType<ITemperatureControllerService, SerialUsbArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<ITemperatureControllerService, FakeArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
+
+            if (DeviceHelper.GetDevice() == Device.RaspberryPi)
+                Container.RegisterType<ITemperatureControllerService, SerialUsbArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
+           else
+                Container.RegisterType<ITemperatureControllerService, FakeArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IBeerFactory, BeerFactory>(new ContainerControlledLifetimeManager());
 

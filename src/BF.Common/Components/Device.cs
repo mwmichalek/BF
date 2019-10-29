@@ -18,7 +18,7 @@ namespace BF.Common.Components {
 
     public static class DeviceHelper {
 
-        private static Device? _device = Device.Unknown;
+        private static Device? _device;
 
         public static Device GetDevice() {
             if (!_device.HasValue) {

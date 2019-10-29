@@ -5,14 +5,13 @@
 
 MESSAGES!
 
-<EjsListView DataSource="@Messages">
+<div style="height:120px;width:100%;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">
+    @foreach (var msg in Messages) {
+        @msg<br />
+    }
+</div>
 
-</EjsListView>
 
-@foreach (var msg in Messages) {
-    @msg
-    <br />
-}
 
 @code {
     [Inject]
@@ -37,12 +36,12 @@ MESSAGES!
     }
 
     public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
-        Messages.Insert(0, $"TemperatureChangeOccured: {temperatureChange.Id} - {temperatureChange.Value}");
+        Messages.Insert(0, $"TemperatureChangeOccured: {temperatureChange.Id} - {temperatureChange.Value.ToString("0.00")}");
         InvokeAsync(() => StateHasChanged());
     }
 
     public void ThermometerChangeOccured(ThermometerChange thermometerChange) {
-        Messages.Insert(0, $"ThermometerChangeOccured: {thermometerChange.Id} - {thermometerChange.Value}");
+        Messages.Insert(0, $"ThermometerChangeOccured: {thermometerChange.Id} - {thermometerChange.Value.ToString("0.00")}");
         InvokeAsync(() => StateHasChanged());
     }
 

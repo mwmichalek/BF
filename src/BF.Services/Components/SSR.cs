@@ -13,7 +13,12 @@ using BF.Common.Components;
 using Microsoft.Extensions.Logging;
 
 namespace BF.Service.Components {
-    
+
+    public enum SsrPin {
+        HLT = 4,
+        BK = 5
+    }
+
 
     public class Ssr : IComponent {
 
@@ -73,7 +78,10 @@ namespace BF.Service.Components {
             Logger = loggerFactory.CreateLogger<Ssr>();
             _eventHandler = eventHandler;
             Id = id;
-            Pin = (int)id;
+            //Pin = (int)id;
+
+            Enum.TryParse(id.ToString(), out SsrPin ssrPin);
+            Pin = (int)ssrPin;
 
             var gpio = GpioController.GetDefault();
             if (gpio != null) {
