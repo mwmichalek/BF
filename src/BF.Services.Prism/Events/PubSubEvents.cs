@@ -1,4 +1,5 @@
 ﻿using BF.Common.Events;
+using BF.Common.States;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
@@ -29,5 +30,12 @@ namespace BF.Service.Prism.Events {
     public class TemperatureChangeEvent : PubSubEvent<TemperatureChange> { }
 
     public class ThermometerChangeEvent : PubSubEvent<ThermometerChange> { }
+
+
+    //public class PidControllerStateChangeEvent : PubSubEvent<PidControllerStateChange> { }
+
+    //public class PidControllerStateRequestEvent : PubSubEvent<PidControllerStateRequest> { }
+
+    public class ComponentStateChangeEvent<ComponentStateChange> : PubSubEvent<ComponentStateChange> { }
 
 }

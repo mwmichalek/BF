@@ -1,18 +1,12 @@
 ﻿using BF.Common.Components;
-using BF.Common.Ids;
+using BF.Common.Events;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace BF.Common.Events {
+namespace BF.Common.States {
 
-    public class PidChange : IEventPayload {
-
-        public ComponentId Id { get; set; }
-
-        public bool IsEngaged { get; set; }
+    public class PidControllerState : UpdateableComponentState {
 
         public PidMode PidMode { get; set; }
 
@@ -23,8 +17,6 @@ namespace BF.Common.Events {
         public double GainIntegral { get; set; }
 
         public double GainDerivative { get; set; }
-
-
 
     }
 }

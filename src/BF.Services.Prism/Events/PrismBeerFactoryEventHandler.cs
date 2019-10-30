@@ -1,4 +1,5 @@
 ﻿using BF.Common.Events;
+using BF.Common.States;
 using BF.Service.Events;
 using Microsoft.Extensions.Logging;
 using Prism.Events;
@@ -123,6 +124,34 @@ namespace BF.Service.Prism.Events {
             _eventAggregator.GetEvent<ConnectionStatusChangeEvent>().Publish(connectionStatusChange);
         }
 
+
+
+
+
+        //*****************************************************************************
+
+        //public void PidControllerStateRequestOccured(Action<PidControllerStateRequest> pidControllerStateRequestHandler, ThreadType threadType = ThreadType.PublisherThread) {
+        //    _eventAggregator.GetEvent<PidControllerStateRequestEvent>().Subscribe(pidControllerStateRequestHandler, threadType.ToThreadOption());
+        //}
+
+        //public void PidControllerStateChangeOccured(Action<PidControllerStateChange> pidControllerStateHandler, ThreadType threadType = ThreadType.PublisherThread) {
+        //    _eventAggregator.GetEvent<PidControllerStateChangeEvent>().Subscribe(pidControllerStateHandler, threadType.ToThreadOption());
+        //}
+
+        public virtual void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState {
+            _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Publish(componentStateChange);
+        }
+
+        public void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateHandler, 
+                                                ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState {
+            _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Subscribe(componentStateHandler, 
+                threadType.ToThreadOption());
+        }
+
+
+
+
+        //public class ComponentStateChangeEvent<ComponentStateChange> : PubSubEvent<ComponentStateChange> { }
 
     }
 

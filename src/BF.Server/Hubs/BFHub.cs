@@ -64,6 +64,15 @@ namespace BF.Server.Hubs {
             await Clients.Others.SendAsync("ConnectionStatusChangeFired", jsonEvent);
         }
 
+        //public async Task ComponentStateChangeBroadcasted(string componentStateType) {
+        //    await Clients.Others.SendAsync("ComponentStateChangeReceived", componentStateType);
+        //}
+
+        public async Task ComponentStateChangeBroadcasted(string componentStateType, string componentStateChangeJson) {
+            await Clients.Others.SendAsync("ComponentStateChangeReceived", componentStateType, componentStateChangeJson);
+        }
+
+
         public async Task Message(string messageReceived) {
             await Clients.All.SendAsync("Message", messageReceived);
         }

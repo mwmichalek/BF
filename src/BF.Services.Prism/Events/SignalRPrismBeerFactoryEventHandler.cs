@@ -92,6 +92,36 @@ namespace BF.Services.Prism.Events {
                         base.ConnectionStatusChangeFired(jsonEvent.ToEvent<ConnectionStatusChange>().LogSignalREvent<ConnectionStatusChange>());
                     });
 
+
+                _connection.On<string, string>("ComponentStateChangeReceived",
+                   (string componentStateType, string componentStateChangeJson) => {
+                       //(string componentStateType) => {
+                       //    var componentStateChangeJson = "blank";
+                       //switch (componentStateType) {
+                       //    case "sdfsddfsdf"
+
+
+                       //}
+
+                       //TODO: Need to deserialize, might need to be a giant switch
+                       Logger.LogInformation($"Motherfucker: Type:{componentStateType} Json:{componentStateChangeJson}");
+                       //base.ConnectionStatusChangeFired(jsonEvent.ToEvent<ConnectionStatusChange>().LogSignalREvent<ConnectionStatusChange>());
+                   });
+
+
+                //public void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateHandler,
+                //                                        ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState {
+                //    _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Subscribe(componentStateHandler,
+                //        threadType.ToThreadOption());
+                //}
+
+
+
+
+
+
+
+
                 _connection.Reconnected += OnConnection;
 
                 await _connection.StartAsync();
@@ -158,6 +188,21 @@ namespace BF.Services.Prism.Events {
             base.ConnectionStatusChangeFired(connectionStatusChange);
         }
 
+        public override void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) {
+            if (_connection.IsConnected()) {
+                //_connection.InvokeAsync("ComponentStateChangeBroadcasted",
+                //                        componentStateChange.GetType().ToString());
+                _connection.InvokeAsync("ComponentStateChangeBroadcasted",
+                                        componentStateChange.GetType().ToString(),
+                                        componentStateChange.ToJson());
+            }
+            base.ComponentStateChangeFiring(componentStateChange);
+        }
+
+        //        public virtual void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState {
+        //    _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Publish(componentStateChange);
+        //}
+
 
 
         //public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
@@ -197,6 +242,7 @@ namespace BF.Services.Prism.Events {
 
 
 
+
         public void PumpRequestFired(string pumpRequestJson) {
             PumpRequestFired(pumpRequestJson.ToEvent<PumpRequest>());
         }
@@ -208,6 +254,16 @@ namespace BF.Services.Prism.Events {
         public void ConnectionStatusRequestFired(string connectionStatusRequestJson) {
             ConnectionStatusRequestFired(connectionStatusRequestJson.ToEvent<ConnectionStatusRequest>());
         }
+
+      
+
+
+
+
+      
+
+        
+
 
 
 
@@ -237,6 +293,16 @@ namespace BF.Services.Prism.Events {
             if (IsVerbose) Logger?.LogDebug($"{Environment} : {eventPayload.GetType().Name}");
             return (T)eventPayload;
         }
+
+        //public static T LogSignalREvent<T>(this IEventPayload eventPayload) where T : IEventPayload {
+        //    if (IsVerbose) Logger?.LogDebug($"{Environment} : {eventPayload.GetType().Name}");
+        //    return (T)eventPayload;
+        //}
+
+
+        //        public virtual void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState {
+        //    _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Publish(componentStateChange);
+        //}
 
         public static T LogLocalEvent<T>(this IEventPayload eventPayload) where T : IEventPayload {
             if (IsVerbose) Logger?.LogDebug($"{Environment} : {eventPayload.GetType().Name}");

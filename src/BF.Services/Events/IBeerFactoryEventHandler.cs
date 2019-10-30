@@ -1,4 +1,5 @@
 ﻿using BF.Common.Events;
+using BF.Common.States;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,6 +66,11 @@ namespace BF.Service.Events {
         void ConnectionStatusRequestFired(ConnectionStatusRequest connectionStatusRequest);
 
         void ConnectionStatusChangeFired(ConnectionStatusChange connectionStatusChange);
+
+        void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState;
+
+        void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateHandler,
+                                                ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState;
     }
 
 

@@ -1,6 +1,7 @@
 ﻿using BF.Common.Components;
 using BF.Common.Events;
 using BF.Common.Ids;
+using BF.Common.States;
 using BF.Service.Events;
 using Microsoft.Extensions.Logging;
 using System;
@@ -16,7 +17,7 @@ namespace BF.Service.Components {
 
         private ILogger Logger { get; set; }
 
-        public List<ThermometerChange> ThermometerChanges = new List<ThermometerChange>();
+        public List<ThermometerState> ThermometerStates = new List<ThermometerState>();
 
         public ComponentId Id { get; private set; }
 
@@ -50,8 +51,10 @@ namespace BF.Service.Components {
         }
 
         private void RegisterEvents() {
-            _eventHandler.ThermometerChangeOccured(ThermometerChangeOccured);
+            //_eventHandler.ThermometerChangeOccured(ThermometerChangeOccured);
+            _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
         }
+
 
         private double _temperature;
 
@@ -66,46 +69,55 @@ namespace BF.Service.Components {
 
         public DateTime Timestamp { get; set; }
 
-        public void ThermometerChangeOccured(ThermometerChange thermometerChange) {
-            if (thermometerChange.Id == Id) {
+        //public void ThermometerChangeOccured(ThermometerChange thermometerChange) {
+        private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
+
+            var thermometerChange = thermometerStateChange.CurrentState;
+            if (thermometerStateChange.Id == Id) {
                 //Logger.Information($"ThermometerChangeOccured[{Id}] : {thermometerChange.Value}");
 
-                Temperature = thermometerChange.Value;
+                Temperature = thermometerChange.Temperature;
   
                 // Determin Change - Get all changes at least this old, order by newest, take first
+                // TODO: Refactor to use previous state 
                 var earliestTimeOfChange = DateTime.Now.AddMilliseconds(-_changeWindowInMillis);
-                var previousChange = ThermometerChanges.Where(tc => tc.Timestamp < earliestTimeOfChange).OrderByDescending(tc => tc.Timestamp).FirstOrDefault();
+                var previousChange = ThermometerStates.Where(tc => tc.Timestamp < earliestTimeOfChange).OrderByDescending(tc => tc.Timestamp).FirstOrDefault();
                 if (previousChange != null)
-                    Change = thermometerChange.Value - previousChange.Value;
+                    Change = thermometerChange.Temperature - previousChange.Temperature;
 
                 // Determine Retention
+                // TODO: Move this to a background thread
                 var oldestTimeOfChange = DateTime.Now.AddMinutes(-_changeEventRetentionInMins);
-                var changesToRemove = ThermometerChanges.RemoveAll(tc => tc.Timestamp < oldestTimeOfChange);
+                var changesToRemove = ThermometerStates.RemoveAll(tc => tc.Timestamp < oldestTimeOfChange);
 
-                ThermometerChanges.Add(thermometerChange);
+                ThermometerStates.Add(thermometerChange);
 
                 // If change is big enough, broadcast Temperature Change
                 if (Math.Abs(Change) > _changeThreshold) {
                     //Logger.Information($"Id:{thermometerChange.Id}, Value:{thermometerChange.Value}, Change:{Change}");
                     _eventHandler.TemperatureChangeFired(new TemperatureChange {
-                        Id = thermometerChange.Id,
+                        Id = Id,
                         Change = Change,
-                        Value = thermometerChange.Value,
-                        PercentChange = Change / previousChange.Value * 100,
+                        Value = thermometerChange.Temperature,
+                        PercentChange = Change / previousChange.Temperature * 100,
                         Timestamp = thermometerChange.Timestamp
                     });
                 } else if (previousChange == null) { // First event 
                     //Logger.Information($"First Id:{thermometerChange.Id}, Value:{thermometerChange.Value}, Change:{Change}");
                     _eventHandler.TemperatureChangeFired(new TemperatureChange {
-                        Id = thermometerChange.Id,
+                        Id = Id,
                         Change = Change,
-                        Value = thermometerChange.Value,
+                        Value = thermometerChange.Temperature,
                         PercentChange = 0,
                         Timestamp = thermometerChange.Timestamp
                     });
                 }
         
             }
+        }
+
+        private void RemoveOldStates() {
+
         }
 
     }

@@ -18,6 +18,7 @@ using BF.Common.Events;
 using BF.Common.Components;
 using BF.Services.Components;
 using Microsoft.Extensions.Logging;
+using BF.Common.States;
 
 namespace BF.Service {
 
@@ -122,8 +123,11 @@ namespace BF.Service {
                 });
             });
 
+            
+        }
 
-
+        private void SomeBitch(ComponentStateChange<ThermometerState> thermometerStateChange) {
+            Logger.LogInformation($"Holy fucker! {thermometerStateChange.CurrentState.Temperature}");
         }
 
         public void BroadcastBeerFactoryState(InitializationChange initializationChange) {
@@ -132,7 +136,7 @@ namespace BF.Service {
                 _eventHandler.ConnectionStatusChangeFired(new ConnectionStatusChange {
                     ClientId = "RaspberryPi",
                     ConnectionState = ConnectionState.Connected,
-                    ThermometerChanges = Thermometers.SelectMany(t => t.ThermometerChanges).ToList(),
+                    //ThermometerChanges = Thermometers.SelectMany(t => t.ThermometerChanges).ToList(),
                     SsrChanges = Ssrs.Select(s => new SsrChange {
                         Id = s.Id,
                         IsEngaged = s.IsEngaged,

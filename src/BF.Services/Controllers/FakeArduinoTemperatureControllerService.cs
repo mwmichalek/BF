@@ -18,6 +18,7 @@ using BF.Service.Events;
 using BF.Common.Events;
 using BF.Common.Components;
 using Microsoft.Extensions.Logging;
+using BF.Common.States;
 
 namespace BF.Service.Controllers {
     public class FakeArduinoTemperatureControllerService : TemperatureControllerService {
@@ -26,25 +27,32 @@ namespace BF.Service.Controllers {
 
         private IBeerFactoryEventHandler _eventHandler;
 
+        
+
+        private int hltSsrPercentage = 0;
+
+        
+
+        private List<double> temperatures = new List<double> { 70.01d, 69.54d, 70.12d,
+                                                                 70.43d, 69.72d, 68.91d,
+                                                                 71.44d, 70.54d, 69.87d };
+
+        private ThermometerState thermometerState;
+
+        private Random rnd = new Random();
+
         public FakeArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<FakeArduinoTemperatureControllerService>();
             _eventHandler = eventHandler;
+
             _eventHandler.SsrChangeOccured(SsrChangeOccured);
         }
-
-        private int hltSsrPercentage = 0;
 
         public void SsrChangeOccured(SsrChange ssr) {
             if (ssr.Id == ComponentId.HLT) {
                 hltSsrPercentage = ssr.Percentage;
             }
         }
-
-        private List<double> temperatures = new List<double> { 70.01d, 69.54d, 70.12d,
-                                                                 70.43d, 69.72d, 68.91d,
-                                                                 71.44d, 70.54d, 69.87d };
-
-        private Random rnd = new Random();
 
         public override async Task Run() {
 
@@ -79,7 +87,19 @@ namespace BF.Service.Controllers {
                             Timestamp = DateTime.Now
                         });
 
+                        var currentThermometerState = new ThermometerState {
+                            Temperature = newTemperature,
+                            Timestamp = DateTime.Now
+                        };
+
+                        _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermometerState> {
+                            Id = ComponentId.HLT,
+                            PriorState = thermometerState,
+                            CurrentState = currentThermometerState
+                        }); 
+
                         temperatures[0] = newTemperature;
+                        thermometerState = currentThermometerState;
                     }
 
                     
