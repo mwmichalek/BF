@@ -1,10 +1,12 @@
 ﻿using BF.Common.Components;
 using BF.Common.Events;
+using BF.Common.States;
 using BF.Service.Events;
 using BF.Service.Prism.Events;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
@@ -94,33 +96,15 @@ namespace BF.Services.Prism.Events {
 
 
                 _connection.On<string, string>("ComponentStateChangeReceived",
-                   (string componentStateType, string componentStateChangeJson) => {
-                       //(string componentStateType) => {
-                       //    var componentStateChangeJson = "blank";
-                       //switch (componentStateType) {
-                       //    case "sdfsddfsdf"
+                   (string componentStateTypeStr, string componentStateChangeJson) => {
+                       var asm = typeof(ComponentState).Assembly;
+                       Type componentStateType = asm.GetType(componentStateTypeStr);
+                       var componentStateChange = JsonConvert.DeserializeObject(componentStateChangeJson, componentStateType);
 
-
-                       //}
-
-                       //TODO: Need to deserialize, might need to be a giant switch
-                       Logger.LogInformation($"Motherfucker: Type:{componentStateType} Json:{componentStateChangeJson}");
-                       //base.ConnectionStatusChangeFired(jsonEvent.ToEvent<ConnectionStatusChange>().LogSignalREvent<ConnectionStatusChange>());
-                   });
-
-
-                //public void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateHandler,
-                //                                        ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState {
-                //    _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Subscribe(componentStateHandler,
-                //        threadType.ToThreadOption());
-                //}
-
-
-
-
-
-
-
+                       // TODO: There has to be a better way.
+                       if (componentStateType == typeof(ComponentStateChange<ThermometerState>))
+                            base.ComponentStateChangeFiring((ComponentStateChange<ThermometerState>)componentStateChange);
+                    });
 
                 _connection.Reconnected += OnConnection;
 
@@ -132,11 +116,8 @@ namespace BF.Services.Prism.Events {
         }
 
         private Task OnConnection(string arg) {
-
             return Task.CompletedTask;
-           
         }
-
 
         public override void InitializationChangeFired(InitializationChange initializationChange) {
             if (_connection.IsConnected()) _connection.InvokeAsync("InitializationChangeFired", initializationChange.LogSignalREvent<InitializationChange>().ToJson());
@@ -190,20 +171,12 @@ namespace BF.Services.Prism.Events {
 
         public override void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) {
             if (_connection.IsConnected()) {
-                //_connection.InvokeAsync("ComponentStateChangeBroadcasted",
-                //                        componentStateChange.GetType().ToString());
                 _connection.InvokeAsync("ComponentStateChangeBroadcasted",
                                         componentStateChange.GetType().ToString(),
                                         componentStateChange.ToJson());
             }
             base.ComponentStateChangeFiring(componentStateChange);
         }
-
-        //        public virtual void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState {
-        //    _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Publish(componentStateChange);
-        //}
-
-
 
         //public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
         //    _connection.InvokeAsync("TemperatureChangeOccured", temperatureChange.ToJson());
@@ -243,17 +216,17 @@ namespace BF.Services.Prism.Events {
 
 
 
-        public void PumpRequestFired(string pumpRequestJson) {
-            PumpRequestFired(pumpRequestJson.ToEvent<PumpRequest>());
-        }
+        //public void PumpRequestFired(string pumpRequestJson) {
+        //    PumpRequestFired(pumpRequestJson.ToEvent<PumpRequest>());
+        //}
 
-        public void PidRequestFired(string pidRequestJson) {
-            PidRequestFired(pidRequestJson.ToEvent<PidRequest>());
-        }
+        //public void PidRequestFired(string pidRequestJson) {
+        //    PidRequestFired(pidRequestJson.ToEvent<PidRequest>());
+        //}
 
-        public void ConnectionStatusRequestFired(string connectionStatusRequestJson) {
-            ConnectionStatusRequestFired(connectionStatusRequestJson.ToEvent<ConnectionStatusRequest>());
-        }
+        //public void ConnectionStatusRequestFired(string connectionStatusRequestJson) {
+        //    ConnectionStatusRequestFired(connectionStatusRequestJson.ToEvent<ConnectionStatusRequest>());
+        //}
 
       
 

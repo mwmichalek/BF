@@ -7,11 +7,6 @@ using System.Text;
 
 namespace BF.Common.Events {
 
-
-    //public class PidControllerStateChange : ComponentStateChange<PidControllerState> { }
-
-    
-
     public class ComponentStateChange<T> where T : ComponentState {
 
         public ComponentId Id { get; set; }
@@ -33,11 +28,4 @@ namespace BF.Common.Events {
         }
     }
 
-    //public class PidControllerStateRequest : ComponentStateRequest<PidControllerState> { }
-
-    //public abstract class ComponentStateRequest<T> where T : UpdateableComponentState {
-
-    //    public T RequestedState { get; set; }
-
-    //}
 }
