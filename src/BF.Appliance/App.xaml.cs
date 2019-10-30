@@ -29,7 +29,7 @@ namespace BF.Appliance {
         }
 
         protected override void ConfigureContainer() {
-            // register a singleton using Container.RegisterType<IInterface, Type>(new ContainerControlledLifetimeManager());
+
             base.ConfigureContainer();
 
 
@@ -58,11 +58,20 @@ namespace BF.Appliance {
 
             Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
 
+            ConfigureBeerFactory();
+
+            var msLogger = loggerFactory.CreateLogger("HubConnectionHelper");
+            HubConnectionHelper.Logger = msLogger;
+
+            Log.Information("Initialization complete.");
+        }
+
+        private void ConfigureBeerFactory() {
             Container.RegisterType<IBeerFactoryEventHandler, SignalRPrismBeerFactoryEventHandler>(new ContainerControlledLifetimeManager());
 
             if (DeviceHelper.GetDevice() == Device.RaspberryPi)
                 Container.RegisterType<ITemperatureControllerService, SerialUsbArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
-           else
+            else
                 Container.RegisterType<ITemperatureControllerService, FakeArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IBeerFactory, BeerFactory>(new ContainerControlledLifetimeManager());
@@ -75,10 +84,6 @@ namespace BF.Appliance {
             });
 
             HubConnectionHelper.Environment = "RaspberryPi";
-            var msLogger = loggerFactory.CreateLogger("HubConnectionHelper");
-            HubConnectionHelper.Logger = msLogger;
-
-            Log.Information("Initialization complete.");
         }
 
         protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args) {

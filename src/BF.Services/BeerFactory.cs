@@ -5,12 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-//using Windows.UI.Core;
-using Windows.Devices.Pwm;
-using Windows.Devices.Gpio;
-//using Microsoft.IoT.DeviceCore.Pwm;
-//using Microsoft.IoT.Devices.Pwm;
-
 using BF.Service.Components;
 using BF.Service.Events;
 using BF.Common.Ids;
@@ -26,11 +20,11 @@ namespace BF.Service {
         
         List<Thermometer> Thermometers { get; }
 
-        List<PidController> PidControllers { get; }
-
         List<Pump> Pumps { get; }
 
         List<Ssr> Ssrs { get; }
+
+        List<PidController> PidControllers { get; }
     }
 
     public class BeerFactory : IBeerFactory {
@@ -94,7 +88,6 @@ namespace BF.Service {
             PidControllers.Add(_hltPidController);
             _hltPidController.Process();
 
-
             _eventHandler.ComponentStateRequestFiring<PidControllerState>(new ComponentStateRequest<PidControllerState> {
                 Id = ComponentId.HLT,
                 RequestState = new PidControllerState {
@@ -118,7 +111,6 @@ namespace BF.Service {
             _eventHandler.InitializationChangeOccured(BroadcastBeerFactoryState);
 
             //Trigger now becuase the first one was missed.
-
             Task.Run(() => {
                 Thread.Sleep(10000);
                 _eventHandler.InitializationChangeFired(new InitializationChange {
@@ -127,10 +119,6 @@ namespace BF.Service {
             });
 
             
-        }
-
-        private void SomeBitch(ComponentStateChange<ThermometerState> thermometerStateChange) {
-            Logger.LogInformation($"Holy fucker! {thermometerStateChange.CurrentState.Temperature}");
         }
 
         public void BroadcastBeerFactoryState(InitializationChange initializationChange) {
