@@ -34,6 +34,8 @@ namespace BF.Service.Prism.Events {
 
     public class ComponentStateChangeEvent<ComponentStateChange> : PubSubEvent<ComponentStateChange> { }
 
+    public class ComponentStateRequestEvent<ComponentStateRequest> : PubSubEvent<ComponentStateRequest> { }
+
 
 
 }

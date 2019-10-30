@@ -65,22 +65,22 @@ namespace BF.Services.Prism.Events {
                 //    (jsonEvent) => {
                 //       base.ThermometerChangeFired(jsonEvent.ToEvent<ThermometerChange>().LogSignalREvent<ThermometerChange>());
                 //    });
-                _connection.On<string>("PumpRequestFired", 
-                    (jsonEvent) => {
-                        base.PumpRequestFired(jsonEvent.ToEvent<PumpRequest>().LogSignalREvent<PumpRequest>());
-                    });
-                _connection.On<string>("PumpChangeFired", 
-                    (jsonEvent) => {
-                        base.PumpChangeFired(jsonEvent.ToEvent<PumpChange>().LogSignalREvent<PumpChange>());
-                    });
-                _connection.On<string>("PidRequestFired", 
-                    (jsonEvent) => {
-                        base.PidRequestFired(jsonEvent.ToEvent<PidRequest>().LogSignalREvent<PidRequest>());
-                    });
-                _connection.On<string>("PidChangeFired", 
-                    (jsonEvent) => {
-                        base.PidChangeFired(jsonEvent.ToEvent<PidChange>().LogSignalREvent<PidChange>());
-                    });
+                //_connection.On<string>("PumpRequestFired", 
+                //    (jsonEvent) => {
+                //        base.PumpRequestFired(jsonEvent.ToEvent<PumpRequest>().LogSignalREvent<PumpRequest>());
+                //    });
+                //_connection.On<string>("PumpChangeFired", 
+                //    (jsonEvent) => {
+                //        base.PumpChangeFired(jsonEvent.ToEvent<PumpChange>().LogSignalREvent<PumpChange>());
+                //    });
+                //_connection.On<string>("PidRequestFired", 
+                //    (jsonEvent) => {
+                //        base.PidRequestFired(jsonEvent.ToEvent<PidRequest>().LogSignalREvent<PidRequest>());
+                //    });
+                //_connection.On<string>("PidChangeFired", 
+                //    (jsonEvent) => {
+                //        base.PidChangeFired(jsonEvent.ToEvent<PidChange>().LogSignalREvent<PidChange>());
+                //    });
                 _connection.On<string>("SsrChangeFired", 
                     (jsonEvent) => {
                         base.SsrChangeFired(jsonEvent.ToEvent<SsrChange>().LogSignalREvent<SsrChange>());
@@ -95,6 +95,8 @@ namespace BF.Services.Prism.Events {
                     });
 
 
+
+
                 _connection.On<string, string>("ComponentStateChangeReceived",
                    (string componentStateTypeStr, string componentStateChangeJson) => {
                        var asm = typeof(ComponentState).Assembly;
@@ -104,7 +106,31 @@ namespace BF.Services.Prism.Events {
                        // TODO: There has to be a better way.
                        if (componentStateType == typeof(ComponentStateChange<ThermometerState>))
                             base.ComponentStateChangeFiring((ComponentStateChange<ThermometerState>)componentStateChange);
-                    });
+                       if (componentStateType == typeof(ComponentStateChange<PidControllerState>))
+                           base.ComponentStateChangeFiring((ComponentStateChange<PidControllerState>)componentStateChange);
+                       if (componentStateType == typeof(ComponentStateChange<PumpState>))
+                           base.ComponentStateChangeFiring((ComponentStateChange<PumpState>)componentStateChange);
+                   });
+
+
+
+
+
+                _connection.On<string, string>("ComponentStateRequestReceived",
+                   (string componentStateTypeStr, string componentStateRequestJson) => {
+                       var asm = typeof(ComponentState).Assembly;
+                       Type componentStateType = asm.GetType(componentStateTypeStr);
+                       var componentStateRequest = JsonConvert.DeserializeObject(componentStateRequestJson, componentStateType);
+
+                       // TODO: There has to be a better way.
+                       if (componentStateType == typeof(ComponentStateRequest<PidControllerState>))
+                           base.ComponentStateRequestFiring((ComponentStateRequest<PidControllerState>)componentStateRequest);
+                       if (componentStateType == typeof(ComponentStateRequest<PumpState>))
+                           base.ComponentStateRequestFiring((ComponentStateRequest<PumpState>)componentStateRequest);
+                   });
+
+
+
 
                 _connection.Reconnected += OnConnection;
 
@@ -134,25 +160,25 @@ namespace BF.Services.Prism.Events {
         //    base.ThermometerChangeFired(thermometerChange);
         //}
     
-        public override void PumpRequestFired(PumpRequest pumpRequest) {
-            if (_connection.IsConnected()) _connection.InvokeAsync("PumpRequestFired", pumpRequest.LogSignalREvent<PumpRequest>().ToJson());
-            base.PumpRequestFired(pumpRequest);
-        }
+        //public override void PumpRequestFired(PumpRequest pumpRequest) {
+        //    if (_connection.IsConnected()) _connection.InvokeAsync("PumpRequestFired", pumpRequest.LogSignalREvent<PumpRequest>().ToJson());
+        //    base.PumpRequestFired(pumpRequest);
+        //}
 
-        public override void PumpChangeFired(PumpChange pumpChange) {
-            if (_connection.IsConnected()) _connection.InvokeAsync("PumpChangeFired", pumpChange.LogSignalREvent<PumpChange>().ToJson());
-            base.PumpChangeFired(pumpChange);
-        }
+        //public override void PumpChangeFired(PumpChange pumpChange) {
+        //    if (_connection.IsConnected()) _connection.InvokeAsync("PumpChangeFired", pumpChange.LogSignalREvent<PumpChange>().ToJson());
+        //    base.PumpChangeFired(pumpChange);
+        //}
 
-        public override void PidRequestFired(PidRequest pidRequest) {
-            if (_connection.IsConnected()) _connection.InvokeAsync("PidRequestFired", pidRequest.LogSignalREvent<PidRequest>().ToJson());
-            base.PidRequestFired(pidRequest);
-        }
+        //public override void PidRequestFired(PidRequest pidRequest) {
+        //    if (_connection.IsConnected()) _connection.InvokeAsync("PidRequestFired", pidRequest.LogSignalREvent<PidRequest>().ToJson());
+        //    base.PidRequestFired(pidRequest);
+        //}
 
-        public override void PidChangeFired(PidChange pidChange) {
-            if (_connection.IsConnected()) if (_connection.IsConnected()) _connection.InvokeAsync("PidChangeFired", pidChange.LogSignalREvent<PidChange>().ToJson());
-            base.PidChangeFired(pidChange);
-        }
+        //public override void PidChangeFired(PidChange pidChange) {
+        //    if (_connection.IsConnected()) if (_connection.IsConnected()) _connection.InvokeAsync("PidChangeFired", pidChange.LogSignalREvent<PidChange>().ToJson());
+        //    base.PidChangeFired(pidChange);
+        //}
 
         public override void SsrChangeFired(SsrChange ssrChange) {
             if (_connection.IsConnected()) _connection.InvokeAsync("SsrChangeFired", ssrChange.LogSignalREvent<SsrChange>().ToJson());
@@ -176,6 +202,15 @@ namespace BF.Services.Prism.Events {
                                         componentStateChange.ToJson());
             }
             base.ComponentStateChangeFiring(componentStateChange);
+        }
+
+        public override void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) {
+            if (_connection.IsConnected()) {
+                _connection.InvokeAsync("ComponentStateRequestBroadcasted",
+                                        componentStateRequest.GetType().ToString(),
+                                        componentStateRequest.ToJson());
+            }
+            base.ComponentStateRequestFiring(componentStateRequest);
         }
 
         //public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
@@ -228,14 +263,14 @@ namespace BF.Services.Prism.Events {
         //    ConnectionStatusRequestFired(connectionStatusRequestJson.ToEvent<ConnectionStatusRequest>());
         //}
 
-      
 
 
 
 
-      
 
-        
+
+
+
 
 
 

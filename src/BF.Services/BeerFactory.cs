@@ -95,14 +95,17 @@ namespace BF.Service {
             _hltPidController.Process();
 
 
-            _eventHandler.PidRequestFired(new PidRequest {
+            _eventHandler.ComponentStateRequestFiring<PidControllerState>(new ComponentStateRequest<PidControllerState> {
                 Id = ComponentId.HLT,
-                IsEngaged = true,
-                PidMode = PidMode.Temperature,
-                SetPoint = 90,
-                GainDerivative = 22.5,
-                GainIntegral = 1.5,
-                GainProportional = 18
+                RequestState = new PidControllerState {
+
+                    IsEngaged = true,
+                    PidMode = PidMode.Temperature,
+                    SetPoint = 90,
+                    GainDerivative = 22.5,
+                    GainIntegral = 1.5,
+                    GainProportional = 18
+                }
             });
 
             foreach (var id in new []{ ComponentId.HLT, ComponentId.MT, ComponentId.BK }) {
@@ -146,15 +149,15 @@ namespace BF.Service {
                         Id = p.Id,
                         IsEngaged = p.IsEngaged
                     }).ToList(),
-                    PidChanges = PidControllers.Select(pid => new PidChange {
-                        Id = pid.Id,
-                        IsEngaged = pid.IsEngaged,
-                        PidMode = pid.PidMode,
-                        SetPoint = pid.SetPoint,
-                        GainProportional = pid.GainProportional,
-                        GainIntegral = pid.GainIntegral,
-                        GainDerivative = pid.GainDerivative
-                    }).ToList()
+                    //PidChanges = PidControllers.Select(pid => new PidChange {
+                    //    Id = pid.Id,
+                    //    IsEngaged = pid.IsEngaged,
+                    //    PidMode = pid.PidMode,
+                    //    SetPoint = pid.SetPoint,
+                    //    GainProportional = pid.GainProportional,
+                    //    GainIntegral = pid.GainIntegral,
+                    //    GainDerivative = pid.GainDerivative
+                    //}).ToList()
                 });
             }
         }

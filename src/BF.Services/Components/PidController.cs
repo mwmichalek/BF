@@ -40,79 +40,98 @@ namespace BF.Service.Components {
 
         private int dutyCycleInMillis = 2000;
 
-        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, double processVariable, ILoggerFactory loggerFactory) {
+        public PidControllerState PriorState { get; set; }
+        public PidControllerState CurrentState { get; set; }
+
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, double temperature, ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
             Id = id;
             Ssr = ssr;
-            _processVariable = processVariable;
+            CurrentState = new PidControllerState {
+                Temperature = temperature
+            };
+            //SetPoint = setPoint;
             RegisterEvents();
         }
 
-        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, double processVariable, double setPoint, ILoggerFactory loggerFactory) {
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, double temperature, double setPoint, ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
             Id = id;
             Ssr = ssr;
-            _processVariable = processVariable;
-            SetPoint = setPoint;
+            CurrentState = new PidControllerState {
+                SetPoint = setPoint,
+                Temperature = temperature
+            };
+            //SetPoint = setPoint;
             RegisterEvents();
         }
 
-        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, double processVariable, double gainProportional, double gainIntegral, double gainDerivative, double outputMin, double outputMax, double setPoint, ILoggerFactory loggerFactory) {
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, double temperature, double gainProportional, double gainIntegral, double gainDerivative, double outputMin, double outputMax, double setPoint, ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
             if (OutputMax < OutputMin)
                 throw new FormatException("OutputMax is less than OutputMin");
             Id = id;
             Ssr = ssr;
-            _processVariable = processVariable;
-            GainDerivative = gainDerivative;
-            GainIntegral = gainIntegral;
-            GainProportional = gainProportional;
+            CurrentState = new PidControllerState {
+                SetPoint = setPoint,
+                Temperature = temperature,
+                GainDerivative = gainDerivative,
+                GainIntegral = gainIntegral,
+                GainProportional = gainProportional
+            };
+            
             OutputMax = outputMax;
             OutputMin = outputMin;
-            SetPoint = setPoint;
             RegisterEvents();
         }
 
         private void RegisterEvents() {
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
-            _eventHandler.PidRequestOccured(PidRequestOccured);
+            _eventHandler.ComponentStateRequestOccured<PidControllerState>(PidControllerStateRequestOccured);
         }
 
-        private bool isEngaged = false;
+        //private bool isEngaged = false;
 
-        public bool IsEngaged {
-            get { return isEngaged; }
-            set { isEngaged = value; }
-        }
+        //public bool IsEngaged {
+        //    get { return isEngaged; }
+        //    set { isEngaged = value; }
+        //}
 
         private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) { 
             if (thermometerStateChange.Id == Id) {
-                _processVariable = thermometerStateChange.CurrentState.Temperature;
+                _ = thermometerStateChange.CurrentState.Temperature;
                 Process();
             }
         }
 
-        public void PidRequestOccured(PidRequest pidRequest) {
-            if (pidRequest.Id == Id) {
-                IsEngaged = pidRequest.IsEngaged.HasValue ? pidRequest.IsEngaged.Value : IsEngaged;
-                PidMode = pidRequest.PidMode.HasValue ? pidRequest.PidMode.Value : PidMode;
-                SetPoint = pidRequest.SetPoint.HasValue ? pidRequest.SetPoint.Value : SetPoint;
+        private void PidControllerStateRequestOccured(ComponentStateRequest<PidControllerState> pidControllerStateRequest) {
+            if (pidControllerStateRequest.Id == Id) {
+                PriorState = CurrentState;
+                CurrentState = CurrentState.Clone();
 
-                GainDerivative = pidRequest.GainDerivative.HasValue ? pidRequest.GainDerivative.Value : GainDerivative;
-                GainIntegral = pidRequest.GainIntegral.HasValue ? pidRequest.GainIntegral.Value : GainIntegral;
-                GainProportional = pidRequest.GainProportional.HasValue ? pidRequest.GainProportional.Value : GainProportional;
+                CurrentState.IsEngaged = pidControllerStateRequest.RequestState.IsEngaged;
+                CurrentState.PidMode = (pidControllerStateRequest.RequestState.PidMode != PidMode.Unknown) ? 
+                    pidControllerStateRequest.RequestState.PidMode : 
+                    CurrentState.PidMode;
+                CurrentState.SetPoint = pidControllerStateRequest.RequestState.SetPoint;
 
-                _eventHandler.PidChangeFired(new PidChange {
+                CurrentState.GainDerivative = pidControllerStateRequest.RequestState.GainDerivative != double.MinValue ? 
+                    pidControllerStateRequest.RequestState.GainDerivative : 
+                    CurrentState.GainDerivative;
+                CurrentState.GainIntegral = pidControllerStateRequest.RequestState.GainIntegral != double.MinValue ? 
+                    pidControllerStateRequest.RequestState.GainIntegral : 
+                    CurrentState.GainIntegral;
+                CurrentState.GainProportional = pidControllerStateRequest.RequestState.GainProportional != double.MinValue ? 
+                    pidControllerStateRequest.RequestState.GainProportional : 
+                    CurrentState.GainProportional;
+
+                _eventHandler.ComponentStateChangeFiring<PidControllerState>(new ComponentStateChange<PidControllerState> {
                     Id = Id,
-                    IsEngaged = IsEngaged,
-                    PidMode = PidMode,
-                    SetPoint = SetPoint,
-                    GainDerivative = GainDerivative,
-                    GainIntegral = GainIntegral,
-                    GainProportional = GainProportional
+                    PriorState = PriorState,
+                    CurrentState = CurrentState
                 });
             }
 
@@ -132,11 +151,11 @@ namespace BF.Service.Components {
         /// <returns>Value of the variable that needs to be controlled</returns>
         public void Process() {
 
-            if (!isEngaged)
+            if (!CurrentState.IsEngaged)
                 Ssr.Percentage = 0;
 
-            if (isEngaged) {
-                if (PidMode == PidMode.Temperature && ProcessVariable != 0) {
+            if (CurrentState.IsEngaged) {
+                if (CurrentState.PidMode == PidMode.Temperature && CurrentState.Temperature != 0) {
                     var currentTime = DateTime.Now;
                     if (lastRun == null)
                         lastRun = currentTime;
@@ -145,34 +164,32 @@ namespace BF.Service.Components {
                     var secondsSinceLastUpdate = (currentTime - lastRun).Seconds;
                     if (secondsSinceLastUpdate == 0) secondsSinceLastUpdate = 1;
 
-                    double error = SetPoint - ProcessVariable;
+                    double error = CurrentState.SetPoint - CurrentState.Temperature;
 
                     // integral term calculation
-                    IntegralTerm += (GainIntegral * error * secondsSinceLastUpdate);
+                    IntegralTerm += (CurrentState.GainIntegral * error * secondsSinceLastUpdate);
                     IntegralTerm = Clamp(IntegralTerm);
 
                     // derivative term calculation
-                    double dInput = _processVariable - ProcessVariableLast;
-                    double derivativeTerm = GainDerivative * (dInput / secondsSinceLastUpdate);
+                    double dInput = CurrentState.Temperature - PriorState.Temperature;
+                    double derivativeTerm = CurrentState.GainDerivative * (dInput / secondsSinceLastUpdate);
 
                     // proportional term calcullation
-                    double proportionalTerm = GainProportional * error;
+                    double proportionalTerm = CurrentState.GainProportional * error;
 
                     double output = proportionalTerm + IntegralTerm - derivativeTerm;
-
                     output = Clamp(output);
 
                     lastRun = currentTime;
 
-                    Logger.LogInformation($"PID Temp: {ProcessVariable}, SSR: {output}, SetPoint: {SetPoint}");
+                    Logger.LogInformation($"PID Temp: {CurrentState.Temperature}, SSR: {output}, SetPoint: {CurrentState.SetPoint}");
 
-                    //Debug.WriteLine($"Temperature: {ProcessVariable}  SSR: {output}");
 
                     Ssr.Percentage = (int)output;
 
-                } else if (PidMode == PidMode.Percentage) {
+                } else if (CurrentState.PidMode == PidMode.Percentage) {
                     // If PidMode is Percentage, SetPoint is a Percentage
-                    Ssr.Percentage = (int)SetPoint;
+                    Ssr.Percentage = (int)CurrentState.SetPoint;
                 }
             }
         }
@@ -183,13 +200,13 @@ namespace BF.Service.Components {
         /// The derivative term is proportional to the rate of
         /// change of the error
         /// </summary>
-        public double GainDerivative { get; set; } = 1;
+        //public double GainDerivative { get; set; } = 1;
 
         /// <summary>
         /// The integral term is proportional to both the magnitude
         /// of the error and the duration of the error
         /// </summary>
-        public double GainIntegral { get; set; } = 1;
+        //public double GainIntegral { get; set; } = 1;
 
         /// <summary>
         /// The proportional term produces an output value that
@@ -199,7 +216,7 @@ namespace BF.Service.Components {
         /// Tuning theory and industrial practice indicate that the
         /// proportional term should contribute the bulk of the output change.
         /// </remarks>
-        public double GainProportional { get; set; } = 1;
+        //public double GainProportional { get; set; } = 1;
 
         /// <summary>
         /// The max output value the control device can accept.
@@ -220,29 +237,29 @@ namespace BF.Service.Components {
         /// </remarks>
         public double IntegralTerm { get; private set; } = 0;
 
-        private double _processVariable = 0;
+        //private double _processVariable = 0;
         /// <summary>
         /// The current value
         /// </summary>
-        public double ProcessVariable {
-            get { return _processVariable; }
-            set {
-                ProcessVariableLast = _processVariable;
-                _processVariable = value;
-            }
-        }
+        //public double ProcessVariable {
+        //    get { return _processVariable; }
+        //    set {
+        //        ProcessVariableLast = _processVariable;
+        //        _processVariable = value;
+        //    }
+        //}
 
         /// <summary>
         /// The last reported value (used to calculate the rate of change)
         /// </summary>
-        public double ProcessVariableLast { get; private set; } = 0;
+        //public double ProcessVariableLast { get; private set; } = 0;
 
         /// <summary>
         /// The desired value
         /// </summary>
-        public double SetPoint { get; set; } = 0;
+        //public double SetPoint { get; set; } = 0;
 
-        public PidMode PidMode { get; set; } = PidMode.Temperature;
+        //public PidMode PidMode { get; set; } = PidMode.Temperature;
 
         /// <summary>
         /// Limit a variable to the set OutputMax and OutputMin properties

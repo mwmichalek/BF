@@ -8,7 +8,7 @@ namespace BF.Common.States {
 
     public abstract class ComponentState {
 
-        public DateTime Timestamp { get; set; }
+        public DateTime Timestamp { get; set; } = DateTime.Now;
 
     }
 

@@ -31,7 +31,7 @@ namespace BF.Appliance.ViewModels {
 
             var hltPidController = beerFactory.PidControllers.GetById<PidController>(ComponentId.HLT);
             if (hltPidController != null)
-                SetPoint = (int)hltPidController.SetPoint;
+                SetPoint = (int)hltPidController.CurrentState.SetPoint;
 
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured, ThreadType.UIThread);
             _eventHandler.SsrChangeOccured(SsrChangeOccured, ThreadType.UIThread);

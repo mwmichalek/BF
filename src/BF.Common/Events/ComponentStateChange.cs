@@ -19,7 +19,7 @@ namespace BF.Common.Events {
 
     
 
-    public static class ComponentStateHelper {
+    public static class ComponentStateChangeHelper {
 
         public static ComponentStateChange ToComponentStateChange<ComponentStateChange>(this string eventJson) {
             return JsonConvert.DeserializeObject<ComponentStateChange>(eventJson);

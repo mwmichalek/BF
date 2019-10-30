@@ -49,18 +49,26 @@
     public double SetPoint { get; set; }
 
     protected override async Task OnInitializedAsync() {
-        _eventHandler.PidChangeOccured(PidChangeOccured);
-        _eventHandler.ComponentStateChangeOccured<ThermometerState>(ComponentStateChangeOccured);
+        _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured);
+        _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
     }
 
-    public void ComponentStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
+    public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
+        if (componentStateChange.Id == ComponentId) {
+            SetPoint = componentStateChange.CurrentState.SetPoint;
+            InvokeAsync(() => StateHasChanged());
+        }
+    }
+
+    public void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
         if (componentStateChange.Id == ComponentId) {
             Temperature = componentStateChange.CurrentState.Temperature;
             TemperatureStr = componentStateChange.CurrentState.Temperature.ToString("0.0");
             InvokeAsync(() => StateHasChanged());
         }
-
     }
+
+    
 
     void PidChangeOccured(PidChange pidChange) {
         if (pidChange.Id == ComponentId) {

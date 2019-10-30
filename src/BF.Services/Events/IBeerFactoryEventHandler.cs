@@ -21,19 +21,14 @@ namespace BF.Service.Events {
 
         void InitializationChangeOccured(Action<InitializationChange> initializationHandler, ThreadType threadType = ThreadType.PublisherThread);
 
-        //void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
+        //void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
 
-        //void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
-
-
-        void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
-
-        void PumpChangeOccured(Action<PumpChange> pumpChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
+        //void PumpChangeOccured(Action<PumpChange> pumpChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
 
 
-        void PidRequestOccured(Action<PidRequest> pidRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
+        //void PidRequestOccured(Action<PidRequest> pidRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
 
-        void PidChangeOccured(Action<PidChange> pidChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
+        //void PidChangeOccured(Action<PidChange> pidChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
 
 
         void SsrChangeOccured(Action<SsrChange> ssrChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
@@ -46,19 +41,15 @@ namespace BF.Service.Events {
 
         void InitializationChangeFired(InitializationChange initializationChange);
 
-        //void TemperatureChangeFired(TemperatureChange temperatureChange);
 
-        //void ThermometerChangeFired(ThermometerChange thermometerChange);
-
-
-        void PumpRequestFired(PumpRequest pumpRequest); 
+        //void PumpRequestFired(PumpRequest pumpRequest); 
         
-        void PumpChangeFired(PumpChange pumpChange);
+        //void PumpChangeFired(PumpChange pumpChange);
 
 
-        void PidRequestFired(PidRequest pidRequest);
+        //void PidRequestFired(PidRequest pidRequest);
 
-        void PidChangeFired(PidChange pidChange);
+        //void PidChangeFired(PidChange pidChange);
 
         
         void SsrChangeFired(SsrChange ssrChange);
@@ -67,10 +58,22 @@ namespace BF.Service.Events {
 
         void ConnectionStatusChangeFired(ConnectionStatusChange connectionStatusChange);
 
+
+
+
+
+
+
+
         void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState;
 
-        void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateHandler,
+        void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateChangeHandler,
                                                 ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState;
+
+        void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) where T : UpdateableComponentState;
+
+        void ComponentStateRequestOccured<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
+                                                ThreadType threadType = ThreadType.PublisherThread) where T : UpdateableComponentState;
     }
 
 

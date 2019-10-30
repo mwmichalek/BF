@@ -10,7 +10,8 @@ namespace BF.Common.Events {
 
     public enum PidMode {
         Temperature,
-        Percentage
+        Percentage,
+        Unknown
     }
     
     public class PidRequest : IEventPayload {

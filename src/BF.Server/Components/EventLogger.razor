@@ -22,46 +22,37 @@ MESSAGES!
 
 
     protected override async Task OnInitializedAsync() {
-        _beerFactoryEventHandler.PumpRequestOccured(PumpRequestOccured);
-        _beerFactoryEventHandler.PumpChangeOccured(PumpChangeOccured);
-        _beerFactoryEventHandler.PidRequestOccured(PidRequestOccured);
-        _beerFactoryEventHandler.PidChangeOccured(PidChangeOccured);
+
         _beerFactoryEventHandler.SsrChangeOccured(SsrChangeOccured);
         _beerFactoryEventHandler.ConnectionStatusRequestOccured(ConnectionStatusRequestOccured);
         _beerFactoryEventHandler.ConnectionStatusChangeOccured(ConnectionStatusChangeOccured);
 
-        _beerFactoryEventHandler.ComponentStateChangeOccured<ThermometerState>(ComponentStateChangeOccured);
+        _beerFactoryEventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
+        _beerFactoryEventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured);
+        //_beerFactoryEventHandler.ComponentStateChangeOccured<PumpState>(PumpStateChangeOccured);
 
+        _beerFactoryEventHandler.ComponentStateRequestOccured<PidControllerState>(PidControllerStateRequestOccured);
+        //_beerFactoryEventHandler.ComponentStateRequestOccured<PumpState>(PumpStateRequestOccured);
 
     }
 
-    public void ComponentStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
-        Messages.Insert(0, $"ComponentStateChange<ThermometerState>: {componentStateChange.Id} - {componentStateChange.CurrentState.Temperature.ToString("0.00")}");
+    public void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
+        Messages.Insert(0, $"ThermometerStateChangeOccured: {thermometerStateChange.Id} - {thermometerStateChange.CurrentState.Temperature.ToString("0.00")}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> pidControllerStateChange) {
+        Messages.Insert(0, $"PidControllerStateChangeOccured: {pidControllerStateChange.Id} - {pidControllerStateChange.CurrentState.SetPoint}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    public void PidControllerStateRequestOccured(ComponentStateRequest<PidControllerState> pidControllerStateRequest) {
+        Messages.Insert(0, $"PidControllerStateRequestOccured: {pidControllerStateRequest.Id} - {pidControllerStateRequest.RequestState.SetPoint}");
         InvokeAsync(() => StateHasChanged());
     }
 
 
-    public void PumpRequestOccured(PumpRequest pumpRequest) {
-        Messages.Insert(0, $"PumpRequestOccured: {pumpRequest.Id} - {pumpRequest.IsEngaged}");
-        InvokeAsync(() => StateHasChanged());
-    }
-
-    public void PumpChangeOccured(PumpChange pumpChange) {
-        Messages.Insert(0, $"PumpChangeOccured: {pumpChange.Id} - {pumpChange.IsEngaged}");
-        InvokeAsync(() => StateHasChanged());
-    }
-
-
-    public void PidRequestOccured(PidRequest pidRequest) {
-        Messages.Insert(0, $"PidRequestOccured: {pidRequest.Id} - {pidRequest.IsEngaged} {pidRequest.SetPoint}");
-        InvokeAsync(() => StateHasChanged());
-    }
-
-    public void PidChangeOccured(PidChange pidChange) {
-        Messages.Insert(0, $"PidChangeOccured: {pidChange.Id} - {pidChange.IsEngaged} {pidChange.SetPoint}");
-        InvokeAsync(() => StateHasChanged());
-    }
-
+    //****************************************************************************************************
 
     public void SsrChangeOccured(SsrChange ssrChange) {
         Messages.Insert(0, $"SsrChangeOccured: {ssrChange.Id} - {ssrChange.Percentage} {ssrChange.IsEngaged}");

@@ -48,23 +48,23 @@ namespace BF.Service.Prism.Events {
         //    _eventAggregator.GetEvent<ThermometerChangeEvent>().Subscribe(thermometerChangeHandler, threadType.ToThreadOption());
         //}
 
-        public void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler, ThreadType threadType = ThreadType.PublisherThread) {
-            _eventAggregator.GetEvent<PumpRequestEvent>().Subscribe(pumpRequestHandler, threadType.ToThreadOption());
-        }
+        //public void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler, ThreadType threadType = ThreadType.PublisherThread) {
+        //    _eventAggregator.GetEvent<PumpRequestEvent>().Subscribe(pumpRequestHandler, threadType.ToThreadOption());
+        //}
 
-        public void PumpChangeOccured(Action<PumpChange> pumpChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
-            _eventAggregator.GetEvent<PumpChangeEvent>().Subscribe(pumpChangeHandler, threadType.ToThreadOption());
-        }
+        //public void PumpChangeOccured(Action<PumpChange> pumpChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+        //    _eventAggregator.GetEvent<PumpChangeEvent>().Subscribe(pumpChangeHandler, threadType.ToThreadOption());
+        //}
 
 
-        public void PidRequestOccured(Action<PidRequest> pidRequestHandler, ThreadType threadType = ThreadType.PublisherThread) {
-            _eventAggregator.GetEvent<PidRequestEvent>().Subscribe(pidRequestHandler, threadType.ToThreadOption());
-        }
+        //public void PidRequestOccured(Action<PidRequest> pidRequestHandler, ThreadType threadType = ThreadType.PublisherThread) {
+        //    _eventAggregator.GetEvent<PidRequestEvent>().Subscribe(pidRequestHandler, threadType.ToThreadOption());
+        //}
 
-        public void PidChangeOccured(Action<PidChange> pidChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+        //public void PidChangeOccured(Action<PidChange> pidChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
             
-            _eventAggregator.GetEvent<PidChangeEvent>().Subscribe(pidChangeHandler, threadType.ToThreadOption());
-        }
+        //    _eventAggregator.GetEvent<PidChangeEvent>().Subscribe(pidChangeHandler, threadType.ToThreadOption());
+        //}
 
 
         public void SsrChangeOccured(Action<SsrChange> ssrChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
@@ -91,21 +91,21 @@ namespace BF.Service.Prism.Events {
         //    _eventAggregator.GetEvent<ThermometerChangeEvent>().Publish(thermometerChange);
         //}
 
-        public virtual void PumpRequestFired(PumpRequest pumpRequest) {
-            _eventAggregator.GetEvent<PumpRequestEvent>().Publish(pumpRequest);
-        }
+        //public virtual void PumpRequestFired(PumpRequest pumpRequest) {
+        //    _eventAggregator.GetEvent<PumpRequestEvent>().Publish(pumpRequest);
+        //}
 
-        public virtual void PumpChangeFired(PumpChange pumpChange) {
-            _eventAggregator.GetEvent<PumpChangeEvent>().Publish(pumpChange);
-        }
+        //public virtual void PumpChangeFired(PumpChange pumpChange) {
+        //    _eventAggregator.GetEvent<PumpChangeEvent>().Publish(pumpChange);
+        //}
 
-        public virtual void PidRequestFired(PidRequest pidRequest) {
-            _eventAggregator.GetEvent<PidRequestEvent>().Publish(pidRequest);
-        }
+        //public virtual void PidRequestFired(PidRequest pidRequest) {
+        //    _eventAggregator.GetEvent<PidRequestEvent>().Publish(pidRequest);
+        //}
 
-        public virtual void PidChangeFired(PidChange pidChange) {
-            _eventAggregator.GetEvent<PidChangeEvent>().Publish(pidChange);
-        }
+        //public virtual void PidChangeFired(PidChange pidChange) {
+        //    _eventAggregator.GetEvent<PidChangeEvent>().Publish(pidChange);
+        //}
 
         public virtual void SsrChangeFired(SsrChange ssrChange) {
             _eventAggregator.GetEvent<SsrChangeEvent>().Publish(ssrChange);
@@ -129,11 +129,22 @@ namespace BF.Service.Prism.Events {
             _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Publish(componentStateChange);
         }
 
-        public void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateHandler, 
+        public void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateChangeHandler, 
                                                 ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState {
-            _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Subscribe(componentStateHandler, 
+            _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Subscribe(componentStateChangeHandler, 
                 threadType.ToThreadOption());
         }
+
+        public virtual void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) where T : UpdateableComponentState {
+            _eventAggregator.GetEvent<ComponentStateRequestEvent<ComponentStateRequest<T>>>().Publish(componentStateRequest);
+        }
+
+        public void ComponentStateRequestOccured<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
+                                                ThreadType threadType = ThreadType.PublisherThread) where T : UpdateableComponentState {
+            _eventAggregator.GetEvent<ComponentStateRequestEvent<ComponentStateRequest<T>>>().Subscribe(componentStateRequestHandler,
+                threadType.ToThreadOption());
+        }
+
 
     }
 
