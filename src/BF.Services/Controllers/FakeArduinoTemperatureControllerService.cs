@@ -21,6 +21,7 @@ using Microsoft.Extensions.Logging;
 using BF.Common.States;
 
 namespace BF.Service.Controllers {
+
     public class FakeArduinoTemperatureControllerService : TemperatureControllerService {
 
         private ILogger Logger { get; set; }
@@ -80,12 +81,7 @@ namespace BF.Service.Controllers {
                         newTemperature = 70;
 
                     if (newTemperature != temperatures[0]) {
-                        Logger.LogInformation($"Fake: OLD: {temperatures[0]} - NEW: {newTemperature}");
-                        _eventHandler.ThermometerChangeFired(new ThermometerChange {
-                            Id = ComponentId.HLT,
-                            Value = newTemperature,
-                            Timestamp = DateTime.Now
-                        });
+                        //Logger.LogInformation($"Fake: OLD: {temperatures[0]} - NEW: {newTemperature}");
 
                         var currentThermometerState = new ThermometerState {
                             Temperature = newTemperature,

@@ -57,14 +57,14 @@ namespace BF.Services.Prism.Events {
                     (jsonEvent) => {
                         base.InitializationChangeFired(jsonEvent.ToEvent<InitializationChange>().LogSignalREvent<InitializationChange>());
                     });
-                _connection.On<string>("TemperatureChangeFired", 
-                    (jsonEvent) => {
-                        base.TemperatureChangeFired(jsonEvent.ToEvent<TemperatureChange>().LogSignalREvent<TemperatureChange>());
-                    }); 
-                _connection.On<string>("ThermometerChangeFired", 
-                    (jsonEvent) => {
-                       base.ThermometerChangeFired(jsonEvent.ToEvent<ThermometerChange>().LogSignalREvent<ThermometerChange>());
-                    });
+                //_connection.On<string>("TemperatureChangeFired", 
+                //    (jsonEvent) => {
+                //        base.TemperatureChangeFired(jsonEvent.ToEvent<TemperatureChange>().LogSignalREvent<TemperatureChange>());
+                //    }); 
+                //_connection.On<string>("ThermometerChangeFired", 
+                //    (jsonEvent) => {
+                //       base.ThermometerChangeFired(jsonEvent.ToEvent<ThermometerChange>().LogSignalREvent<ThermometerChange>());
+                //    });
                 _connection.On<string>("PumpRequestFired", 
                     (jsonEvent) => {
                         base.PumpRequestFired(jsonEvent.ToEvent<PumpRequest>().LogSignalREvent<PumpRequest>());
@@ -124,15 +124,15 @@ namespace BF.Services.Prism.Events {
             base.InitializationChangeFired(initializationChange);
         }
 
-        public override void TemperatureChangeFired(TemperatureChange temperatureChange) {
-            if (_connection.IsConnected()) _connection.InvokeAsync("TemperatureChangeFired", temperatureChange.LogSignalREvent<TemperatureChange>().ToJson());
-            base.TemperatureChangeFired(temperatureChange);
-        }
+        //public override void TemperatureChangeFired(TemperatureChange temperatureChange) {
+        //    if (_connection.IsConnected()) _connection.InvokeAsync("TemperatureChangeFired", temperatureChange.LogSignalREvent<TemperatureChange>().ToJson());
+        //    base.TemperatureChangeFired(temperatureChange);
+        //}
 
-        public override void ThermometerChangeFired(ThermometerChange thermometerChange) {
-            if (_connection.IsConnected()) _connection.InvokeAsync("ThermometerChangeFired", thermometerChange.LogSignalREvent<ThermometerChange>().ToJson());
-            base.ThermometerChangeFired(thermometerChange);
-        }
+        //public override void ThermometerChangeFired(ThermometerChange thermometerChange) {
+        //    if (_connection.IsConnected()) _connection.InvokeAsync("ThermometerChangeFired", thermometerChange.LogSignalREvent<ThermometerChange>().ToJson());
+        //    base.ThermometerChangeFired(thermometerChange);
+        //}
     
         public override void PumpRequestFired(PumpRequest pumpRequest) {
             if (_connection.IsConnected()) _connection.InvokeAsync("PumpRequestFired", pumpRequest.LogSignalREvent<PumpRequest>().ToJson());

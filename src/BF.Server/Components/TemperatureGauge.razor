@@ -3,6 +3,7 @@
 @using BF.Service.Events
 @using BF.Common.Events
 @using BF.Common.Components
+@using BF.Common.States
 
 <EjsCircularGauge Width="100%" Height="100%">
     <CircularGaugeAxes>
@@ -39,7 +40,7 @@
     public ComponentId ComponentId { get; set; }
 
     [Inject]
-    IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
+    IBeerFactoryEventHandler _eventHandler { get; set; }
 
     public string TemperatureStr { get; set; }
 
@@ -48,16 +49,17 @@
     public double SetPoint { get; set; }
 
     protected override async Task OnInitializedAsync() {
-        _beerFactoryEventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
-        _beerFactoryEventHandler.PidChangeOccured(PidChangeOccured);
+        _eventHandler.PidChangeOccured(PidChangeOccured);
+        _eventHandler.ComponentStateChangeOccured<ThermometerState>(ComponentStateChangeOccured);
     }
 
-    void TemperatureChangeOccured(TemperatureChange temperatureChange) {
-        if (temperatureChange.Id == ComponentId) {
-            Temperature = (double)temperatureChange.Value;
-            TemperatureStr = temperatureChange.Value.ToString("0.0");
+    public void ComponentStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
+        if (componentStateChange.Id == ComponentId) {
+            Temperature = componentStateChange.CurrentState.Temperature;
+            TemperatureStr = componentStateChange.CurrentState.Temperature.ToString("0.0");
             InvokeAsync(() => StateHasChanged());
         }
+
     }
 
     void PidChangeOccured(PidChange pidChange) {

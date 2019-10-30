@@ -8,6 +8,7 @@ using Prism.Commands;
 using Prism.Events;
 using Prism.Windows.Mvvm;
 using Microsoft.Extensions.Logging;
+using BF.Common.States;
 
 namespace BF.Appliance.ViewModels {
 
@@ -32,7 +33,7 @@ namespace BF.Appliance.ViewModels {
             if (hltPidController != null)
                 SetPoint = (int)hltPidController.SetPoint;
 
-            _eventHandler.TemperatureChangeOccured(TemperatureChangeOccured, ThreadType.UIThread);
+            _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured, ThreadType.UIThread);
             _eventHandler.SsrChangeOccured(SsrChangeOccured, ThreadType.UIThread);
             _eventHandler.ConnectionStatusChangeOccured(ConnectionStatusChangeOccured, ThreadType.UIThread);
 
@@ -52,14 +53,10 @@ namespace BF.Appliance.ViewModels {
             //}
         }
 
-        public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
-
-            if (temperatureChange.Id == ComponentId.HLT) {
-                Logger.LogInformation($"HLT Change: {temperatureChange.Value}");
-                Temperature = (double)temperatureChange.Value;
-                //Temperature = Math.Round((double)temperatureChange.Value, 1);
-                //connection.InvokeAsync("SendMessage",
-                //    "Temp Change", temperatureChange.Value.ToString());
+        private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
+            if (thermometerStateChange.Id == ComponentId.HLT) {
+                Logger.LogInformation($"HLT Change: {thermometerStateChange.CurrentState.Temperature}");
+                Temperature = thermometerStateChange.CurrentState.Temperature;
             }
         }
 

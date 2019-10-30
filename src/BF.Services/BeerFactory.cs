@@ -79,7 +79,7 @@ namespace BF.Service {
             var _hltPidController = new PidController(_eventHandler, 
                                                       ComponentId.HLT,
                                                       hltSsr, 
-                                                      Thermometers.GetById<Thermometer>(ComponentId.HLT),
+                                                      Thermometers.GetById<Thermometer>(ComponentId.HLT).Temperature,
                                                       loggerFactory);
             //_hltPidController.GainProportional = 18;
             //_hltPidController.GainIntegral = 1.5;

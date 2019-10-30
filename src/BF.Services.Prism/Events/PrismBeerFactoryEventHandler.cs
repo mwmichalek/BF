@@ -31,11 +31,6 @@ namespace BF.Service.Prism.Events {
 
         protected IEventAggregator _eventAggregator;
 
-        //public PrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILogger<IBeerFactoryEventHandler> logger) {
-        //    _eventAggregator = eventAggregator;
-        //    Logger = logger;
-        //}
-
         public PrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory) {
             _eventAggregator = eventAggregator;
             Logger = loggerFactory.CreateLogger<IBeerFactoryEventHandler>();
@@ -45,13 +40,13 @@ namespace BF.Service.Prism.Events {
             _eventAggregator.GetEvent<InitializationChangeEvent>().Subscribe(initializationChangeHandler, threadType.ToThreadOption());
         }
 
-        public void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
-            _eventAggregator.GetEvent<TemperatureChangeEvent>().Subscribe(temperatureChangeHandler, threadType.ToThreadOption());
-        }
+        //public void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+        //    _eventAggregator.GetEvent<TemperatureChangeEvent>().Subscribe(temperatureChangeHandler, threadType.ToThreadOption());
+        //}
 
-        public void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
-            _eventAggregator.GetEvent<ThermometerChangeEvent>().Subscribe(thermometerChangeHandler, threadType.ToThreadOption());
-        }
+        //public void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler, ThreadType threadType = ThreadType.PublisherThread) {
+        //    _eventAggregator.GetEvent<ThermometerChangeEvent>().Subscribe(thermometerChangeHandler, threadType.ToThreadOption());
+        //}
 
         public void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler, ThreadType threadType = ThreadType.PublisherThread) {
             _eventAggregator.GetEvent<PumpRequestEvent>().Subscribe(pumpRequestHandler, threadType.ToThreadOption());
@@ -88,13 +83,13 @@ namespace BF.Service.Prism.Events {
             _eventAggregator.GetEvent<InitializationChangeEvent>().Publish(initializationChange);
         }
 
-        public virtual void TemperatureChangeFired(TemperatureChange temperatureChange) {
-            _eventAggregator.GetEvent<TemperatureChangeEvent>().Publish(temperatureChange);
-        }
+        //public virtual void TemperatureChangeFired(TemperatureChange temperatureChange) {
+        //    _eventAggregator.GetEvent<TemperatureChangeEvent>().Publish(temperatureChange);
+        //}
 
-        public virtual void ThermometerChangeFired(ThermometerChange thermometerChange) {
-            _eventAggregator.GetEvent<ThermometerChangeEvent>().Publish(thermometerChange);
-        }
+        //public virtual void ThermometerChangeFired(ThermometerChange thermometerChange) {
+        //    _eventAggregator.GetEvent<ThermometerChangeEvent>().Publish(thermometerChange);
+        //}
 
         public virtual void PumpRequestFired(PumpRequest pumpRequest) {
             _eventAggregator.GetEvent<PumpRequestEvent>().Publish(pumpRequest);

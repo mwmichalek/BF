@@ -1,6 +1,7 @@
 ﻿using BF.Common.Components;
 using BF.Common.Events;
 using BF.Common.Ids;
+using BF.Common.States;
 using BF.Service.Components;
 using BF.Service.Events;
 using Microsoft.Extensions.Logging;
@@ -29,44 +30,43 @@ namespace BF.Service.Components {
 
         public ComponentId Id { get; private set; }
 
-        public Thermometer Thermometer { get; private set; }
-
         public Ssr Ssr { get; private set; }
 
-        private double processVariable = 0;
         private DateTime lastRun;
+
         private bool isRunning = false;
+
         private IBeerFactoryEventHandler _eventHandler;
 
         private int dutyCycleInMillis = 2000;
 
-        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer, ILoggerFactory loggerFactory) {
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, double processVariable, ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
             Id = id;
             Ssr = ssr;
-            Thermometer = thermometer;
+            _processVariable = processVariable;
             RegisterEvents();
         }
 
-        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer, double setPoint, ILoggerFactory loggerFactory) {
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, double processVariable, double setPoint, ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
             Id = id;
             Ssr = ssr;
-            Thermometer = thermometer;
+            _processVariable = processVariable;
             SetPoint = setPoint;
             RegisterEvents();
         }
 
-        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, Thermometer thermometer, double gainProportional, double gainIntegral, double gainDerivative, double outputMin, double outputMax, double setPoint, ILoggerFactory loggerFactory) {
+        public PidController(IBeerFactoryEventHandler eventHandler, ComponentId id, Ssr ssr, double processVariable, double gainProportional, double gainIntegral, double gainDerivative, double outputMin, double outputMax, double setPoint, ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
             if (OutputMax < OutputMin)
                 throw new FormatException("OutputMax is less than OutputMin");
             Id = id;
             Ssr = ssr;
-            Thermometer = thermometer;
+            _processVariable = processVariable;
             GainDerivative = gainDerivative;
             GainIntegral = gainIntegral;
             GainProportional = gainProportional;
@@ -77,7 +77,7 @@ namespace BF.Service.Components {
         }
 
         private void RegisterEvents() {
-            _eventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
+            _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
             _eventHandler.PidRequestOccured(PidRequestOccured);
         }
 
@@ -88,9 +88,9 @@ namespace BF.Service.Components {
             set { isEngaged = value; }
         }
 
-
-        public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
-            if (temperatureChange.Id == Thermometer.Id) {
+        private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) { 
+            if (thermometerStateChange.Id == Id) {
+                _processVariable = thermometerStateChange.CurrentState.Temperature;
                 Process();
             }
         }
@@ -132,8 +132,6 @@ namespace BF.Service.Components {
         /// <returns>Value of the variable that needs to be controlled</returns>
         public void Process() {
 
-            ProcessVariable = (double)Thermometer.Temperature;
-
             if (!isEngaged)
                 Ssr.Percentage = 0;
 
@@ -154,7 +152,7 @@ namespace BF.Service.Components {
                     IntegralTerm = Clamp(IntegralTerm);
 
                     // derivative term calculation
-                    double dInput = processVariable - ProcessVariableLast;
+                    double dInput = _processVariable - ProcessVariableLast;
                     double derivativeTerm = GainDerivative * (dInput / secondsSinceLastUpdate);
 
                     // proportional term calcullation
@@ -222,15 +220,15 @@ namespace BF.Service.Components {
         /// </remarks>
         public double IntegralTerm { get; private set; } = 0;
 
-
+        private double _processVariable = 0;
         /// <summary>
         /// The current value
         /// </summary>
         public double ProcessVariable {
-            get { return processVariable; }
+            get { return _processVariable; }
             set {
-                ProcessVariableLast = processVariable;
-                processVariable = value;
+                ProcessVariableLast = _processVariable;
+                _processVariable = value;
             }
         }
 

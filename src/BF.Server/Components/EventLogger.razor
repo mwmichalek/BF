@@ -22,9 +22,6 @@ MESSAGES!
 
 
     protected override async Task OnInitializedAsync() {
-
-        _beerFactoryEventHandler.TemperatureChangeOccured(TemperatureChangeOccured);
-        _beerFactoryEventHandler.ThermometerChangeOccured(ThermometerChangeOccured);
         _beerFactoryEventHandler.PumpRequestOccured(PumpRequestOccured);
         _beerFactoryEventHandler.PumpChangeOccured(PumpChangeOccured);
         _beerFactoryEventHandler.PidRequestOccured(PidRequestOccured);
@@ -39,20 +36,10 @@ MESSAGES!
     }
 
     public void ComponentStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
-        Messages.Insert(0, $"Motherfucker!!!!: {componentStateChange.Id} - {componentStateChange.CurrentState.Temperature.ToString("0.00")}");
+        Messages.Insert(0, $"ComponentStateChange<ThermometerState>: {componentStateChange.Id} - {componentStateChange.CurrentState.Temperature.ToString("0.00")}");
         InvokeAsync(() => StateHasChanged());
     }
 
-
-    public void TemperatureChangeOccured(TemperatureChange temperatureChange) {
-        Messages.Insert(0, $"TemperatureChangeOccured: {temperatureChange.Id} - {temperatureChange.Value.ToString("0.00")}");
-        InvokeAsync(() => StateHasChanged());
-    }
-
-    public void ThermometerChangeOccured(ThermometerChange thermometerChange) {
-        Messages.Insert(0, $"ThermometerChangeOccured: {thermometerChange.Id} - {thermometerChange.Value.ToString("0.00")}");
-        InvokeAsync(() => StateHasChanged());
-    }
 
     public void PumpRequestOccured(PumpRequest pumpRequest) {
         Messages.Insert(0, $"PumpRequestOccured: {pumpRequest.Id} - {pumpRequest.IsEngaged}");

@@ -32,10 +32,8 @@ namespace BF.Service.Prism.Events {
     public class ThermometerChangeEvent : PubSubEvent<ThermometerChange> { }
 
 
-    //public class PidControllerStateChangeEvent : PubSubEvent<PidControllerStateChange> { }
-
-    //public class PidControllerStateRequestEvent : PubSubEvent<PidControllerStateRequest> { }
-
     public class ComponentStateChangeEvent<ComponentStateChange> : PubSubEvent<ComponentStateChange> { }
+
+
 
 }

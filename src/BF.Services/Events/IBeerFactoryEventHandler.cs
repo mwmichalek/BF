@@ -21,9 +21,9 @@ namespace BF.Service.Events {
 
         void InitializationChangeOccured(Action<InitializationChange> initializationHandler, ThreadType threadType = ThreadType.PublisherThread);
 
-        void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
+        //void TemperatureChangeOccured(Action<TemperatureChange> temperatureChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
 
-        void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
+        //void ThermometerChangeOccured(Action<ThermometerChange> thermometerChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
 
 
         void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
@@ -46,9 +46,9 @@ namespace BF.Service.Events {
 
         void InitializationChangeFired(InitializationChange initializationChange);
 
-        void TemperatureChangeFired(TemperatureChange temperatureChange);
+        //void TemperatureChangeFired(TemperatureChange temperatureChange);
 
-        void ThermometerChangeFired(ThermometerChange thermometerChange);
+        //void ThermometerChangeFired(ThermometerChange thermometerChange);
 
 
         void PumpRequestFired(PumpRequest pumpRequest); 

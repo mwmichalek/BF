@@ -21,6 +21,7 @@ using BF.Common.Ids;
 using BF.Service.Controllers;
 using BF.Common.Components;
 using Microsoft.Extensions.Logging;
+using BF.Common.States;
 
 namespace BF.Service.UWP.Controllers {
     public class SerialUsbArduinoTemperatureControllerService : TemperatureControllerService {
@@ -44,6 +45,8 @@ namespace BF.Service.UWP.Controllers {
         DataWriter DataWriterObject = null;
 
         private IBeerFactoryEventHandler _eventHandler;
+
+        private Dictionary<ComponentId, ThermometerState> _thermometerStates = new Dictionary<ComponentId, ThermometerState>();
 
         public SerialUsbArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
@@ -140,15 +143,20 @@ namespace BF.Service.UWP.Controllers {
 
                         var componentId = (ComponentId)Enum.Parse(typeof(ComponentId), (index).ToString());
 
-                        //Log.Information($"Serial Temp Update: {thermometerId} - {temperature}");
-                        _eventHandler.ThermometerChangeFired(            
-                            new ThermometerChange {
-                                Id = componentId,
-                                Value = temperature,
-                                Timestamp = DateTime.Now
-                            }
-                        );
-                    
+                        var currentState = new ThermometerState {
+                            Temperature = temperature,
+                            Timestamp = DateTime.Now
+                        };
+                        var priorState = _thermometerStates.ContainsKey(componentId) ? _thermometerStates[componentId] : null;
+                        _thermometerStates[componentId] = currentState;
+
+                        var thermometerStateChange = new ComponentStateChange<ThermometerState> {
+                            Id = componentId,
+                            CurrentState = currentState,
+                            PriorState = priorState
+                        };
+
+                        _eventHandler.ComponentStateChangeFiring(thermometerStateChange);
                     }
                 }
             } catch (OperationCanceledException /*exception*/) {
