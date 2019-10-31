@@ -44,25 +44,24 @@ namespace BF.Common.States {
         public static PidControllerState Update(this PidControllerState pidControllerState, PidControllerState newPidControllerState) {
             var clone = pidControllerState.Clone();
 
-            // TODO: Add PidControllerState update logic
+            clone.IsEngaged = newPidControllerState.IsEngaged;
+            clone.PidMode = (newPidControllerState.PidMode != PidMode.Unknown) ?
+                newPidControllerState.PidMode :
+                clone.PidMode;
 
-            //TODO: Move this to the clone method
-            //CurrentState.IsEngaged = pidControllerStateRequest.RequestState.IsEngaged;
-            //CurrentState.PidMode = (pidControllerStateRequest.RequestState.PidMode != PidMode.Unknown) ?
-            //    pidControllerStateRequest.RequestState.PidMode :
-            //    CurrentState.PidMode;
-            //CurrentState.SetPoint = pidControllerStateRequest.RequestState.SetPoint;
+            clone.SetPoint = newPidControllerState.SetPoint;
 
-            //CurrentState.GainDerivative = pidControllerStateRequest.RequestState.GainDerivative != double.MinValue ?
-            //    pidControllerStateRequest.RequestState.GainDerivative :
-            //    CurrentState.GainDerivative;
-            //CurrentState.GainIntegral = pidControllerStateRequest.RequestState.GainIntegral != double.MinValue ?
-            //    pidControllerStateRequest.RequestState.GainIntegral :
-            //    CurrentState.GainIntegral;
-            //CurrentState.GainProportional = pidControllerStateRequest.RequestState.GainProportional != double.MinValue ?
-            //    pidControllerStateRequest.RequestState.GainProportional :
-            //    CurrentState.GainProportional;
+            clone.GainDerivative = newPidControllerState.GainDerivative != double.MinValue ?
+                newPidControllerState.GainDerivative :
+                clone.GainDerivative;
 
+            clone.GainIntegral = newPidControllerState.GainIntegral != double.MinValue ?
+                newPidControllerState.GainIntegral :
+                clone.GainIntegral;
+
+            clone.GainProportional = newPidControllerState.GainProportional != double.MinValue ?
+                newPidControllerState.GainProportional :
+                clone.GainProportional;
 
             return clone;
         }

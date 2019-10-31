@@ -24,6 +24,8 @@ namespace BF.Service.Components {
 
         public ThermometerState CurrentState { get; set; }
 
+        public ThermometerState PriorState { get; set; }
+
         public List<ThermometerState> PreviousStates { get; set; } = new List<ThermometerState>();
 
         private ILogger Logger { get; set; }
@@ -43,12 +45,14 @@ namespace BF.Service.Components {
 
         
 
-        public Thermometer(ComponentId id, IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
+        public Thermometer(ComponentId id, 
+                           IBeerFactoryEventHandler eventHandler,
+                           ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
             Logger = loggerFactory.CreateLogger<Thermometer>();
             Id = id;
 
-            _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
+            _eventHandler.ComponentStateChangeOccured<ThermocoupleState>(ThermocoupleStateChangeOccured);
         }
 
         public Thermometer(ComponentId id, 
@@ -60,13 +64,12 @@ namespace BF.Service.Components {
             _eventHandler = eventHandler;
             Logger = loggerFactory.CreateLogger<Thermometer>();
 
+            Id = id;
             _changeThreshold = changeThreshold;
             _changeWindowInMillis = changeWindowInMillis;
             _changeWindowInMillis = changeWindowInMillis;
 
-            Id = id;
-
-            _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
+            _eventHandler.ComponentStateChangeOccured<ThermocoupleState>(ThermocoupleStateChangeOccured);
         }
 
         public double Temperature {
@@ -76,28 +79,41 @@ namespace BF.Service.Components {
         public DateTime Timestamp { get; set; }
 
 
-        private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
+        private void ThermocoupleStateChangeOccured(ComponentStateChange<ThermocoupleState> thermocoupleStateChange) {
 
-            CurrentState = thermometerStateChange.CurrentState;
+            if (thermocoupleStateChange.Id == Id) {
+                var currentState = new ThermometerState {
+                    Temperature = thermocoupleStateChange.CurrentState.Temperature,
+                    Timestamp = thermocoupleStateChange.CurrentState.Timestamp
+                };
 
-            if (thermometerStateChange.Id == Id) {
+                PreviousStates.Add(currentState);
+                PriorState = CurrentState;
+                CurrentState = currentState;
+
+                _eventHandler.ComponentStateChangeFiring<ThermometerState>(new ComponentStateChange<ThermometerState> {
+                    Id = Id,
+                    CurrentState = CurrentState,
+                    PriorState = PriorState
+                });
+
                 //Logger.Information($"ThermometerChangeOccured[{Id}] : {thermometerChange.Value}");
-                
-  
+
+
                 // Determin Change - Get all changes at least this old, order by newest, take first
                 // TODO: Refactor to use previous state 
                 //var earliestTimeOfChange = DateTime.Now.AddMilliseconds(-_changeWindowInMillis);
                 //var previousChange = ThermometerStates.Where(tc => tc.Timestamp < earliestTimeOfChange).OrderByDescending(tc => tc.Timestamp).FirstOrDefault();
 
-                if (thermometerStateChange.PriorState != null)
-                    Change = thermometerStateChange.CurrentState.Temperature - thermometerStateChange.PriorState.Temperature;
+                //if (thermometerStateChange.PriorState != null)
+                //    Change = thermometerStateChange.CurrentState.Temperature - thermometerStateChange.PriorState.Temperature;
 
                 // Determine Retention
                 // TODO: Move this to a background thread
                 var oldestTimeOfChange = DateTime.Now.AddMinutes(-_changeEventRetentionInMins);
                 var changesToRemove = PreviousStates.RemoveAll(tc => tc.Timestamp < oldestTimeOfChange);
 
-                PreviousStates.Add(CurrentState);
+
             }
         }
 

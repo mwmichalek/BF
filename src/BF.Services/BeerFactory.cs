@@ -47,16 +47,16 @@ namespace BF.Service {
             _eventHandler = eventHandler;
             Logger = loggerFactory.CreateLogger<OldBeerFactory>();
 
-            for (int index = 1; index <= (int)ThermometerId.FERM; index++ )
-                Thermometers.Add(new Thermometer((ComponentId)index, _eventHandler, loggerFactory));
+            //for (int index = 1; index <= (int)ThermometerId.FERM; index++ )
+            //    Thermometers.Add(new Thermometer((ComponentId)index, _eventHandler, loggerFactory));
 
-            _phases.Add(new Phase(PhaseId.FillStrikeWater, 20));
-            _phases.Add(new Phase(PhaseId.HeatStrikeWater, 40));
-            _phases.Add(new Phase(PhaseId.Mash, 90));
-            _phases.Add(new Phase(PhaseId.MashOut, 90));
-            _phases.Add(new Phase(PhaseId.Sparge, 60));
-            _phases.Add(new Phase(PhaseId.Boil, 90));
-            _phases.Add(new Phase(PhaseId.Chill, 30));
+            //_phases.Add(new Phase(PhaseId.FillStrikeWater, 20));
+            //_phases.Add(new Phase(PhaseId.HeatStrikeWater, 40));
+            //_phases.Add(new Phase(PhaseId.Mash, 90));
+            //_phases.Add(new Phase(PhaseId.MashOut, 90));
+            //_phases.Add(new Phase(PhaseId.Sparge, 60));
+            //_phases.Add(new Phase(PhaseId.Boil, 90));
+            //_phases.Add(new Phase(PhaseId.Chill, 30));
 
             //var hltSsr = new Ssr(ComponentId.HLT, _eventHandler, loggerFactory);
             //hltSsr.Percentage = 0;
@@ -70,10 +70,10 @@ namespace BF.Service {
 
             //Ssrs.Add(bkSsr);
 
-            var _hltPidController = new PidController(ComponentId.HLT,
-                                                      Thermometers.GetById<Thermometer>(ComponentId.HLT).Temperature,
-                                                      _eventHandler, 
-                                                      loggerFactory);
+            //var _hltPidController = new PidController(ComponentId.HLT,
+            //                                          Thermometers.GetById<Thermometer>(ComponentId.HLT).Temperature,
+            //                                          _eventHandler, 
+            //                                          loggerFactory);
 
 
             //_hltPidController.GainProportional = 18;
@@ -86,38 +86,38 @@ namespace BF.Service {
 
             //_hltPidController.SetPoint = 120;
 
-            PidControllers.Add(_hltPidController);
-            _hltPidController.Process();
+            //PidControllers.Add(_hltPidController);
+            //_hltPidController.Process();
 
-            _eventHandler.ComponentStateRequestFiring<PidControllerState>(new ComponentStateRequest<PidControllerState> {
-                Id = ComponentId.HLT,
-                RequestState = new PidControllerState {
+            //_eventHandler.ComponentStateRequestFiring<PidControllerState>(new ComponentStateRequest<PidControllerState> {
+            //    Id = ComponentId.HLT,
+            //    RequestState = new PidControllerState {
 
-                    IsEngaged = true,
-                    PidMode = PidMode.Temperature,
-                    SetPoint = 90,
-                    GainDerivative = 22.5,
-                    GainIntegral = 1.5,
-                    GainProportional = 18
-                }
-            });
+            //        IsEngaged = true,
+            //        PidMode = PidMode.Temperature,
+            //        SetPoint = 90,
+            //        GainDerivative = 22.5,
+            //        GainIntegral = 1.5,
+            //        GainProportional = 18
+            //    }
+            //});
 
-            foreach (var id in new []{ ComponentId.HLT, ComponentId.MT, ComponentId.BK }) {
-                Pumps.Add(new Pump {
-                    Id = id
-                });
-            }
+            //foreach (var id in new []{ ComponentId.HLT, ComponentId.MT, ComponentId.BK }) {
+            //    Pumps.Add(new Pump {
+            //        Id = id
+            //    });
+            //}
 
-            //Used upon reconnection
-            _eventHandler.InitializationChangeOccured(BroadcastBeerFactoryState);
+            ////Used upon reconnection
+            //_eventHandler.InitializationChangeOccured(BroadcastBeerFactoryState);
 
-            //Trigger now becuase the first one was missed.
-            Task.Run(() => {
-                Thread.Sleep(10000);
-                _eventHandler.InitializationChangeFired(new InitializationChange {
-                    Device = Device.RaspberryPi
-                });
-            });
+            ////Trigger now becuase the first one was missed.
+            //Task.Run(() => {
+            //    Thread.Sleep(10000);
+            //    _eventHandler.InitializationChangeFired(new InitializationChange {
+            //        Device = Device.RaspberryPi
+            //    });
+            //});
 
             
         }

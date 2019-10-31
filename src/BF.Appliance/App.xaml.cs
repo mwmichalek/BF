@@ -97,9 +97,6 @@ namespace BF.Appliance {
                                                       new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
             }
 
-
-            
-
             HubConnectionHelper.Environment = "RaspberryPi";
 
             //******************************** START ***********************************
@@ -113,9 +110,6 @@ namespace BF.Appliance {
             Container.ResolveAll<Thermometer>();
 
             Container.ResolveAll<Ssr>();
-            //TODO: This might not be necessary, just start it when an event gets received.
-            //foreach (var ssr in Container.ResolveAll<Ssr>())
-            //    ssr.Start();
 
             Container.ResolveAll<PidController>();
         }

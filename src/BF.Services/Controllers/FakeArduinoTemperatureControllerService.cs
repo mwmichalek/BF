@@ -19,6 +19,7 @@ using BF.Common.Events;
 using BF.Common.Components;
 using Microsoft.Extensions.Logging;
 using BF.Common.States;
+using BF.Service.Components;
 
 namespace BF.Service.Controllers {
 
@@ -28,31 +29,34 @@ namespace BF.Service.Controllers {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        
-
-        private int hltSsrPercentage = 0;
-
-        
-
-        private List<double> temperatures = new List<double> { 70.01d, 69.54d, 70.12d,
-                                                                 70.43d, 69.72d, 68.91d,
-                                                                 71.44d, 70.54d, 69.87d };
-
-        private ThermometerState thermometerState;
-
         private Random rnd = new Random();
 
-        public FakeArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
+        private Ssr[] ssrs;
+
+        private Thermometer[] thermometers;
+
+        public FakeArduinoTemperatureControllerService(Thermometer[] thermometers, 
+                                                       Ssr[] ssrs, 
+                                                       IBeerFactoryEventHandler eventHandler, 
+                                                       ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<FakeArduinoTemperatureControllerService>();
             _eventHandler = eventHandler;
 
-            _eventHandler.SsrChangeOccured(SsrChangeOccured);
+            _eventHandler.ComponentStateChangeOccured<SsrState>(ssrStateChangeOccured);
+
+            // Initialize all Thermometers with 70
+            foreach (var componentId in ComponentHelper.AllComponentIds) {
+                _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
+                    Id = componentId,
+                    CurrentState = new ThermocoupleState {
+                        Temperature = 70.0
+                    }
+                });
+            }
         }
 
-        public void SsrChangeOccured(SsrChange ssr) {
-            if (ssr.Id == ComponentId.HLT) {
-                hltSsrPercentage = ssr.Percentage;
-            }
+        private void ssrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
+            //ssrStates[ssrStateChange.Id] = ssrStateChange.CurrentState;
         }
 
         public override async Task Run() {
@@ -71,6 +75,11 @@ namespace BF.Service.Controllers {
                     //    Timestamp = DateTime.Now
                     //});
 
+                    //TODO: Need to rework all this to include references to Ssrs/Thermometers
+
+
+                    var priorState = thermocoupleStates[ComponentId.HLT];
+
                     var newTemperature = (hltSsrPercentage == 0) ?
                         temperatures[0] - 0.2 :
                         temperatures[0] + (hltSsrPercentage * .01);
@@ -83,19 +92,23 @@ namespace BF.Service.Controllers {
                     if (newTemperature != temperatures[0]) {
                         //Logger.LogInformation($"Fake: OLD: {temperatures[0]} - NEW: {newTemperature}");
 
-                        var currentThermometerState = new ThermometerState {
+                        
+
+
+
+                        var currentThermocoupleState = new ThermocoupleState {
                             Temperature = newTemperature,
                             Timestamp = DateTime.Now
                         };
 
-                        _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermometerState> {
+                        _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
                             Id = ComponentId.HLT,
-                            PriorState = thermometerState,
-                            CurrentState = currentThermometerState
+                            PriorState = currentState,
+                            CurrentState = currentThermocoupleState
                         }); 
 
                         temperatures[0] = newTemperature;
-                        thermometerState = currentThermometerState;
+                        currentState = currentThermocoupleState;
                     }
 
                     
@@ -107,9 +120,9 @@ namespace BF.Service.Controllers {
             }
 
         }
-
-
     }
+
+
 
     public static class Bullshit {
 
