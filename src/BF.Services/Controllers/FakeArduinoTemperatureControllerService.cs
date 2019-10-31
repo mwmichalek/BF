@@ -31,9 +31,9 @@ namespace BF.Service.Controllers {
 
         private Random rnd = new Random();
 
-        private Ssr[] ssrs;
+        private Dictionary<ComponentId, SsrState> ssrStateLookup = new Dictionary<ComponentId, SsrState>();
 
-        private Thermometer[] thermometers;
+        private Dictionary<ComponentId, ThermometerState> thermometerStateLookup = new Dictionary<ComponentId, ThermometerState>();
 
         public FakeArduinoTemperatureControllerService(Thermometer[] thermometers, 
                                                        Ssr[] ssrs, 
@@ -41,6 +41,12 @@ namespace BF.Service.Controllers {
                                                        ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<FakeArduinoTemperatureControllerService>();
             _eventHandler = eventHandler;
+
+            foreach (var ssr in ssrs)
+                ssrStateLookup[ssr.Id] = ssr.CurrentState;
+
+            foreach (var thermometer in thermometers)
+                thermometerStateLookup[thermometer.Id] = thermometer.CurrentState;
 
             _eventHandler.ComponentStateChangeOccured<SsrState>(ssrStateChangeOccured);
 
@@ -56,7 +62,11 @@ namespace BF.Service.Controllers {
         }
 
         private void ssrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
-            //ssrStates[ssrStateChange.Id] = ssrStateChange.CurrentState;
+            ssrStateLookup[ssrStateChange.Id] = ssrStateChange.CurrentState;
+        }
+
+        private void thermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
+            thermometerStateLookup[thermometerStateChange.Id] = thermometerStateChange.CurrentState;
         }
 
         public override async Task Run() {
@@ -78,40 +88,48 @@ namespace BF.Service.Controllers {
                     //TODO: Need to rework all this to include references to Ssrs/Thermometers
 
 
-                    var priorState = thermocoupleStates[ComponentId.HLT];
+                    foreach (var ssrComponentId in ssrStateLookup.Keys) {
 
-                    var newTemperature = (hltSsrPercentage == 0) ?
-                        temperatures[0] - 0.2 :
-                        temperatures[0] + (hltSsrPercentage * .01);
+                        if (ssrStateLookup.ContainsKey(ssrComponentId)) {
+                            var ssrState = ssrStateLookup[ssrComponentId];
+                            var thermometerState = thermometerStateLookup[ssrComponentId];
+
+                            var newTemperature = (ssrState.Percentage == 0) ?
+                                thermometerState.Temperature - 0.2 :
+                                thermometerState.Temperature + (ssrState.Percentage * .01);
+
+                            if (newTemperature < 70)
+                                newTemperature = 70;
+
+                            if (newTemperature != thermometerState.Temperature) {
+                                //Logger.LogInformation($"Fake: OLD: {temperatures[0]} - NEW: {newTemperature}");
 
 
 
-                    if (newTemperature < 70)
-                        newTemperature = 70;
 
-                    if (newTemperature != temperatures[0]) {
-                        //Logger.LogInformation($"Fake: OLD: {temperatures[0]} - NEW: {newTemperature}");
 
+                            //    var currentThermocoupleState = new ThermocoupleState {
+                            //        Temperature = newTemperature,
+                            //        Timestamp = DateTime.Now
+                            //    };
+
+                            //    _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
+                            //        Id = ComponentId.HLT,
+                            //        PriorState = currentState,
+                            //        CurrentState = currentThermocoupleState
+                            //    });
+
+                            //    temperatures[0] = newTemperature;
+                            //    currentState = currentThermocoupleState;
+                            }
+
+                        }
                         
 
 
 
-                        var currentThermocoupleState = new ThermocoupleState {
-                            Temperature = newTemperature,
-                            Timestamp = DateTime.Now
-                        };
-
-                        _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
-                            Id = ComponentId.HLT,
-                            PriorState = currentState,
-                            CurrentState = currentThermocoupleState
-                        }); 
-
-                        temperatures[0] = newTemperature;
-                        currentState = currentThermocoupleState;
-                    }
-
-                    
+                        
+                    }                   
                 } catch (Exception) {
 
                 }
