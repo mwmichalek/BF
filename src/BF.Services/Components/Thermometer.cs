@@ -13,11 +13,21 @@ using System.Threading.Tasks;
 
 namespace BF.Service.Components {
 
-    public class Thermometer : IComponent {
+    public interface IThermometer {
+
+        ComponentId Id { get; }
+
+        ThermometerState CurrentState { get; }
+    }
+
+    public class Thermometer : IComponent, IThermometer {
+
+        public ThermometerState CurrentState { get; set; }
+
+        public List<ThermometerState> PreviousStates { get; set; } = new List<ThermometerState>();
 
         private ILogger Logger { get; set; }
 
-        private List<ThermometerState> _thermometerStates = new List<ThermometerState>();
 
         public ComponentId Id { get; private set; }
 
@@ -31,9 +41,9 @@ namespace BF.Service.Components {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        private ThermometerState _thermometerState;
+        
 
-        public Thermometer(IBeerFactoryEventHandler eventHandler, ComponentId id, ILoggerFactory loggerFactory) {
+        public Thermometer(ComponentId id, IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
             Logger = loggerFactory.CreateLogger<Thermometer>();
             Id = id;
@@ -41,9 +51,12 @@ namespace BF.Service.Components {
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
         }
 
-        public Thermometer(IBeerFactoryEventHandler eventHandler, ComponentId id, 
-            int changeThreshold, int changeWindowInMillis, int changeEventRetentionInMins, 
-            ILoggerFactory loggerFactory) {
+        public Thermometer(ComponentId id, 
+                           int changeThreshold, 
+                           int changeWindowInMillis, 
+                           int changeEventRetentionInMins, 
+                           IBeerFactoryEventHandler eventHandler, 
+                           ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
             Logger = loggerFactory.CreateLogger<Thermometer>();
 
@@ -57,7 +70,7 @@ namespace BF.Service.Components {
         }
 
         public double Temperature {
-            get { return (_thermometerState != null) ? _thermometerState.Temperature : double.MinValue; }
+            get { return (CurrentState != null) ? CurrentState.Temperature : double.MinValue; }
         }
 
         public DateTime Timestamp { get; set; }
@@ -65,7 +78,7 @@ namespace BF.Service.Components {
 
         private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
 
-            _thermometerState = thermometerStateChange.CurrentState;
+            CurrentState = thermometerStateChange.CurrentState;
 
             if (thermometerStateChange.Id == Id) {
                 //Logger.Information($"ThermometerChangeOccured[{Id}] : {thermometerChange.Value}");
@@ -82,9 +95,9 @@ namespace BF.Service.Components {
                 // Determine Retention
                 // TODO: Move this to a background thread
                 var oldestTimeOfChange = DateTime.Now.AddMinutes(-_changeEventRetentionInMins);
-                var changesToRemove = _thermometerStates.RemoveAll(tc => tc.Timestamp < oldestTimeOfChange);
+                var changesToRemove = PreviousStates.RemoveAll(tc => tc.Timestamp < oldestTimeOfChange);
 
-                _thermometerStates.Add(_thermometerState);
+                PreviousStates.Add(CurrentState);
             }
         }
 

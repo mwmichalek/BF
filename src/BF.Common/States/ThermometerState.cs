@@ -10,4 +10,19 @@ namespace BF.Common.States {
 
     }
 
+    public static class ThermometerStateHelper {
+
+        public static ThermometerState Clone(this ThermometerState thermometerState) {
+            return new ThermometerState {
+                Temperature = thermometerState.Temperature
+            };
+        }
+
+        public static ThermometerState Update(this ThermometerState thermometerState, double temperature) {
+            var clone = thermometerState.Clone();
+            clone.Temperature = temperature;
+            return clone;
+        }
+    }
+
 }

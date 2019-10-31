@@ -16,7 +16,7 @@ using BF.Common.States;
 
 namespace BF.Service {
 
-    public interface IBeerFactory {
+    public interface OldIBeerFactory {
         
         List<Thermometer> Thermometers { get; }
 
@@ -27,7 +27,7 @@ namespace BF.Service {
         List<PidController> PidControllers { get; }
     }
 
-    public class BeerFactory : IBeerFactory {
+    public class OldBeerFactory : OldIBeerFactory {
 
         private ILogger Logger { get; set; }
 
@@ -43,12 +43,12 @@ namespace BF.Service {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public BeerFactory(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
+        public OldBeerFactory(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
-            Logger = loggerFactory.CreateLogger<BeerFactory>();
+            Logger = loggerFactory.CreateLogger<OldBeerFactory>();
 
             for (int index = 1; index <= (int)ThermometerId.FERM; index++ )
-                Thermometers.Add(new Thermometer(_eventHandler, (ComponentId)index, loggerFactory));
+                Thermometers.Add(new Thermometer((ComponentId)index, _eventHandler, loggerFactory));
 
             _phases.Add(new Phase(PhaseId.FillStrikeWater, 20));
             _phases.Add(new Phase(PhaseId.HeatStrikeWater, 40));
@@ -58,23 +58,24 @@ namespace BF.Service {
             _phases.Add(new Phase(PhaseId.Boil, 90));
             _phases.Add(new Phase(PhaseId.Chill, 30));
 
-            var hltSsr = new Ssr(_eventHandler, ComponentId.HLT, loggerFactory);
-            hltSsr.Percentage = 0;
-            hltSsr.Start();
+            //var hltSsr = new Ssr(ComponentId.HLT, _eventHandler, loggerFactory);
+            //hltSsr.Percentage = 0;
+            //hltSsr.Start();
 
-            Ssrs.Add(hltSsr);
+            //Ssrs.Add(hltSsr);
 
-            var bkSsr = new Ssr(_eventHandler, ComponentId.BK, loggerFactory);
-            bkSsr.Percentage = 0;
-            bkSsr.Start();
+            //var bkSsr = new Ssr(ComponentId.BK, _eventHandler, loggerFactory);
+            //bkSsr.Percentage = 0;
+            //bkSsr.Start();
 
-            Ssrs.Add(bkSsr);
+            //Ssrs.Add(bkSsr);
 
-            var _hltPidController = new PidController(_eventHandler, 
-                                                      ComponentId.HLT,
-                                                      hltSsr, 
+            var _hltPidController = new PidController(ComponentId.HLT,
                                                       Thermometers.GetById<Thermometer>(ComponentId.HLT).Temperature,
+                                                      _eventHandler, 
                                                       loggerFactory);
+
+
             //_hltPidController.GainProportional = 18;
             //_hltPidController.GainIntegral = 1.5;
             //_hltPidController.GainDerivative = 22.5;
@@ -128,11 +129,11 @@ namespace BF.Service {
                     ClientId = "RaspberryPi",
                     ConnectionState = ConnectionState.Connected,
                     //ThermometerChanges = Thermometers.SelectMany(t => t.ThermometerChanges).ToList(),
-                    SsrChanges = Ssrs.Select(s => new SsrChange {
-                        Id = s.Id,
-                        IsEngaged = s.IsEngaged,
-                        Percentage = s.Percentage
-                    }).ToList(),
+                    //SsrChanges = Ssrs.Select(s => new SsrChange {
+                    //    Id = s.Id,
+                    //    IsEngaged = s.IsEngaged,
+                    //    Percentage = s.Percentage
+                    //}).ToList(),
                     PumpChanges = Pumps.Select(p => new PumpChange {
                         Id = p.Id,
                         IsEngaged = p.IsEngaged

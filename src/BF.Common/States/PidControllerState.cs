@@ -35,9 +35,35 @@ namespace BF.Common.States {
             };
         }
 
-        public static PidControllerState Clone(this PidControllerState pidControllerState, double newTemperature) {
+        public static PidControllerState Update(this PidControllerState pidControllerState, double newTemperature) {
             var clone = pidControllerState.Clone();
             clone.Temperature = newTemperature;
+            return clone;
+        }
+
+        public static PidControllerState Update(this PidControllerState pidControllerState, PidControllerState newPidControllerState) {
+            var clone = pidControllerState.Clone();
+
+            // TODO: Add PidControllerState update logic
+
+            //TODO: Move this to the clone method
+            //CurrentState.IsEngaged = pidControllerStateRequest.RequestState.IsEngaged;
+            //CurrentState.PidMode = (pidControllerStateRequest.RequestState.PidMode != PidMode.Unknown) ?
+            //    pidControllerStateRequest.RequestState.PidMode :
+            //    CurrentState.PidMode;
+            //CurrentState.SetPoint = pidControllerStateRequest.RequestState.SetPoint;
+
+            //CurrentState.GainDerivative = pidControllerStateRequest.RequestState.GainDerivative != double.MinValue ?
+            //    pidControllerStateRequest.RequestState.GainDerivative :
+            //    CurrentState.GainDerivative;
+            //CurrentState.GainIntegral = pidControllerStateRequest.RequestState.GainIntegral != double.MinValue ?
+            //    pidControllerStateRequest.RequestState.GainIntegral :
+            //    CurrentState.GainIntegral;
+            //CurrentState.GainProportional = pidControllerStateRequest.RequestState.GainProportional != double.MinValue ?
+            //    pidControllerStateRequest.RequestState.GainProportional :
+            //    CurrentState.GainProportional;
+
+
             return clone;
         }
     }

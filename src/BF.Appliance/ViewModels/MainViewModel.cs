@@ -9,6 +9,7 @@ using Prism.Events;
 using Prism.Windows.Mvvm;
 using Microsoft.Extensions.Logging;
 using BF.Common.States;
+using System.Collections.Generic;
 
 namespace BF.Appliance.ViewModels {
 
@@ -16,22 +17,17 @@ namespace BF.Appliance.ViewModels {
 
         private ILogger Logger { get; set; }
 
-        //private HubConnection connection;
-
         private IBeerFactoryEventHandler _eventHandler;
 
-        public MainViewModel(IBeerFactory beerFactory, IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory)  {
+        public MainViewModel(IBeerFactoryEventHandler eventHandler, Thermometer[] thermometers, ILoggerFactory loggerFactory)  {
             Logger = loggerFactory.CreateLogger<MainViewModel>();
             _eventHandler = eventHandler;
+
+            Temperature = (double)thermometers.GetById(ComponentId.HLT)?.Temperature;
             
-            var hltThermometer = beerFactory.Thermometers.GetById<Thermometer>(ComponentId.HLT);
-            if (hltThermometer != null)
-                Temperature = (double)hltThermometer.Temperature;
-
-
-            var hltPidController = beerFactory.PidControllers.GetById<PidController>(ComponentId.HLT);
-            if (hltPidController != null)
-                SetPoint = (int)hltPidController.CurrentState.SetPoint;
+            //var hltPidController = beerFactory.PidControllers.GetById<PidController>(ComponentId.HLT);
+            //if (hltPidController != null)
+            //    SetPoint = (int)hltPidController.CurrentState.SetPoint;
 
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured, ThreadType.UIThread);
             _eventHandler.SsrChangeOccured(SsrChangeOccured, ThreadType.UIThread);

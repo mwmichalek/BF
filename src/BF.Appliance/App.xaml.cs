@@ -20,6 +20,8 @@ using BF.Services.Prism.Events;
 using Microsoft.Extensions.Logging;
 using Serilog.Exceptions;
 using BF.Common.Components;
+using BF.Common.Ids;
+using BF.Service.Components;
 
 namespace BF.Appliance {
     [Windows.UI.Xaml.Data.Bindable]
@@ -58,7 +60,8 @@ namespace BF.Appliance {
 
             Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
 
-            ConfigureBeerFactory();
+         
+            ConfigureBeerFactory(loggerFactory);
 
             var msLogger = loggerFactory.CreateLogger("HubConnectionHelper");
             HubConnectionHelper.Logger = msLogger;
@@ -66,24 +69,55 @@ namespace BF.Appliance {
             Log.Information("Initialization complete.");
         }
 
-        private void ConfigureBeerFactory() {
+        private void ConfigureBeerFactory(ILoggerFactory loggerFactory) {
             Container.RegisterType<IBeerFactoryEventHandler, SignalRPrismBeerFactoryEventHandler>(new ContainerControlledLifetimeManager());
+            var eventHandler = Container.Resolve<IBeerFactoryEventHandler>();
 
             if (DeviceHelper.GetDevice() == Device.RaspberryPi)
                 Container.RegisterType<ITemperatureControllerService, SerialUsbArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
             else
                 Container.RegisterType<ITemperatureControllerService, FakeArduinoTemperatureControllerService>(new ContainerControlledLifetimeManager());
 
-            Container.RegisterType<IBeerFactory, BeerFactory>(new ContainerControlledLifetimeManager());
+
+            foreach (var componentId in ComponentHelper.AllComponentIds) {
+                Container.RegisterType<Thermometer>($"{componentId}",
+                                                    new ContainerControlledLifetimeManager(),
+                                                    new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
+            }
+
+            foreach (var componentId in ComponentHelper.SsrComponentIds) {
+                Container.RegisterType<Ssr>($"{componentId}",
+                                            new ContainerControlledLifetimeManager(),
+                                            new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
+            }
+
+            foreach (var componentId in ComponentHelper.PidComponentIds) {
+                Container.RegisterType<PidController>($"{componentId}",
+                                                      new ContainerControlledLifetimeManager(),
+                                                      new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
+            }
+
+
+            
+
+            HubConnectionHelper.Environment = "RaspberryPi";
+
+            //******************************** START ***********************************
 
             var temperatureControllerService = Container.Resolve<ITemperatureControllerService>();
-            var beerFactory = Container.Resolve<IBeerFactory>();
 
             Task.Run(() => {
                 temperatureControllerService.Run();
             });
 
-            HubConnectionHelper.Environment = "RaspberryPi";
+            Container.ResolveAll<Thermometer>();
+
+            Container.ResolveAll<Ssr>();
+            //TODO: This might not be necessary, just start it when an event gets received.
+            //foreach (var ssr in Container.ResolveAll<Ssr>())
+            //    ssr.Start();
+
+            Container.ResolveAll<PidController>();
         }
 
         protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args) {

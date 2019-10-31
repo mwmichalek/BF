@@ -11,6 +11,7 @@ using BF.Common.Events;
 using Windows.Devices.Gpio;
 using BF.Common.Components;
 using Microsoft.Extensions.Logging;
+using BF.Common.States;
 
 namespace BF.Service.Components {
 
@@ -22,77 +23,90 @@ namespace BF.Service.Components {
 
     public class Ssr : IComponent {
 
-        private ILogger Logger { get; set; }
-
         public ComponentId Id { get; set; }
 
-        public int Pin { get; set; }
+        public SsrState CurrentState { get; set; }
 
+        public SsrState PriorState { get; set; }
 
-        private bool _isEngaged;
+        private ILogger Logger { get; set; }
 
-        public bool IsEngaged {
-            get { return _isEngaged; }
-            set {
-                _isEngaged = value;
-            }
-        }
+        private int _pinNumber { get; set; }
 
         private int _dutyCycleInMillis = 2000;
-        public int DutyCycleInMillis {
-            get {
-                return _dutyCycleInMillis;
-            }
-            set {
-                _dutyCycleInMillis = value;
-                CalculateDurations();
-            }
-        }
 
-        private int _percentage = 0;
-        public int Percentage {
-            get {
-                return _percentage;
-            }
-            set {
-                if (value != _percentage) {
-                    Logger.LogInformation($"Setting Percentage to {value}");
-                    _percentage = value;
-                    CalculateDurations();
-                    SendNotification();
-                }
-            }
-        }
+        //public int DutyCycleInMillis {
+        //    get {
+        //        return _dutyCycleInMillis;
+        //    }
+        //    set {
+        //        _dutyCycleInMillis = value;
+        //        CalculateDurations();
+        //    }
+        //}
 
-        private GpioPin pin;
-        private GpioPinValue pinValue = GpioPinValue.High;
+        //private int _percentage = 0;
+        //public int Percentage {
+        //    get {
+        //        return _percentage;
+        //    }
+        //    set {
+        //        if (value != _percentage) {
+        //            Logger.LogInformation($"Setting Percentage to {value}");
+        //            _percentage = value;
+        //            CalculateDurations();
+        //            SendNotification();
+        //        }
+        //    }
+        //}
 
-        private bool isRunning = false;
+        private GpioPin _pin;
+        private GpioPinValue _pinValue = GpioPinValue.High;
 
-        private int millisOn = 0;
-        private int millisOff = 2000;
+        private bool _isRunning = false;
+
+        private int _millisOn = 0;
+        private int _millisOff = 2000;
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public Ssr(IBeerFactoryEventHandler eventHandler, ComponentId id, ILoggerFactory loggerFactory) {
+        public Ssr(ComponentId id, IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<Ssr>();
             _eventHandler = eventHandler;
             Id = id;
             //Pin = (int)id;
 
             Enum.TryParse(id.ToString(), out SsrPin ssrPin);
-            Pin = (int)ssrPin;
+            _pinNumber = (int)ssrPin;
 
             var gpio = GpioController.GetDefault();
             if (gpio != null) {
-                pin = gpio.OpenPin(Pin);
-                pin.SetDriveMode(GpioPinDriveMode.Output);
-                pin.Write(GpioPinValue.Low);
+                _pin = gpio.OpenPin(_pinNumber);
+                _pin.SetDriveMode(GpioPinDriveMode.Output);
+                _pin.Write(GpioPinValue.Low);
             }
+
+            _eventHandler.ComponentStateRequestOccured<SsrState>(SsrStateRequestOccured);
         }
 
+        private void SsrStateRequestOccured(ComponentStateRequest<SsrState> ssrStateRequest) {
+            if (ssrStateRequest.Id == Id) {
+                PriorState = CurrentState;
+                CurrentState = CurrentState.Update(ssrStateRequest.RequestState);
+
+
+
+                //if (ssrStateRequest.RequestState.Percentage != _)
+
+                //_percentage = value;
+                //            CalculateDurations();
+                //            SendNotification();
+            }
+        }
+    
+
         public void Start() {
-            isRunning = true;
+            _isRunning = true;
             CalculateDurations();
 
             // Call new thread to run
@@ -101,55 +115,57 @@ namespace BF.Service.Components {
 
         private void CalculateDurations() {
             // Calculate On and Off durations
-            decimal fraction = ((decimal)_percentage / 100.0m);
-            millisOn = (int)(fraction * (decimal)_dutyCycleInMillis);
-            millisOff = _dutyCycleInMillis - millisOn;
-            Logger.LogInformation($"SSR: {Id} - CALC PERC {Percentage}, FRACTION {fraction}, MILLISON {millisOn}, MILLISOFF {millisOff}");
+            decimal fraction = ((decimal)CurrentState.Percentage / 100.0m);
+            _millisOn = (int)(fraction * (decimal)_dutyCycleInMillis);
+            _millisOff = _dutyCycleInMillis - _millisOn;
+            Logger.LogInformation($"SSR: {Id} - CALC PERC {CurrentState.Percentage}, FRACTION {fraction}, MILLISON {_millisOn}, MILLISOFF {_millisOff}");
         }
 
         private void Run() {
-            while (isRunning) {
+            while (_isRunning) {
                 // Something is causing a random blip.
-                if (Percentage != 0 && millisOn > 0) {
+                if (CurrentState.Percentage != 0 && _millisOn > 0) {
                     On();
-                    Thread.Sleep(millisOn);
+                    Thread.Sleep(_millisOn);
                 }
-                if (Percentage != 100 && millisOff > 0) {
+                if (CurrentState.Percentage != 100 && _millisOff > 0) {
                     Off();
-                    Thread.Sleep(millisOff);
+                    Thread.Sleep(_millisOff);
                 }
             }
         }
 
         private void On() {
-            if (!IsEngaged) {
-                Logger.LogInformation($"SSR: {Id} - ON {millisOn}");
-                pin?.Write(GpioPinValue.High);
-                IsEngaged = true;
+            if (!CurrentState.IsFiring) {
+                Logger.LogInformation($"SSR: {Id} - ON {_millisOn}");
+                _pin?.Write(GpioPinValue.High);
+                PriorState = CurrentState;
+                CurrentState = CurrentState.Update(true);
+                CurrentState.IsFiring = true;
                 SendNotification();
             }
         }
 
         private void Off() {
-
-            if (IsEngaged) {
-                Logger.LogInformation($"SSR: {Id} - OFF {millisOff}");
-                pin?.Write(GpioPinValue.Low);
-                IsEngaged = false;
+            if (CurrentState.IsFiring) {
+                Logger.LogInformation($"SSR: {Id} - OFF {_millisOff}");
+                _pin?.Write(GpioPinValue.Low);
+                PriorState = CurrentState;
+                CurrentState = CurrentState.Update(false);
                 SendNotification();
             }
         }
 
         private void SendNotification() {
-            _eventHandler.SsrChangeFired(new SsrChange {
+            _eventHandler.ComponentStateChangeFiring<SsrState>(new ComponentStateChange<SsrState> {
                 Id = Id,
-                Percentage = Percentage,
-                IsEngaged = IsEngaged
+                CurrentState = CurrentState,
+                PriorState = PriorState
             });
         }
 
         public void Stop() {
-            isRunning = false;
+            _isRunning = false;
         }
     }
 
