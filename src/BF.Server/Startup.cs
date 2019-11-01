@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Enrichers.AzureWebApps;
 using Serilog.Exceptions;
+using Bazinga.AspNetCore.Authentication.Basic;
 
 namespace BF.Server {
     public class Startup {
@@ -51,11 +52,16 @@ namespace BF.Server {
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<IEventAggregator, EventAggregator>();
             services.AddSingleton<IBeerFactoryEventHandler, SignalRPrismBeerFactoryEventHandler>();
-            services.AddAuthorization(options => {
-                options.AddPolicy("ComponentRestricted", policy => {
-                    policy.Requirements.Add(new ComponentRestrictedRequirement());
-                });
-            });
+            //services.AddAuthorization(options => {
+            //    options.AddPolicy("ComponentRestricted", policy => {
+            //        policy.Requirements.Add(new ComponentRestrictedRequirement());
+            //    });
+            //});
+
+            //services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
+            //    .AddBasicAuthentication(credentials => Task.FromResult(
+            //        credentials.username == "SomeUserName"
+            //        && credentials.password == "SomePassword"));
 
             Log.Logger = loggerConfiguration.CreateLogger();
 
@@ -98,6 +104,8 @@ namespace BF.Server {
                 endpoints.MapFallbackToPage("/_Host");
                 endpoints.MapHub<BFHub>("/bfHub");
             });
+
+            //app.UseAuthentication();
 
             HubConnectionHelper.Environment = "Server";
             HubConnectionHelper.Logger = loggerFactory.CreateLogger("HubConnectionHelper");

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace BF.Server.Hubs {
 
+    //[Authorize]
     public class BFHub : Hub {
 
         private IBeerFactoryEventHandler _eventHandler;
@@ -21,7 +22,12 @@ namespace BF.Server.Hubs {
         }
 
         public override Task OnConnectedAsync() {
+            var connectionId = Context.ConnectionId;
             return base.OnConnectedAsync();
+        }
+
+        public override Task OnDisconnectedAsync(Exception exception) {
+            return base.OnDisconnectedAsync(exception);
         }
 
         //public async Task InitializationChangeFired(string jsonEvent) {

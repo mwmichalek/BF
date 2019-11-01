@@ -36,12 +36,15 @@ namespace BF.Services.Prism.Events {
 
                 if (DeviceHelper.GetDevice() == Device.Server || DeviceHelper.GetDevice() == Device.RaspberryPi) {
                     _connection = new HubConnectionBuilder()
-                        .WithUrl("https://emrsd-ws-bf.azurewebsites.net/bfHub")
+                        .WithUrl("https://emrsd-ws-bf.azurewebsites.net/bfHub?username=ballz",
+                        options => {
+                            options.Headers.Add("Authorization", "Basic eatmyasshole");
+                        })
                         .WithAutomaticReconnect()
                         .Build();
                 } else {
                     _connection = new HubConnectionBuilder()
-                        .WithUrl("https://localhost:44355/bfHub", options => {
+                        .WithUrl("https://localhost:44355/bfHub?username=ballz", options => {
                             options.HttpMessageHandlerFactory = (handler) => {
                                 if (handler is HttpClientHandler clientHandler) {
                                     clientHandler.ServerCertificateCustomValidationCallback = ValidateCertificate;
