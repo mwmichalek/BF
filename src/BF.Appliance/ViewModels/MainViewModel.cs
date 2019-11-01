@@ -34,6 +34,7 @@ namespace BF.Appliance.ViewModels {
            
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured, ThreadType.UIThread);
             _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured, ThreadType.UIThread);
+            _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured, ThreadType.UIThread);
         }
 
         private void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
@@ -47,6 +48,13 @@ namespace BF.Appliance.ViewModels {
             if (thermometerStateChange.Id == ComponentId.HLT) {
                 Logger.LogInformation($"RaspPI: Thermometer Change: {thermometerStateChange.CurrentState.Temperature}");
                 Temperature = thermometerStateChange.CurrentState.Temperature;
+            }
+        }
+
+        private void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> pidControllerStateChange) {
+            if (pidControllerStateChange.Id == ComponentId.HLT) {
+                Logger.LogInformation($"RaspPI: Pid Change: {pidControllerStateChange.CurrentState.SetPoint}");
+                SetPoint = (int)pidControllerStateChange.CurrentState.SetPoint;
             }
         }
 

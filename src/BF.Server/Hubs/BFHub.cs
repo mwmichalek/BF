@@ -24,45 +24,45 @@ namespace BF.Server.Hubs {
             return base.OnConnectedAsync();
         }
 
-        public async Task InitializationChangeFired(string jsonEvent) {
-            await Clients.Others.SendAsync("InitializationChangeFired", jsonEvent);
-        }
+        //public async Task InitializationChangeFired(string jsonEvent) {
+        //    await Clients.Others.SendAsync("InitializationChangeFired", jsonEvent);
+        //}
 
-        public async Task TemperatureChangeFired(string jsonEvent) {
-            await Clients.Others.SendAsync("TemperatureChangeFired", jsonEvent);
-        }
+        //public async Task TemperatureChangeFired(string jsonEvent) {
+        //    await Clients.Others.SendAsync("TemperatureChangeFired", jsonEvent);
+        //}
 
-        public async Task ThermometerChangeFired(string jsonEvent) {
-            await Clients.Others.SendAsync("ThermometerChangeFired", jsonEvent);
-        }
+        //public async Task ThermometerChangeFired(string jsonEvent) {
+        //    await Clients.Others.SendAsync("ThermometerChangeFired", jsonEvent);
+        //}
 
-        public async Task PumpRequestFired(string jsonEvent) {
-            await Clients.Others.SendAsync("PumpRequestFired", jsonEvent);
-        }
+        //public async Task PumpRequestFired(string jsonEvent) {
+        //    await Clients.Others.SendAsync("PumpRequestFired", jsonEvent);
+        //}
 
-        public async Task PumpChangeFired(string jsonEvent) {
-            await Clients.Others.SendAsync("PumpChangeFired", jsonEvent);
-        }
+        //public async Task PumpChangeFired(string jsonEvent) {
+        //    await Clients.Others.SendAsync("PumpChangeFired", jsonEvent);
+        //}
 
-        public async Task PidRequestFired(string jsonEvent) {
-            await Clients.Others.SendAsync("PidRequestFired", jsonEvent);
-        }
+        //public async Task PidRequestFired(string jsonEvent) {
+        //    await Clients.Others.SendAsync("PidRequestFired", jsonEvent);
+        //}
 
-        public async Task PidChangeFired(string jsonEvent) {
-            await Clients.Others.SendAsync("PidChangeFired", jsonEvent);
-        }
+        //public async Task PidChangeFired(string jsonEvent) {
+        //    await Clients.Others.SendAsync("PidChangeFired", jsonEvent);
+        //}
 
-        public async Task SsrChangeFired(string jsonEvent) {
-            await Clients.Others.SendAsync("SsrChangeFired", jsonEvent);
-        }
+        //public async Task SsrChangeFired(string jsonEvent) {
+        //    await Clients.Others.SendAsync("SsrChangeFired", jsonEvent);
+        //}
 
-        public async Task ConnectionStatusRequestFired(string jsonEvent) {
-            await Clients.Others.SendAsync("ConnectionStatusRequestFired", jsonEvent);
-        }
+        //public async Task ConnectionStatusRequestFired(string jsonEvent) {
+        //    await Clients.Others.SendAsync("ConnectionStatusRequestFired", jsonEvent);
+        //}
 
-        public async Task ConnectionStatusChangeFired(string jsonEvent) {
-            await Clients.Others.SendAsync("ConnectionStatusChangeFired", jsonEvent);
-        }
+        //public async Task ConnectionStatusChangeFired(string jsonEvent) {
+        //    await Clients.Others.SendAsync("ConnectionStatusChangeFired", jsonEvent);
+        //}
 
         //public async Task ComponentStateChangeBroadcasted(string componentStateType) {
         //    await Clients.Others.SendAsync("ComponentStateChangeReceived", componentStateType);
@@ -70,6 +70,10 @@ namespace BF.Server.Hubs {
 
         public async Task ComponentStateChangeBroadcasted(string componentStateType, string componentStateChangeJson) {
             await Clients.Others.SendAsync("ComponentStateChangeReceived", componentStateType, componentStateChangeJson);
+        }
+
+        public async Task ComponentStateRequestBroadcasted(string componentStateType, string componentStateRequestJson) {
+            await Clients.Others.SendAsync("ComponentStateRequestReceived", componentStateType, componentStateRequestJson);
         }
 
 

@@ -1,0 +1,37 @@
+﻿@using Syncfusion.EJ2.Blazor.Buttons
+@using BF.Service.Events
+@using BF.Common.Events
+@using BF.Common.Components
+@using BF.Common.States
+
+<EjsButton CssClass="e-flat" IsPrimary="true" Content="@Content" IsToggle="true" OnClick="OnToggleClick" @ref="ToggleBtnObj"></EjsButton>
+
+@code {
+    EjsButton ToggleBtnObj;
+
+    string Content = "Start";
+
+    [Inject]
+    IBeerFactoryEventHandler _eventHandler { get; set; }
+
+
+    protected override async Task OnInitializedAsync() {
+        // _eventHandler.ComponentStateRequestFiring<PumpState>(SsrStateChangeOccured);
+    }
+
+    public void OnToggleClick() {
+        if (ToggleBtnObj.Content == "Start") {
+            this.Content = "Stop";
+            _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
+                Id = ComponentId.HLT,
+                RequestState = new PumpState { IsEngaged = true }
+            });
+        } else {
+            this.Content = "Start";
+            _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
+                Id = ComponentId.HLT,
+                RequestState = new PumpState { IsEngaged = false }
+            });
+        }
+    }
+}

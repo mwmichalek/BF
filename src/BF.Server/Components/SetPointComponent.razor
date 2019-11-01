@@ -4,6 +4,7 @@
 @using BF.Service.Events
 @using BF.Common.Events
 @using BF.Common.Components
+@using BF.Common.States
 
 <div class="content-wrapper" style="height: 100%;">
     <EjsSlider Orientation="@SliderOrientation.Vertical"
@@ -26,42 +27,24 @@
     [Parameter]
     public ComponentId ComponentId { get; set; }
 
-
-
     [Inject]
-    IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
+    IBeerFactoryEventHandler _eventHandler { get; set; }
 
     public int SetPoint { get; set; }
 
     protected override async Task OnInitializedAsync() {
-       // _beerFactoryEventHandler.ConnectionStatusChangeOccured(ConnectionStatusChangeOccured);
     }
-
-
-    //void ConnectionStatusChangeOccured(ConnectionStatusChange connectionStatusChange) {
-//
-    //    var pid = connectionStatusChange.PidChanges.SingleOrDefault(p => p.Id == ComponentId);
-    //    if (pid != null) {
-    //        SetPoint = (int)pid.SetPoint;
-    //        InvokeAsync(() => StateHasChanged());
-    //    }
-    //}
 
     void SetPointChange(SliderChangeEventArgs<int> eventArgs) {
         SetPoint = eventArgs.Value;
 
-        var pidRequest = new PidRequest {
-            Id = ComponentId,
-            IsEngaged = true,
-            PidMode = PidMode.Temperature,
-            SetPoint = eventArgs.Value
-        };
+        _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
+            Id = ComponentId.HLT,
+            RequestState = new PidControllerState {
+                SetPoint = SetPoint
+            }
+        });
 
-        //var pidControllerState = new PidControllerState {
-
-        //}
-
-        //_beerFactoryEventHandler.PidRequestFired(pidRequest);
     }
 
 }

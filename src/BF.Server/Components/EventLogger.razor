@@ -29,8 +29,9 @@ MESSAGES!
         //_beerFactoryEventHandler.ComponentStateChangeOccured<PumpState>(PumpStateChangeOccured);
 
         _eventHandler.ComponentStateRequestOccured<PidControllerState>(PidControllerStateRequestOccured);
-        //_beerFactoryEventHandler.ComponentStateRequestOccured<PumpState>(PumpStateRequestOccured);
 
+        _eventHandler.ComponentStateRequestOccured<PumpState>(PumpStateRequestOccured);
+        _eventHandler.ComponentStateChangeOccured<PumpState>(PumpStateChangeOccured);
     }
 
     void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
@@ -50,6 +51,16 @@ MESSAGES!
 
     void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
         Messages.Insert(0, $"SsrChangeOccured: {ssrStateChange.Id} - {ssrStateChange.CurrentState.Percentage} {ssrStateChange.CurrentState.IsEngaged}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    void PumpStateRequestOccured(ComponentStateRequest<PumpState> pumpStateRequest) {
+        Messages.Insert(0, $"PumpStateRequestOccured: {pumpStateRequest.Id} - {pumpStateRequest.RequestState.IsEngaged}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    void PumpStateChangeOccured(ComponentStateChange<PumpState> pumpStateChange) {
+        Messages.Insert(0, $"PumpStateChangeOccured: {pumpStateChange.Id} - {pumpStateChange.CurrentState.IsEngaged}");
         InvokeAsync(() => StateHasChanged());
     }
 

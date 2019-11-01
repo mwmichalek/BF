@@ -57,6 +57,26 @@ namespace BF.Service.UWP.Controllers {
             Logger = loggerFactory.CreateLogger<SerialUsbArduinoTemperatureControllerService>();
         }
 
+        public void StartFakeness() {
+
+            // Set HLT Pid to 90 degrees
+            _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
+                Id = ComponentId.HLT,
+                RequestState = new PidControllerState {
+                    IsEngaged = true,
+                    SetPoint = 90,
+                    GainProportional = 18,
+                    GainIntegral = 1.5,
+                    GainDerivative = 22.5
+                }
+            });
+
+            _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
+                Id = ComponentId.HLT,
+                RequestState = new PumpState { IsEngaged = true }
+            });
+        }
+
         public override async Task Run() {
 
             while (true) {
@@ -69,6 +89,8 @@ namespace BF.Service.UWP.Controllers {
                         //});
 
                         await RequestAllTemperatures();
+
+                        StartFakeness();
 
                         while (_isConnected) {
                             await ProcessTemperatures();
@@ -144,42 +166,12 @@ namespace BF.Service.UWP.Controllers {
 
                         var componentId = (ComponentId)Enum.Parse(typeof(ComponentId), (index).ToString());
 
-                        //if (_thermocoupleStateLookup.ContainsKey(componentId)) {
-                        //    var priorThermometerState = _thermometerStateLookup[componentId];
-
-                        //    if (temperature != priorThermometerState.Temperature) {
-                        //        Logger.LogInformation($"Fake: OLD: {priorThermometerState.Temperature} - NEW: {temperature}");
-
-                                
-                        //    }
-                        //} else {
-                            _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
-                                Id = componentId,
-                                CurrentState = new ThermocoupleState {
-                                    Temperature = temperature
-                                }
-                            });
-                        //}
-
-
-
-
-
-
-                        //var currentState = new ThermometerState {
-                        //    Temperature = temperature,
-                        //    Timestamp = DateTime.Now
-                        //};
-                        //var priorState = _thermometerStates.ContainsKey(componentId) ? _thermometerStates[componentId] : null;
-                        //_thermometerStates[componentId] = currentState;
-
-                        //var thermometerStateChange = new ComponentStateChange<ThermometerState> {
-                        //    Id = componentId,
-                        //    CurrentState = currentState,
-                        //    PriorState = priorState
-                        //};
-
-                        //_eventHandler.ComponentStateChangeFiring(thermometerStateChange);
+                        _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
+                            Id = componentId,
+                            CurrentState = new ThermocoupleState {
+                                Temperature = temperature
+                            }
+                        });
                     }
                 }
             } catch (OperationCanceledException /*exception*/) {
