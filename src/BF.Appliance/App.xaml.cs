@@ -99,8 +99,8 @@ namespace BF.Appliance {
 
             foreach (var componentId in ComponentHelper.PumpComponentIds) {
                 Container.RegisterType<Pump>($"{componentId}",
-                                                      new ContainerControlledLifetimeManager(),
-                                                      new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
+                                             new ContainerControlledLifetimeManager(),
+                                             new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
             }
 
             Container.RegisterType<BeerFactory>(new ContainerControlledLifetimeManager());
@@ -108,9 +108,6 @@ namespace BF.Appliance {
             HubConnectionHelper.Environment = "RaspberryPi";
 
             //******************************** START ***********************************
-
-            
-
             
             // Forcing creation of each instance
             Container.ResolveAll<Thermometer>();
@@ -123,7 +120,6 @@ namespace BF.Appliance {
             Task.Run(() => {
                 temperatureControllerService.Run();
             });
-
 
         }
 

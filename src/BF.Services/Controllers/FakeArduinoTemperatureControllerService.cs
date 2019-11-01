@@ -29,11 +29,11 @@ namespace BF.Service.Controllers {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        private Random rnd = new Random();
+        private Random _rnd = new Random();
 
-        private Dictionary<ComponentId, SsrState> ssrStateLookup = new Dictionary<ComponentId, SsrState>();
+        private Dictionary<ComponentId, SsrState> _ssrStateLookup = new Dictionary<ComponentId, SsrState>();
 
-        private Dictionary<ComponentId, ThermometerState> thermometerStateLookup = new Dictionary<ComponentId, ThermometerState>();
+        private Dictionary<ComponentId, ThermometerState> _thermometerStateLookup = new Dictionary<ComponentId, ThermometerState>();
 
         public FakeArduinoTemperatureControllerService(Thermometer[] thermometers, 
                                                        Ssr[] ssrs, 
@@ -42,11 +42,8 @@ namespace BF.Service.Controllers {
             Logger = loggerFactory.CreateLogger<FakeArduinoTemperatureControllerService>();
             _eventHandler = eventHandler;
 
-            foreach (var ssr in ssrs)
-                ssrStateLookup[ssr.Id] = ssr.CurrentState;
-
-            foreach (var thermometer in thermometers)
-                thermometerStateLookup[thermometer.Id] = thermometer.CurrentState;
+            _ssrStateLookup = ssrs.ToDictionary(ssr => ssr.Id, ssr => ssr.CurrentState);
+            _thermometerStateLookup = thermometers.ToDictionary(therm => therm.Id, therm => therm.CurrentState);
 
             _eventHandler.ComponentStateChangeOccured<SsrState>(ssrStateChangeOccured);
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(thermometerStateChangeOccured);
@@ -76,14 +73,19 @@ namespace BF.Service.Controllers {
                     GainDerivative = 22.5
                 }
             });
+
+            _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
+                Id = ComponentId.HLT,
+                RequestState = new PumpState { IsEngaged = true }
+            });
         }
 
         private void ssrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
-            ssrStateLookup[ssrStateChange.Id] = ssrStateChange.CurrentState;
+            _ssrStateLookup[ssrStateChange.Id] = ssrStateChange.CurrentState;
         }
 
         private void thermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
-            thermometerStateLookup[thermometerStateChange.Id] = thermometerStateChange.CurrentState;
+            _thermometerStateLookup[thermometerStateChange.Id] = thermometerStateChange.CurrentState;
         }
 
         public override async Task Run() {
@@ -91,11 +93,11 @@ namespace BF.Service.Controllers {
             while (true) {
                 try {
 
-                    foreach (var ssrComponentId in ssrStateLookup.Keys.ToList()) {
+                    foreach (var ssrComponentId in _ssrStateLookup.Keys.ToList()) {
 
-                        if (ssrStateLookup.ContainsKey(ssrComponentId) && thermometerStateLookup.ContainsKey(ssrComponentId)) {
-                            var ssrState = ssrStateLookup[ssrComponentId];
-                            var thermometerState = thermometerStateLookup[ssrComponentId];
+                        if (_ssrStateLookup.ContainsKey(ssrComponentId) && _thermometerStateLookup.ContainsKey(ssrComponentId)) {
+                            var ssrState = _ssrStateLookup[ssrComponentId];
+                            var thermometerState = _thermometerStateLookup[ssrComponentId];
 
                             var newTemperature = (ssrState.Percentage == 0) ?
                                 thermometerState.Temperature - 0.2 :

@@ -22,33 +22,37 @@ using BF.Service.Controllers;
 using BF.Common.Components;
 using Microsoft.Extensions.Logging;
 using BF.Common.States;
+using BF.Services.Components;
 
 namespace BF.Service.UWP.Controllers {
+
     public class SerialUsbArduinoTemperatureControllerService : TemperatureControllerService {
 
         private ILogger Logger { get; set; }
 
-        private string[] stringSeparators = new string[] { "\r\n" };
+        private string[] _stringSeparators = new string[] { "\r\n" };
 
-        public bool IsConnected { get; set; }
+        private bool _isConnected { get; set; }
 
         // Track Read Operation
-        private CancellationTokenSource ReadCancellationTokenSource;
-        private Object ReadCancelLock = new Object();
+        private CancellationTokenSource _readCancellationTokenSource;
+        private Object _readCancelLock = new Object();
 
-        DataReader DataReaderObject = null;
+        private DataReader _dataReaderObject = null;
 
         // Track Write Operation
-        private CancellationTokenSource WriteCancellationTokenSource;
-        private Object WriteCancelLock = new Object();
+        private CancellationTokenSource _writeCancellationTokenSource;
+        private Object _writeCancelLock = new Object();
 
-        DataWriter DataWriterObject = null;
+        private DataWriter _dataWriterObject = null;
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        private Dictionary<ComponentId, ThermometerState> _thermometerStates = new Dictionary<ComponentId, ThermometerState>();
+        private Dictionary<ComponentId, ThermocoupleState> _thermocoupleStateLookup = new Dictionary<ComponentId, ThermocoupleState>();
 
-        public SerialUsbArduinoTemperatureControllerService(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
+        public SerialUsbArduinoTemperatureControllerService(Thermometer[] thermometers, 
+                                                            IBeerFactoryEventHandler eventHandler, 
+                                                            ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
             Logger = loggerFactory.CreateLogger<SerialUsbArduinoTemperatureControllerService>();
         }
@@ -66,7 +70,7 @@ namespace BF.Service.UWP.Controllers {
 
                         await RequestAllTemperatures();
 
-                        while (IsConnected) {
+                        while (_isConnected) {
                             await ProcessTemperatures();
                         }
                     } else {
@@ -87,9 +91,6 @@ namespace BF.Service.UWP.Controllers {
             string deviceSelector = Windows.Devices.SerialCommunication.SerialDevice.GetDeviceSelectorFromUsbVidPid(
                                                                     ArduinoDevice.Vid, ArduinoDevice.Pid);
 
-
-  
-
             var devicesInformation = await DeviceInformation.FindAllAsync(deviceSelector);
 
             if (devicesInformation != null && devicesInformation.Count > 0) {
@@ -108,9 +109,9 @@ namespace BF.Service.UWP.Controllers {
 
                 // It is important that the FromIdAsync call is made on the UI thread because the consent prompt, when present,
                 // can only be displayed on the UI thread. Since this method is invoked by the UI, we are already in the UI thread.
-                IsConnected = await EventHandlerForDevice.Current.OpenDeviceAsync(entry.DeviceInformation, entry.DeviceSelector);
+                _isConnected = await EventHandlerForDevice.Current.OpenDeviceAsync(entry.DeviceInformation, entry.DeviceSelector);
 
-                if (IsConnected) {
+                if (_isConnected) {
                     EventHandlerForDevice.Current.Device.BaudRate = 57600;
                     EventHandlerForDevice.Current.Device.StopBits = SerialStopBitCount.One;
                     EventHandlerForDevice.Current.Device.DataBits = 8;
@@ -124,16 +125,16 @@ namespace BF.Service.UWP.Controllers {
                 }
             }
 
-            return IsConnected;
+            return _isConnected;
         }
 
         private async Task ProcessTemperatures() {
             String message = String.Empty;
             try {
-                DataReaderObject = new DataReader(EventHandlerForDevice.Current.Device.InputStream);
-                message = await ReadAsync(ReadCancellationTokenSource.Token, 200);
+                _dataReaderObject = new DataReader(EventHandlerForDevice.Current.Device.InputStream);
+                message = await ReadAsync(_readCancellationTokenSource.Token, 200);
                 //Debug.WriteLine($"Msg:\n{message}");
-                foreach (var tempReading in message.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries)) {
+                foreach (var tempReading in message.Split(_stringSeparators, StringSplitOptions.RemoveEmptyEntries)) {
 
                     var tempReadingValues = tempReading.Split('|');
 
@@ -143,20 +144,42 @@ namespace BF.Service.UWP.Controllers {
 
                         var componentId = (ComponentId)Enum.Parse(typeof(ComponentId), (index).ToString());
 
-                        var currentState = new ThermometerState {
-                            Temperature = temperature,
-                            Timestamp = DateTime.Now
-                        };
-                        var priorState = _thermometerStates.ContainsKey(componentId) ? _thermometerStates[componentId] : null;
-                        _thermometerStates[componentId] = currentState;
+                        //if (_thermocoupleStateLookup.ContainsKey(componentId)) {
+                        //    var priorThermometerState = _thermometerStateLookup[componentId];
 
-                        var thermometerStateChange = new ComponentStateChange<ThermometerState> {
-                            Id = componentId,
-                            CurrentState = currentState,
-                            PriorState = priorState
-                        };
+                        //    if (temperature != priorThermometerState.Temperature) {
+                        //        Logger.LogInformation($"Fake: OLD: {priorThermometerState.Temperature} - NEW: {temperature}");
 
-                        _eventHandler.ComponentStateChangeFiring(thermometerStateChange);
+                                
+                        //    }
+                        //} else {
+                            _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
+                                Id = componentId,
+                                CurrentState = new ThermocoupleState {
+                                    Temperature = temperature
+                                }
+                            });
+                        //}
+
+
+
+
+
+
+                        //var currentState = new ThermometerState {
+                        //    Temperature = temperature,
+                        //    Timestamp = DateTime.Now
+                        //};
+                        //var priorState = _thermometerStates.ContainsKey(componentId) ? _thermometerStates[componentId] : null;
+                        //_thermometerStates[componentId] = currentState;
+
+                        //var thermometerStateChange = new ComponentStateChange<ThermometerState> {
+                        //    Id = componentId,
+                        //    CurrentState = currentState,
+                        //    PriorState = priorState
+                        //};
+
+                        //_eventHandler.ComponentStateChangeFiring(thermometerStateChange);
                     }
                 }
             } catch (OperationCanceledException /*exception*/) {
@@ -164,37 +187,37 @@ namespace BF.Service.UWP.Controllers {
             } catch (Exception exception) {
                 Debug.WriteLine(exception.Message.ToString());
             } finally {
-                DataReaderObject.DetachStream();
-                DataReaderObject = null;
+                _dataReaderObject.DetachStream();
+                _dataReaderObject = null;
             }
         }
 
         private async Task RequestAllTemperatures() {
             try {
-                DataWriterObject = new DataWriter(EventHandlerForDevice.Current.Device.OutputStream);
-                DataWriterObject.WriteString("temps\r");
+                _dataWriterObject = new DataWriter(EventHandlerForDevice.Current.Device.OutputStream);
+                _dataWriterObject.WriteString("temps\r");
 
-                await WriteAsync(WriteCancellationTokenSource.Token);
+                await WriteAsync(_writeCancellationTokenSource.Token);
             } catch (OperationCanceledException /*exception*/) {
                 NotifyWriteTaskCanceled();
             } catch (Exception exception) {
                 Debug.WriteLine(exception.Message.ToString());
             } finally {
-                DataWriterObject.DetachStream();
-                DataWriterObject = null;
+                _dataWriterObject.DetachStream();
+                _dataWriterObject = null;
             }
         }
 
 
         public void Dispose() {
-            if (ReadCancellationTokenSource != null) {
-                ReadCancellationTokenSource.Dispose();
-                ReadCancellationTokenSource = null;
+            if (_readCancellationTokenSource != null) {
+                _readCancellationTokenSource.Dispose();
+                _readCancellationTokenSource = null;
             }
 
-            if (WriteCancellationTokenSource != null) {
-                WriteCancellationTokenSource.Dispose();
-                WriteCancellationTokenSource = null;
+            if (_writeCancellationTokenSource != null) {
+                _writeCancellationTokenSource.Dispose();
+                _writeCancellationTokenSource = null;
             }
         }
 
@@ -206,12 +229,12 @@ namespace BF.Service.UWP.Controllers {
             Task<UInt32> storeAsyncTask;
 
             // Don't start any IO if we canceled the task
-            lock (WriteCancelLock) {
+            lock (_writeCancelLock) {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 // Cancellation Token will be used so we can stop the task operation explicitly
                 // The completion function should still be called so that we can properly handle a canceled task
-                storeAsyncTask = DataWriterObject.StoreAsync().AsTask(cancellationToken);
+                storeAsyncTask = _dataWriterObject.StoreAsync().AsTask(cancellationToken);
             }
 
             UInt32 bytesWritten = await storeAsyncTask;
@@ -226,16 +249,16 @@ namespace BF.Service.UWP.Controllers {
             Task<UInt32> loadAsyncTask;
 
             // Don't start any IO if we canceled the task
-            lock (ReadCancelLock) {
+            lock (_readCancelLock) {
                 // Cancellation Token will be used so we can stop the task operation explicitly
                 // The completion function should still be called so that we can properly handle a canceled task
                 cancellationToken.ThrowIfCancellationRequested();
 
                 // Set InputStreamOptions to complete the asynchronous read operation when one or more bytes is available
-                DataReaderObject.InputStreamOptions = InputStreamOptions.Partial;
+                _dataReaderObject.InputStreamOptions = InputStreamOptions.Partial;
 
                 // Create a task object to wait for data on the serialPort.InputStream
-                loadAsyncTask = DataReaderObject.LoadAsync(ReadBufferLength).AsTask(cancellationToken);
+                loadAsyncTask = _dataReaderObject.LoadAsync(ReadBufferLength).AsTask(cancellationToken);
             }
 
             // Launch the task and wait until the read timeout expires - the bytes returned is the number of bytes were read
@@ -244,7 +267,7 @@ namespace BF.Service.UWP.Controllers {
             String output = String.Empty;
             if (bytesRead > 0) {
                 try {
-                    output = DataReaderObject.ReadString(bytesRead);
+                    output = _dataReaderObject.ReadString(bytesRead);
                     //byte[] rawdata = new byte[ReadBufferLength];
                     //DataReaderObject.ReadBytes(rawdata);
                     //output = Encoding.Unicode.GetString(rawdata, 0, rawdata.Length);
@@ -268,10 +291,10 @@ namespace BF.Service.UWP.Controllers {
         /// 
 
         private void CancelReadTask() {
-            lock (ReadCancelLock) {
-                if (ReadCancellationTokenSource != null) {
-                    if (!ReadCancellationTokenSource.IsCancellationRequested) {
-                        ReadCancellationTokenSource.Cancel();
+            lock (_readCancelLock) {
+                if (_readCancellationTokenSource != null) {
+                    if (!_readCancellationTokenSource.IsCancellationRequested) {
+                        _readCancellationTokenSource.Cancel();
 
                         // Existing IO already has a local copy of the old cancellation token so this reset won't affect it
                         ResetReadCancellationTokenSource();
@@ -281,10 +304,10 @@ namespace BF.Service.UWP.Controllers {
         }
 
         private void CancelWriteTask() {
-            lock (WriteCancelLock) {
-                if (WriteCancellationTokenSource != null) {
-                    if (!WriteCancellationTokenSource.IsCancellationRequested) {
-                        WriteCancellationTokenSource.Cancel();
+            lock (_writeCancelLock) {
+                if (_writeCancellationTokenSource != null) {
+                    if (!_writeCancellationTokenSource.IsCancellationRequested) {
+                        _writeCancellationTokenSource.Cancel();
 
                         // Existing IO already has a local copy of the old cancellation token so this reset won't affect it
                         ResetWriteCancellationTokenSource();
@@ -299,18 +322,18 @@ namespace BF.Service.UWP.Controllers {
 
         private void ResetReadCancellationTokenSource() {
             // Create a new cancellation token source so that can cancel all the tokens again
-            ReadCancellationTokenSource = new CancellationTokenSource();
+            _readCancellationTokenSource = new CancellationTokenSource();
 
             // Hook the cancellation callback (called whenever Task.cancel is called)
-            ReadCancellationTokenSource.Token.Register(() => NotifyReadCancelingTask());
+            _readCancellationTokenSource.Token.Register(() => NotifyReadCancelingTask());
         }
 
         private void ResetWriteCancellationTokenSource() {
             // Create a new cancellation token source so that can cancel all the tokens again
-            WriteCancellationTokenSource = new CancellationTokenSource();
+            _writeCancellationTokenSource = new CancellationTokenSource();
 
             // Hook the cancellation callback (called whenever Task.cancel is called)
-            WriteCancellationTokenSource.Token.Register(() => NotifyWriteCancelingTask());
+            _writeCancellationTokenSource.Token.Register(() => NotifyWriteCancelingTask());
         }
 
         /// <summary>
