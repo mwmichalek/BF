@@ -49,7 +49,12 @@ namespace BF.Service.Controllers {
                 thermometerStateLookup[thermometer.Id] = thermometer.CurrentState;
 
             _eventHandler.ComponentStateChangeOccured<SsrState>(ssrStateChangeOccured);
+            _eventHandler.ComponentStateChangeOccured<ThermometerState>(thermometerStateChangeOccured);
 
+            StartFakeness();
+        }
+
+        public void StartFakeness() {
             // Initialize all Thermometers with 70
             foreach (var componentId in ComponentHelper.AllComponentIds) {
                 _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
@@ -59,6 +64,18 @@ namespace BF.Service.Controllers {
                     }
                 });
             }
+
+            // Set HLT Pid to 90 degrees
+            _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
+                Id = ComponentId.HLT,
+                RequestState = new PidControllerState {
+                    IsEngaged = true,
+                    SetPoint = 90,
+                    GainProportional = 18,
+                    GainIntegral = 1.5,
+                    GainDerivative = 22.5
+                }
+            });
         }
 
         private void ssrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
@@ -73,24 +90,10 @@ namespace BF.Service.Controllers {
 
             while (true) {
                 try {
-                    //int index = rnd.Next(0, 10);
-                    //if (index != 0)
-                    //    temperatures[index] += rnd.NextDouble();
 
-                    //var thermometerId = (ThermometerId)Enum.Parse(typeof(ThermometerId), (index + 1).ToString());
+                    foreach (var ssrComponentId in ssrStateLookup.Keys.ToList()) {
 
-                    //_eventHandler.ThermometerChangeFired(new ThermometerChange {
-                    //    Id = thermometerId,
-                    //    Value = temperatures[index],
-                    //    Timestamp = DateTime.Now
-                    //});
-
-                    //TODO: Need to rework all this to include references to Ssrs/Thermometers
-
-
-                    foreach (var ssrComponentId in ssrStateLookup.Keys) {
-
-                        if (ssrStateLookup.ContainsKey(ssrComponentId)) {
+                        if (ssrStateLookup.ContainsKey(ssrComponentId) && thermometerStateLookup.ContainsKey(ssrComponentId)) {
                             var ssrState = ssrStateLookup[ssrComponentId];
                             var thermometerState = thermometerStateLookup[ssrComponentId];
 
@@ -102,36 +105,21 @@ namespace BF.Service.Controllers {
                                 newTemperature = 70;
 
                             if (newTemperature != thermometerState.Temperature) {
-                                //Logger.LogInformation($"Fake: OLD: {temperatures[0]} - NEW: {newTemperature}");
+                                Logger.LogInformation($"Fake: OLD: {thermometerState.Temperature} - NEW: {newTemperature}");
 
-
-
-
-
-                            //    var currentThermocoupleState = new ThermocoupleState {
-                            //        Temperature = newTemperature,
-                            //        Timestamp = DateTime.Now
-                            //    };
-
-                            //    _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
-                            //        Id = ComponentId.HLT,
-                            //        PriorState = currentState,
-                            //        CurrentState = currentThermocoupleState
-                            //    });
-
-                            //    temperatures[0] = newTemperature;
-                            //    currentState = currentThermocoupleState;
+                                _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
+                                    Id = ssrComponentId,
+                                    CurrentState = new ThermocoupleState {
+                                        Temperature = newTemperature
+                                    }
+                                });
                             }
 
                         }
-                        
-
-
-
-                        
-                    }                   
-                } catch (Exception) {
-
+                    }        
+                    
+                } catch (Exception ex) {
+                    Logger.LogError(ex.ToString());
                 }
 
                 await Task.Delay(1000);
@@ -139,8 +127,6 @@ namespace BF.Service.Controllers {
 
         }
     }
-
-
 
     public static class Bullshit {
 

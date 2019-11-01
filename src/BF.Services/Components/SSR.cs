@@ -25,7 +25,7 @@ namespace BF.Service.Components {
 
         public ComponentId Id { get; set; }
 
-        public SsrState CurrentState { get; set; }
+        public SsrState CurrentState { get; set; } = new SsrState();
 
         public SsrState PriorState { get; set; }
 
@@ -35,37 +35,14 @@ namespace BF.Service.Components {
 
         private int _dutyCycleInMillis = 2000;
 
-        //public int DutyCycleInMillis {
-        //    get {
-        //        return _dutyCycleInMillis;
-        //    }
-        //    set {
-        //        _dutyCycleInMillis = value;
-        //        CalculateDurations();
-        //    }
-        //}
-
-        //private int _percentage = 0;
-        //public int Percentage {
-        //    get {
-        //        return _percentage;
-        //    }
-        //    set {
-        //        if (value != _percentage) {
-        //            Logger.LogInformation($"Setting Percentage to {value}");
-        //            _percentage = value;
-        //            CalculateDurations();
-        //            SendNotification();
-        //        }
-        //    }
-        //}
-
         private GpioPin _pin;
+
         private GpioPinValue _pinValue = GpioPinValue.High;
 
         private bool _isRunning = false;
 
         private int _millisOn = 0;
+
         private int _millisOff = 2000;
 
         private IBeerFactoryEventHandler _eventHandler;
@@ -90,27 +67,29 @@ namespace BF.Service.Components {
         }
 
         private void SsrStateRequestOccured(ComponentStateRequest<SsrState> ssrStateRequest) {
-            if (ssrStateRequest.Id == Id) {
+            if (ssrStateRequest.Id == Id && 
+                CurrentState.IsDifferent(ssrStateRequest.RequestState)) {
                 PriorState = CurrentState;
-                CurrentState = CurrentState.Update(ssrStateRequest.RequestState);
+                CurrentState = CurrentState.UpdateRequest(ssrStateRequest.RequestState);
 
+                CalculateDurations();
 
+                if (CurrentState.Percentage > 0 && !_isRunning)
+                    Start();
 
-                //if (ssrStateRequest.RequestState.Percentage != _)
+                if (CurrentState.Percentage == 0 && _isRunning)
+                    Stop();
 
-                //_percentage = value;
-                //            CalculateDurations();
-                //            SendNotification();
+                SendNotification();
             }
         }
-    
 
-        public void Start() {
-            _isRunning = true;
-            CalculateDurations();
-
-            // Call new thread to run
-            Task.Run(() => Run());
+        private void SendNotification() {
+            _eventHandler.ComponentStateChangeFiring<SsrState>(new ComponentStateChange<SsrState> {
+                Id = Id,
+                CurrentState = CurrentState.Clone(),
+                PriorState = PriorState.Clone()
+            });
         }
 
         private void CalculateDurations() {
@@ -121,8 +100,17 @@ namespace BF.Service.Components {
             Logger.LogInformation($"SSR: {Id} - CALC PERC {CurrentState.Percentage}, FRACTION {fraction}, MILLISON {_millisOn}, MILLISOFF {_millisOff}");
         }
 
+        private void Start() {
+            CurrentState = CurrentState.Engage(true);
+            Task.Run(() => Run());
+        }
+
+        private void Stop() {
+            CurrentState = CurrentState.Engage(false);
+        }
+
         private void Run() {
-            while (_isRunning) {
+            while (CurrentState.IsEngaged) {
                 // Something is causing a random blip.
                 if (CurrentState.Percentage != 0 && _millisOn > 0) {
                     On();
@@ -140,7 +128,7 @@ namespace BF.Service.Components {
                 Logger.LogInformation($"SSR: {Id} - ON {_millisOn}");
                 _pin?.Write(GpioPinValue.High);
                 PriorState = CurrentState;
-                CurrentState = CurrentState.Update(true);
+                CurrentState = CurrentState.Fire(true);
                 CurrentState.IsFiring = true;
                 SendNotification();
             }
@@ -151,22 +139,11 @@ namespace BF.Service.Components {
                 Logger.LogInformation($"SSR: {Id} - OFF {_millisOff}");
                 _pin?.Write(GpioPinValue.Low);
                 PriorState = CurrentState;
-                CurrentState = CurrentState.Update(false);
+                CurrentState = CurrentState.Fire(false);
                 SendNotification();
             }
         }
 
-        private void SendNotification() {
-            _eventHandler.ComponentStateChangeFiring<SsrState>(new ComponentStateChange<SsrState> {
-                Id = Id,
-                CurrentState = CurrentState,
-                PriorState = PriorState
-            });
-        }
-
-        public void Stop() {
-            _isRunning = false;
-        }
     }
 
 }

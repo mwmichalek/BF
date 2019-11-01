@@ -101,17 +101,22 @@ namespace BF.Appliance {
 
             //******************************** START ***********************************
 
+            
+
+            
+            // Forcing creation of each instance
+            Container.ResolveAll<Thermometer>();
+            Container.ResolveAll<Ssr>();
+            Container.ResolveAll<PidController>();
+
+
             var temperatureControllerService = Container.Resolve<ITemperatureControllerService>();
 
             Task.Run(() => {
                 temperatureControllerService.Run();
             });
 
-            Container.ResolveAll<Thermometer>();
 
-            Container.ResolveAll<Ssr>();
-
-            Container.ResolveAll<PidController>();
         }
 
         protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args) {

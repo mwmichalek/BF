@@ -39,7 +39,7 @@ namespace BF.Service.Components {
         private int dutyCycleInMillis = 2000;
 
         public PidControllerState PriorState { get; set; }
-        public PidControllerState CurrentState { get; set; }
+        public PidControllerState CurrentState { get; set; } = new PidControllerState();
 
         public PidController(ComponentId id, 
                              IBeerFactoryEventHandler eventHandler, 
@@ -47,10 +47,6 @@ namespace BF.Service.Components {
             Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
             Id = id;
-            CurrentState = new PidControllerState {
-                Temperature = double.MinValue,
-                SetPoint = double.MinValue
-            };
             RegisterEvents();
         }
 
@@ -101,15 +97,17 @@ namespace BF.Service.Components {
 
         private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) { 
             if (thermometerStateChange.Id == Id) {
-                _ = thermometerStateChange.CurrentState.Temperature;
+                PriorState = CurrentState;
+                CurrentState = CurrentState.Update(thermometerStateChange.CurrentState.Temperature);
                 Process();
             }
         }
 
         private void PidControllerStateRequestOccured(ComponentStateRequest<PidControllerState> pidControllerStateRequest) {
             if (pidControllerStateRequest.Id == Id) {
+                Logger.LogInformation($"Pid Request Received: {Id} {pidControllerStateRequest.RequestState.SetPoint} {pidControllerStateRequest.RequestState.IsEngaged}");
                 PriorState = CurrentState;
-                CurrentState = CurrentState.Update(pidControllerStateRequest.RequestState);
+                CurrentState = CurrentState.UpdateRequest(pidControllerStateRequest.RequestState);
 
                 _eventHandler.ComponentStateChangeFiring<PidControllerState>(new ComponentStateChange<PidControllerState> {
                     Id = Id,
@@ -127,10 +125,10 @@ namespace BF.Service.Components {
         /// <param name="timeSinceLastUpdate">timespan of the elapsed time
         /// since the previous time that ControlVariable was called</param>
         /// <returns>Value of the variable that needs to be controlled</returns>
-        public void Process() {
+        private void Process() {
 
             if (!CurrentState.IsEngaged)
-                UpdateSsr(0);
+                UpdateSsr(0, "Pid Disengaged");
 
             if (CurrentState.IsEngaged) {
                 if (CurrentState.PidMode == PidMode.Temperature && CurrentState.Temperature != 0) {
@@ -167,12 +165,13 @@ namespace BF.Service.Components {
 
                 } else if (CurrentState.PidMode == PidMode.Percentage) {
                     // If PidMode is Percentage, SetPoint is a Percentage
-                    UpdateSsr((int)CurrentState.SetPoint);
+                    UpdateSsr((int)CurrentState.SetPoint, "Percentage");
                 }
             }
         }
 
-        private void UpdateSsr(int percentage) {
+        private void UpdateSsr(int percentage, string msg = "") {
+            Logger.LogInformation($"Ssr Request Firing: {Id} {percentage} {msg}");
             _eventHandler.ComponentStateRequestFiring<SsrState>(new ComponentStateRequest<SsrState> {
                 Id = Id,
                 RequestState = new SsrState {

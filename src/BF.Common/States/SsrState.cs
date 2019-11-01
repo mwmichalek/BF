@@ -6,21 +6,9 @@ namespace BF.Common.States {
 
     public class SsrState : UpdateableComponentState {
 
-        public int Percentage { get; set; }
+        public int Percentage { get; set; } = 0;
 
-        public bool IsFiring { get; set; }
-
-        //public override bool Equals(object obj) {
-        //    var otherSsr = (SsrState)obj;
-
-        //    return (obj is SsrState otherSsrState) ?
-             
-        //        Percentage.Equals(otherSsrState.Percentage) &&
-        //        IsEngaged.Equals(otherSsrState.IsEngaged) :
-        //        false;
-        //}
-
-        
+        public bool IsFiring { get; set; } = false;
 
     }
 
@@ -29,22 +17,37 @@ namespace BF.Common.States {
         public static SsrState Clone(this SsrState ssrState) {
             return new SsrState {
                 Percentage = ssrState.Percentage,
-                IsFiring = ssrState.IsFiring
+                IsFiring = ssrState.IsFiring,
+                Timestamp = ssrState.Timestamp
             };
         }
 
-        public static SsrState Update(this SsrState ssrState, bool isFiring) {
+        public static SsrState Fire(this SsrState ssrState, bool isFiring) {
             var clone = ssrState.Clone();
             clone.IsFiring = isFiring;
+            clone.Timestamp = DateTime.Now;
             return clone;
         }
 
-        public static SsrState Update(this SsrState ssrState, SsrState newSsrState) {
+        public static SsrState Engage(this SsrState ssrState, bool isEngaged) {
             var clone = ssrState.Clone();
+            clone.IsEngaged = isEngaged;
+            clone.Timestamp = DateTime.Now;
+            return clone;
+        }
 
-            // TODO: Add SsrState update logic.
+        public static SsrState UpdateRequest(this SsrState ssrState, SsrState requestSsrState) {
+            var clone = ssrState.Clone();
+            //clone.IsEngaged = requestSsrState.IsEngaged;
+            clone.Percentage = requestSsrState.Percentage;
+            clone.Timestamp = DateTime.Now;
 
             return clone;
+        }
+
+        public static bool IsDifferent(this SsrState ssrState, SsrState requestSsrState) {
+            return //ssrState.IsEngaged != requestSsrState.IsEngaged ||
+                ssrState.Percentage != requestSsrState.Percentage;
         }
     }
 
