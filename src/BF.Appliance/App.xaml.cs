@@ -21,7 +21,7 @@ using Microsoft.Extensions.Logging;
 using Serilog.Exceptions;
 using BF.Common.Components;
 using BF.Common.Ids;
-using BF.Service.Components;
+using BF.Services.Components;
 
 namespace BF.Appliance {
     [Windows.UI.Xaml.Data.Bindable]
@@ -97,6 +97,14 @@ namespace BF.Appliance {
                                                       new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
             }
 
+            foreach (var componentId in ComponentHelper.PumpComponentIds) {
+                Container.RegisterType<Pump>($"{componentId}",
+                                                      new ContainerControlledLifetimeManager(),
+                                                      new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
+            }
+
+            Container.RegisterType<BeerFactory>(new ContainerControlledLifetimeManager());
+
             HubConnectionHelper.Environment = "RaspberryPi";
 
             //******************************** START ***********************************
@@ -108,7 +116,7 @@ namespace BF.Appliance {
             Container.ResolveAll<Thermometer>();
             Container.ResolveAll<Ssr>();
             Container.ResolveAll<PidController>();
-
+            Container.Resolve<BeerFactory>();
 
             var temperatureControllerService = Container.Resolve<ITemperatureControllerService>();
 

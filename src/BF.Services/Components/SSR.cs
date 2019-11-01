@@ -13,7 +13,7 @@ using BF.Common.Components;
 using Microsoft.Extensions.Logging;
 using BF.Common.States;
 
-namespace BF.Service.Components {
+namespace BF.Services.Components {
 
     public enum SsrPin {
         HLT = 4,
@@ -37,7 +37,7 @@ namespace BF.Service.Components {
 
         private GpioPin _pin;
 
-        private GpioPinValue _pinValue = GpioPinValue.High;
+        //private GpioPinValue _pinValue = GpioPinValue.High;
 
         private bool _isRunning = false;
 

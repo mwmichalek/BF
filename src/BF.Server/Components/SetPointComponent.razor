@@ -34,18 +34,18 @@
     public int SetPoint { get; set; }
 
     protected override async Task OnInitializedAsync() {
-        _beerFactoryEventHandler.ConnectionStatusChangeOccured(ConnectionStatusChangeOccured);
+       // _beerFactoryEventHandler.ConnectionStatusChangeOccured(ConnectionStatusChangeOccured);
     }
 
 
-    void ConnectionStatusChangeOccured(ConnectionStatusChange connectionStatusChange) {
-
-        var pid = connectionStatusChange.PidChanges.SingleOrDefault(p => p.Id == ComponentId);
-        if (pid != null) {
-            SetPoint = (int)pid.SetPoint;
-            InvokeAsync(() => StateHasChanged());
-        }
-    }
+    //void ConnectionStatusChangeOccured(ConnectionStatusChange connectionStatusChange) {
+//
+    //    var pid = connectionStatusChange.PidChanges.SingleOrDefault(p => p.Id == ComponentId);
+    //    if (pid != null) {
+    //        SetPoint = (int)pid.SetPoint;
+    //        InvokeAsync(() => StateHasChanged());
+    //    }
+    //}
 
     void SetPointChange(SliderChangeEventArgs<int> eventArgs) {
         SetPoint = eventArgs.Value;

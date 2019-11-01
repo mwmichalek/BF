@@ -3,6 +3,7 @@
 @using BF.Service.Events
 @using BF.Common.Events
 @using BF.Common.Components
+@using BF.Common.States
 
 <EjsCircularGauge>
     <CircularGaugeAxes>
@@ -45,17 +46,17 @@
     public ComponentId ComponentId { get; set; }
 
     [Inject]
-    IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
+    IBeerFactoryEventHandler _eventHandler { get; set; }
 
     public double Percentage;
 
     protected override async Task OnInitializedAsync() {
-        _beerFactoryEventHandler.SsrChangeOccured(SsrChangeOccured);
+        _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured);
     }
 
-    void SsrChangeOccured(SsrChange ssrChange) {
-        if (ssrChange.Id == ComponentId) {
-            Percentage = ssrChange.Percentage;
+    void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
+        if (ssrStateChange.Id == ComponentId) {
+            Percentage = ssrStateChange.CurrentState.Percentage;
             InvokeAsync(() => StateHasChanged());
         }
     }

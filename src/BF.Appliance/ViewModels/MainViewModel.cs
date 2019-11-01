@@ -3,7 +3,7 @@ using BF.Common.Events;
 using BF.Common.Components;
 using BF.Service;
 using BF.Service.Events;
-using BF.Service.Components;
+using BF.Services.Components;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Windows.Mvvm;
@@ -19,51 +19,35 @@ namespace BF.Appliance.ViewModels {
 
         private IBeerFactoryEventHandler _eventHandler;
 
-        public MainViewModel(IBeerFactoryEventHandler eventHandler, Thermometer[] thermometers, ILoggerFactory loggerFactory)  {
+        public MainViewModel(PidController[] pidControllers,
+                             Thermometer[] thermometers,
+                             Ssr[] ssrs,
+                             IBeerFactoryEventHandler eventHandler,
+                             ILoggerFactory loggerFactory)  {
+
             Logger = loggerFactory.CreateLogger<MainViewModel>();
             _eventHandler = eventHandler;
 
             Temperature = (double)thermometers.GetById(ComponentId.HLT)?.Temperature;
-            
-            //var hltPidController = beerFactory.PidControllers.GetById<PidController>(ComponentId.HLT);
-            //if (hltPidController != null)
-            //    SetPoint = (int)hltPidController.CurrentState.SetPoint;
-
+            SetPoint = (int)pidControllers.GetById(ComponentId.HLT).CurrentState.SetPoint;
+            SsrPercentage = (int)ssrs.GetById(ComponentId.HLT).CurrentState.Percentage;
+           
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured, ThreadType.UIThread);
-            _eventHandler.SsrChangeOccured(SsrChangeOccured, ThreadType.UIThread);
-            _eventHandler.ConnectionStatusChangeOccured(ConnectionStatusChangeOccured, ThreadType.UIThread);
+            _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured, ThreadType.UIThread);
+        }
 
-            //connection = new HubConnectionBuilder()
-            //    .WithUrl("https://emrsd-ws-bf.azurewebsites.net/ChatHub")
-            //    .Build();
-
-            //connection.On<string, string>("ReceiveMessage", (user, message) => {
-            //    Logger.Information($"User: {user}, Message: {message}");
-            //});
-
-            //try {
-            //    connection.StartAsync();
-
-            //} catch (Exception ex) {
-
-            //}
+        private void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
+            if (ssrStateChange.Id == ComponentId.HLT) {
+                Logger.LogInformation($"RaspPI: Ssr Change: {ssrStateChange.CurrentState.Percentage}");
+                SsrPercentage = ssrStateChange.CurrentState.Percentage;
+            }
         }
 
         private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
             if (thermometerStateChange.Id == ComponentId.HLT) {
-                Logger.LogInformation($"HLT Change: {thermometerStateChange.CurrentState.Temperature}");
+                Logger.LogInformation($"RaspPI: Thermometer Change: {thermometerStateChange.CurrentState.Temperature}");
                 Temperature = thermometerStateChange.CurrentState.Temperature;
             }
-        }
-
-        public void SsrChangeOccured(SsrChange ssrChange) {
-            if (ssrChange.Id == ComponentId.HLT) {
-                SsrPercentage = ssrChange.Percentage;
-            }
-        }
-
-        public void ConnectionStatusChangeOccured(ConnectionStatusChange connectionStatus) {
-            //Title = $"ConnectionStatus: {connectionStatus.Status.ToString()}";
         }
 
         private bool _engaged;

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BF.Service.Components {
+namespace BF.Services.Components {
 
     public enum PhaseId {
         FillStrikeWater = 0,

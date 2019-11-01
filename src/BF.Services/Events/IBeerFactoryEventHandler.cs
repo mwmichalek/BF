@@ -19,52 +19,6 @@ namespace BF.Service.Events {
 
     public interface IBeerFactoryEventHandler {
 
-        void InitializationChangeOccured(Action<InitializationChange> initializationHandler, ThreadType threadType = ThreadType.PublisherThread);
-
-        //void PumpRequestOccured(Action<PumpRequest> pumpRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
-
-        //void PumpChangeOccured(Action<PumpChange> pumpChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
-
-
-        //void PidRequestOccured(Action<PidRequest> pidRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
-
-        //void PidChangeOccured(Action<PidChange> pidChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
-
-
-        void SsrChangeOccured(Action<SsrChange> ssrChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
-
-
-        void ConnectionStatusRequestOccured(Action<ConnectionStatusRequest> connectionStatusRequestHandler, ThreadType threadType = ThreadType.PublisherThread);
-
-        void ConnectionStatusChangeOccured(Action<ConnectionStatusChange> connectionStatusChangeHandler, ThreadType threadType = ThreadType.PublisherThread);
-
-
-        void InitializationChangeFired(InitializationChange initializationChange);
-
-
-        //void PumpRequestFired(PumpRequest pumpRequest); 
-        
-        //void PumpChangeFired(PumpChange pumpChange);
-
-
-        //void PidRequestFired(PidRequest pidRequest);
-
-        //void PidChangeFired(PidChange pidChange);
-
-        
-        void SsrChangeFired(SsrChange ssrChange);
-
-        void ConnectionStatusRequestFired(ConnectionStatusRequest connectionStatusRequest);
-
-        void ConnectionStatusChangeFired(ConnectionStatusChange connectionStatusChange);
-
-
-
-
-
-
-
-
         void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState;
 
         void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateChangeHandler,
@@ -75,7 +29,5 @@ namespace BF.Service.Events {
         void ComponentStateRequestOccured<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
                                                 ThreadType threadType = ThreadType.PublisherThread) where T : UpdateableComponentState;
     }
-
-
 
 }

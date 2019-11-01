@@ -8,4 +8,17 @@ namespace BF.Common.States {
 
     }
 
+    public static class PumpStateHelper {
+
+        public static PumpState Clone(this PumpState pumpState) {
+            return new PumpState {
+                IsEngaged = pumpState.IsEngaged,
+                Timestamp = pumpState.Timestamp
+            };
+        }
+
+        public static bool IsDifferent(this PumpState pumpState, PumpState requestPumpState) {
+            return pumpState.IsEngaged != requestPumpState.IsEngaged;
+        }
+    }
 }

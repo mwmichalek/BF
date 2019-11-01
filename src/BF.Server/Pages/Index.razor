@@ -13,7 +13,7 @@
 @using Syncfusion.EJ2.Blazor.Inputs
 @using Syncfusion.EJ2.Blazor.Lists
 @using BF.Service.Events
-@using BF.Service.Components
+@using BF.Services.Components
 @using BF.Server.Components
 
 <div class="container">
@@ -55,15 +55,10 @@
     string Message = "";
 
     protected override async Task OnInitializedAsync() {
-
-
     }
-
-
 
     async Task SendMessage() {
         //await connection.InvokeAsync("SendMessage", User, Message);
     }
 
 }
-

@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BF.Service.Components {
+namespace BF.Services.Components {
 
     public interface IThermometer {
 
@@ -42,8 +42,6 @@ namespace BF.Service.Components {
         private int _changeEventRetentionInMins = 60 * 6;
 
         private IBeerFactoryEventHandler _eventHandler;
-
-        
 
         public Thermometer(ComponentId id, 
                            IBeerFactoryEventHandler eventHandler,

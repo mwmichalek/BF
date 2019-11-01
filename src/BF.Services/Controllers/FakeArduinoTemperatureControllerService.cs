@@ -19,7 +19,7 @@ using BF.Common.Events;
 using BF.Common.Components;
 using Microsoft.Extensions.Logging;
 using BF.Common.States;
-using BF.Service.Components;
+using BF.Services.Components;
 
 namespace BF.Service.Controllers {
 

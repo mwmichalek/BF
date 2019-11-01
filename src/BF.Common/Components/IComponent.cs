@@ -42,7 +42,14 @@ namespace BF.Common.Components {
 
         public static IList<ComponentId> SsrComponentIds = new List<ComponentId>(new []{ 
             ComponentId.HLT, 
-            ComponentId.BK });
+            ComponentId.BK 
+        });
+
+        public static IList<ComponentId> PumpComponentIds = new List<ComponentId>(new[] {
+            ComponentId.HLT,
+            ComponentId.MT,
+            ComponentId.BK,
+        });
 
         public static T GetById<T>(this List<T> components, ComponentId componentId) where T : IComponent {
             return (T)components.SingleOrDefault(s => s.Id == componentId);

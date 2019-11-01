@@ -2,7 +2,6 @@
 using BF.Common.Events;
 using BF.Common.Ids;
 using BF.Common.States;
-using BF.Service.Components;
 using BF.Service.Events;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,7 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BF.Service.Components {
+namespace BF.Services.Components {
 
     /// <summary>
     /// A (P)roportional, (I)ntegral, (D)erivative Controller
@@ -49,46 +48,6 @@ namespace BF.Service.Components {
             Id = id;
             RegisterEvents();
         }
-
-        //public PidController(ComponentId id, 
-        //                     double temperature, 
-        //                     double setPoint, 
-        //                     IBeerFactoryEventHandler eventHandler, 
-        //                     ILoggerFactory loggerFactory) {
-        //    Logger = loggerFactory.CreateLogger<PidController>();
-        //    _eventHandler = eventHandler;
-        //    Id = id;
-        //    CurrentState = new PidControllerState {
-        //        SetPoint = setPoint,
-        //        Temperature = temperature
-        //    };
-        //    RegisterEvents();
-        //}
-
-        //public PidController(ComponentId id, 
-        //                     double temperature,
-        //                     double setPoint, 
-        //                     double gainProportional, 
-        //                     double gainIntegral, 
-        //                     double gainDerivative,
-        //                     IBeerFactoryEventHandler eventHandler, 
-        //                     ILoggerFactory loggerFactory) {
-        //    Logger = loggerFactory.CreateLogger<PidController>();
-        //    _eventHandler = eventHandler;
-        //    if (_outputMax < _outputMin)
-        //        throw new FormatException("OutputMax is less than OutputMin");
-        //    Id = id;
-        //    //Ssr = ssr;
-        //    CurrentState = new PidControllerState {
-        //        SetPoint = setPoint,
-        //        Temperature = temperature,
-        //        GainDerivative = gainDerivative,
-        //        GainIntegral = gainIntegral,
-        //        GainProportional = gainProportional
-        //    };
-            
-        //    RegisterEvents();
-        //}
 
         private void RegisterEvents() {
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
