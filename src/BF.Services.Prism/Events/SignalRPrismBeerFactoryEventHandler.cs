@@ -92,9 +92,6 @@ namespace BF.Services.Prism.Events {
                            base.ComponentStateRequestFiring((ComponentStateRequest<BFState>)componentStateRequest);
                    });
 
-
-
-
                 _connection.Reconnected += OnConnection;
 
                 await _connection.StartAsync();
