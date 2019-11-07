@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BF.Server.Hubs {
 
-    //[Authorize]
+    [Authorize]
     public class BFHub : Hub {
 
         private IBeerFactoryEventHandler _eventHandler;
@@ -23,6 +23,8 @@ namespace BF.Server.Hubs {
 
         public override Task OnConnectedAsync() {
             var connectionId = Context.ConnectionId;
+
+
             return base.OnConnectedAsync();
         }
 
@@ -49,23 +51,23 @@ namespace BF.Server.Hubs {
 
     }
 
-    public class ComponentRestrictedRequirement : 
-                    AuthorizationHandler<ComponentRestrictedRequirement, HubInvocationContext>,
-                    IAuthorizationRequirement {
+    //public class ComponentRestrictedRequirement : 
+    //                AuthorizationHandler<ComponentRestrictedRequirement, HubInvocationContext>,
+    //                IAuthorizationRequirement {
 
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
-                                                       ComponentRestrictedRequirement requirement,
-                                                       HubInvocationContext resource) {
-            if (IsComponentAllowedToDoThis(resource.HubMethodName, context.User.Identity.Name) &&
-                context.User.Identity.Name.EndsWith("@microsoft.com")) {
-                context.Succeed(requirement);
-            }
-            return Task.CompletedTask;
-        }
+    //    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
+    //                                                   ComponentRestrictedRequirement requirement,
+    //                                                   HubInvocationContext resource) {
+    //        if (IsComponentAllowedToDoThis(resource.HubMethodName, context.User.Identity.Name) &&
+    //            context.User.Identity.Name.EndsWith("@microsoft.com")) {
+    //            context.Succeed(requirement);
+    //        }
+    //        return Task.CompletedTask;
+    //    }
 
-        private bool IsComponentAllowedToDoThis(string hubMethodName, string currentUsername) {
-            return !(currentUsername.Equals("asdf42@microsoft.com") &&
-                hubMethodName.Equals("banUser", StringComparison.OrdinalIgnoreCase));
-        }
-    }
+    //    private bool IsComponentAllowedToDoThis(string hubMethodName, string currentUsername) {
+    //        return !(currentUsername.Equals("asdf42@microsoft.com") &&
+    //            hubMethodName.Equals("banUser", StringComparison.OrdinalIgnoreCase));
+    //    }
+    //}
 }

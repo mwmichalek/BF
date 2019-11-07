@@ -20,7 +20,10 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Enrichers.AzureWebApps;
 using Serilog.Exceptions;
-using Bazinga.AspNetCore.Authentication.Basic;
+using ZNetCS.AspNetCore.Authentication.Basic;
+using ZNetCS.AspNetCore.Authentication.Basic.Events;
+using System.Security.Claims;
+using BF.Services.Configuration;
 
 namespace BF.Server {
     public class Startup {
@@ -44,7 +47,7 @@ namespace BF.Server {
                                                 //.WriteTo.Trace()
                                                 //.WriteTo.Debug()
                                                 .WriteTo.LiterateConsole();
-
+            services.AddSingleton<IApplicationConfig>(Configuration.FromIConfiguration());
             services.AddRazorPages();
             services.AddSignalR();
             services.AddServerSideBlazor();
@@ -52,16 +55,52 @@ namespace BF.Server {
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<IEventAggregator, EventAggregator>();
             services.AddSingleton<IBeerFactoryEventHandler, SignalRPrismBeerFactoryEventHandler>();
+
+
+
+            services
+                .AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
+                .AddBasicAuthentication(
+                    options => {
+                        options.Realm = "BeerFactory";
+                        options.Events = new BasicAuthenticationEvents {
+                            OnValidatePrincipal = context => {
+                                if ((context.UserName == "raspberrypi") && (context.Password == "AoZ6WC7IMSBk!wq!e18NOCDI1!p6")) {
+                                    var claims = new List<Claim> {
+                                        new Claim(ClaimTypes.Name, context.UserName, context.Options.ClaimsIssuer)
+                                    };
+
+                                    var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, context.Scheme.Name));
+                                    context.Principal = principal;
+                                } else if ((context.UserName == "server") && (context.Password == "AoZ6WC7IMSBk!wq!e18NOCDI1!p6")) {
+                                    var claims = new List<Claim> {
+                                        new Claim(ClaimTypes.Name, context.UserName, context.Options.ClaimsIssuer)
+                                    };
+
+                                    var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, context.Scheme.Name));
+                                    context.Principal = principal;
+                                } else {
+                                    // optional with following default.
+                                    // context.AuthenticationFailMessage = "Authentication failed."; 
+                                }
+
+                                return Task.CompletedTask;
+                            }
+                        };
+                    });
+
+            //services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
+            //    .AddBasicAuthentication(credentials => Task.FromResult(
+            //        (credentials.username == "SomeUserName"
+            //        && credentials.password == "SomePassword") ||
+            //        (credentials.username == "cock"
+            //        && credentials.password == "ballz")));
+
             //services.AddAuthorization(options => {
             //    options.AddPolicy("ComponentRestricted", policy => {
             //        policy.Requirements.Add(new ComponentRestrictedRequirement());
             //    });
             //});
-
-            //services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
-            //    .AddBasicAuthentication(credentials => Task.FromResult(
-            //        credentials.username == "SomeUserName"
-            //        && credentials.password == "SomePassword"));
 
             Log.Logger = loggerConfiguration.CreateLogger();
 
@@ -69,13 +108,6 @@ namespace BF.Server {
         }
 
         private void ConfigureBeerFactory(IServiceCollection services) {
-
-
-            //services.AddSingleton<>
-
-
-
-
 
         }
 
@@ -96,7 +128,8 @@ namespace BF.Server {
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseRouting();
 
             app.UseEndpoints(endpoints => {
@@ -104,8 +137,6 @@ namespace BF.Server {
                 endpoints.MapFallbackToPage("/_Host");
                 endpoints.MapHub<BFHub>("/bfHub");
             });
-
-            //app.UseAuthentication();
 
             HubConnectionHelper.Environment = "Server";
             HubConnectionHelper.Logger = loggerFactory.CreateLogger("HubConnectionHelper");

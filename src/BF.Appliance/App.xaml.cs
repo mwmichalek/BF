@@ -22,6 +22,8 @@ using Serilog.Exceptions;
 using BF.Common.Components;
 using BF.Common.Ids;
 using BF.Services.Components;
+using BF.Services.Configuration;
+using Windows.ApplicationModel.Resources.Core;
 
 namespace BF.Appliance {
     [Windows.UI.Xaml.Data.Bindable]
@@ -46,6 +48,12 @@ namespace BF.Appliance {
             //                                    //.WriteTo.Debug()
             //                                    .WriteTo.LiterateConsole();
 
+
+
+
+
+            
+
             var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.Trace();
@@ -58,6 +66,7 @@ namespace BF.Appliance {
 
             Container.RegisterInstance<ILoggerFactory>(loggerFactory);
 
+            
             Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
 
          
@@ -66,10 +75,16 @@ namespace BF.Appliance {
             var msLogger = loggerFactory.CreateLogger("HubConnectionHelper");
             HubConnectionHelper.Logger = msLogger;
 
+            //var resourceLoader = Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView("ApplicationConfig.RaspberryPI");
+            //var balls = resourceLoader.GetString("BFHub_Credentials_Password");
+
             Log.Information("Initialization complete.");
         }
 
         private void ConfigureBeerFactory(ILoggerFactory loggerFactory) {
+
+            Container.RegisterInstance<IApplicationConfig>(ApplicationConfiguration.FromResourceLoader(), new ContainerControlledLifetimeManager());
+
             Container.RegisterType<IBeerFactoryEventHandler, SignalRPrismBeerFactoryEventHandler>(new ContainerControlledLifetimeManager());
             var eventHandler = Container.Resolve<IBeerFactoryEventHandler>();
 

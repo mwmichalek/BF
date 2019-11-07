@@ -338,3 +338,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/src/BF.Appliance/Strings/en-us/ApplicationConfig.resw
+/src/BF.Appliance/Strings/en-us/ApplicationConfig.RaspberryPI-PC.resw
+/src/BF.Appliance/Strings/en-us/ApplicationConfig.RaspberryPI.resw

@@ -3,8 +3,11 @@ using BF.Common.Events;
 using BF.Common.States;
 using BF.Service.Events;
 using BF.Service.Prism.Events;
+using BF.Services.Configuration;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Prism.Events;
@@ -22,11 +25,14 @@ namespace BF.Services.Prism.Events {
 
         private ILogger Logger { get; set; }
 
+        private IApplicationConfig _applicationConfig { get; set; }
+
         private HubConnection _connection;
 
-        public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory) : 
+        public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory, IApplicationConfig applicationConfig) : 
             base(eventAggregator, loggerFactory) {
             Logger = loggerFactory.CreateLogger<SignalRPrismBeerFactoryEventHandler>();
+            _applicationConfig = applicationConfig;
             Task.Run(() => Connect());
         }
 
@@ -34,17 +40,26 @@ namespace BF.Services.Prism.Events {
             
             try {
 
+
+                //var pw = Config["BFHub:Credentials:Password"];
+
+                var credential = Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes("cock" + ":" + "ballsz"));
+
                 if (DeviceHelper.GetDevice() == Device.Server || DeviceHelper.GetDevice() == Device.RaspberryPi) {
                     _connection = new HubConnectionBuilder()
-                        .WithUrl("https://emrsd-ws-bf.azurewebsites.net/bfHub?username=ballz",
+                        .WithUrl("https://emrsd-ws-bf.azurewebsites.net/bfHub",
                         options => {
-                            options.Headers.Add("Authorization", "Basic eatmyasshole");
+                            options.Headers.Add("Authorization", $"Basic {credential}");
+            
                         })
                         .WithAutomaticReconnect()
+                        .AddJsonProtocol()
                         .Build();
                 } else {
                     _connection = new HubConnectionBuilder()
-                        .WithUrl("https://localhost:44355/bfHub?username=ballz", options => {
+                        .WithUrl("https://localhost:44355/bfHub", 
+                        options => {
+                            options.Headers.Add("Authorization", $"Basic {credential}");
                             options.HttpMessageHandlerFactory = (handler) => {
                                 if (handler is HttpClientHandler clientHandler) {
                                     clientHandler.ServerCertificateCustomValidationCallback = ValidateCertificate;
@@ -53,6 +68,7 @@ namespace BF.Services.Prism.Events {
                             };
                         })
                         .WithAutomaticReconnect()
+                        .AddJsonProtocol()
                         .Build();
                 }
 
@@ -161,6 +177,11 @@ namespace BF.Services.Prism.Events {
             if (IsVerbose) Logger?.LogDebug($"{Environment} : {eventPayload.GetType().Name}");
             return (T)eventPayload;
         }
-        
+
+        public static string Base64Encode(string plainText) {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
+
     }
 }

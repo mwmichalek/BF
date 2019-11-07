@@ -166,6 +166,8 @@
   <ItemGroup>
     <None Include=".editorconfig" />
     <None Include="BF.Appliance_TemporaryKey.pfx" />
+    <PRIResource Include="Strings\en-us\ApplicationConfig.RaspberryPI.resw" />
+    <PRIResource Include="Strings\en-us\ApplicationConfig.RaspberryPI-PC.resw" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
