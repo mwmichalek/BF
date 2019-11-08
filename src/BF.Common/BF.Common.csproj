@@ -5,6 +5,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Events\ConnectionStatusChange.cs" />
+    <Compile Remove="Events\ConnectionStatusRequest.cs" />
+    <Compile Remove="Events\HeaterChange.cs" />
+    <Compile Remove="Events\InitializationChange.cs" />
+    <Compile Remove="Events\PidChange.cs" />
+    <Compile Remove="Events\PidRequest.cs" />
+    <Compile Remove="Events\PumpChange.cs" />
+    <Compile Remove="Events\PumpRequest.cs" />
+    <Compile Remove="Events\SsrChange.cs" />
+    <Compile Remove="Events\TemperatureChange.cs" />
+    <Compile Remove="Events\ThermometerChange.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
   </ItemGroup>
 

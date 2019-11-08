@@ -75,4 +75,10 @@ namespace BF.Common.States {
             return clone;
         }
     }
+
+    public enum PidMode {
+        Temperature,
+        Percentage,
+        Unknown
+    }
 }

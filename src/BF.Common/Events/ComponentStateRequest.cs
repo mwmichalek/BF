@@ -13,6 +13,8 @@ namespace BF.Common.Events {
 
         public T RequestState { get; set; }
 
+        public string UserName { get; set; }
+
     }
 
     public static class ComponentStateRequestHelper {
