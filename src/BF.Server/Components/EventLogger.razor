@@ -26,6 +26,9 @@ MESSAGES!
         _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
         _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured);
         _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured);
+        _eventHandler.ComponentStateChangeOccured<ConnectionState>(ConnectionStateChangeOccured);
+
+
         //_beerFactoryEventHandler.ComponentStateChangeOccured<PumpState>(PumpStateChangeOccured);
 
         _eventHandler.ComponentStateRequestOccured<PidControllerState>(PidControllerStateRequestOccured);
@@ -51,6 +54,11 @@ MESSAGES!
 
     void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
         Messages.Insert(0, $"SsrChangeOccured: {ssrStateChange.Id} - {ssrStateChange.CurrentState.Percentage} {ssrStateChange.CurrentState.IsEngaged}");
+        InvokeAsync(() => StateHasChanged());
+    }
+
+    void ConnectionStateChangeOccured(ComponentStateChange<ConnectionState> connectionStateChange) {
+        Messages.Insert(0, $"ConnectionChangeOccured: {connectionStateChange.FromUserName} - {connectionStateChange.CurrentState.Status}");
         InvokeAsync(() => StateHasChanged());
     }
 

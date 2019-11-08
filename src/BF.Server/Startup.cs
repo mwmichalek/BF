@@ -65,15 +65,17 @@ namespace BF.Server {
                         options.Realm = "BeerFactory";
                         options.Events = new BasicAuthenticationEvents {
                             OnValidatePrincipal = context => {
-                                // TODO: Read this from configuration
-                                if ((context.UserName == "raspberrypi") && (context.Password == "AoZ6WC7IMSBk!wq!e18NOCDI1!p6")) {
+
+                                if ((context.UserName == Configuration["BFAppliance:Credentials:UserName"]) && 
+                                    (context.Password == Configuration["BFAppliance:Credentials:Password"])) {
                                     var claims = new List<Claim> {
                                         new Claim(ClaimTypes.Name, context.UserName, context.Options.ClaimsIssuer)
                                     };
 
                                     var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, context.Scheme.Name));
                                     context.Principal = principal;
-                                } else if ((context.UserName == "server") && (context.Password == "AoZ6WC7IMSBk!wq!e18NOCDI1!p6")) {
+                                } else if ((context.UserName == Configuration["BFHub:Credentials:UserName"]) && 
+                                           (context.Password == Configuration["BFHub:Credentials:Password"])) {
                                     var claims = new List<Claim> {
                                         new Claim(ClaimTypes.Name, context.UserName, context.Options.ClaimsIssuer)
                                     };

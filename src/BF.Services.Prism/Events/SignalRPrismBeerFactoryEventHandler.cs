@@ -40,8 +40,8 @@ namespace BF.Services.Prism.Events {
             
             try {
                 //var pw = Config["BFHub:Credentials:Password"];
-
-                var credential = Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes("cock" + ":" + "ballsz"));
+                var credentailString = $"{_applicationConfig.UserName}:{_applicationConfig.Password}";
+                var credential = Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes(credentailString));
 
                 if (DeviceHelper.GetDevice() == Device.Server || DeviceHelper.GetDevice() == Device.RaspberryPi) {
                     _connection = new HubConnectionBuilder()
@@ -85,6 +85,8 @@ namespace BF.Services.Prism.Events {
                            base.ComponentStateChangeFiring((ComponentStateChange<PumpState>)componentStateChange);
                        if (componentStateType == typeof(ComponentStateChange<SsrState>))
                            base.ComponentStateChangeFiring((ComponentStateChange<SsrState>)componentStateChange);
+                       if (componentStateType == typeof(ComponentStateChange<ConnectionState>))
+                           base.ComponentStateChangeFiring((ComponentStateChange<ConnectionState>)componentStateChange);
                        if (componentStateType == typeof(ComponentStateChange<BFState>))
                            base.ComponentStateChangeFiring((ComponentStateChange<BFState>)componentStateChange);
                    });
@@ -129,7 +131,7 @@ namespace BF.Services.Prism.Events {
         }
 
         public override void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) {
-            componentStateRequest.UserName = _applicationConfig.UserName;
+            componentStateRequest.FromUserName = _applicationConfig.UserName;
             if (_connection.IsConnected()) {
                 _connection.InvokeAsync("ComponentStateRequestBroadcasted",
                                         componentStateRequest.GetType().ToString(),

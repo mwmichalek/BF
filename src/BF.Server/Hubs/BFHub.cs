@@ -1,4 +1,5 @@
 ﻿using BF.Common.Events;
+using BF.Common.States;
 using BF.Service.Events;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -21,15 +22,39 @@ namespace BF.Server.Hubs {
             _eventHandler = eventHandler;
         }
 
-        public override Task OnConnectedAsync() {
-            var connectionId = Context.ConnectionId;
+        public override async Task OnConnectedAsync() {
+            var userName = Context.User.Identity.Name;
 
+            var componentStateChange = new ComponentStateChange<ConnectionState> {
+                FromUserName = userName,
+                CurrentState = new ConnectionState {
+                    Status = ConnectionStatus.Connected
+                }
+            };
+            logger.LogInformation($"User connected: {userName}");
+            await Clients.All.SendAsync("ComponentStateChangeReceived",
+                                           componentStateChange.GetType().ToString(),
+                                           componentStateChange.ToJson());
 
-            return base.OnConnectedAsync();
+            //return base.OnConnectedAsync();
         }
 
-        public override Task OnDisconnectedAsync(Exception exception) {
-            return base.OnDisconnectedAsync(exception);
+        public override async Task OnDisconnectedAsync(Exception exception) {
+            var userName = Context.User.Identity.Name;
+
+            var componentStateChange = new ComponentStateChange<ConnectionState> {
+                FromUserName = userName,
+                CurrentState = new ConnectionState {
+                    Status = ConnectionStatus.Disconnected
+                }
+            };
+            logger.LogInformation($"User disconnected: {userName}");
+
+            await Clients.All.SendAsync("ComponentStateChangeReceived",
+                                           componentStateChange.GetType().ToString(),
+                                           componentStateChange.ToJson());
+
+            //return base.OnDisconnectedAsync(exception);
         }
 
         public async Task ComponentStateChangeBroadcasted(string componentStateType, string componentStateChangeJson) {

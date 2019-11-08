@@ -13,7 +13,9 @@ namespace BF.Common.Events {
 
         public T RequestState { get; set; }
 
-        public string UserName { get; set; }
+        public string ToUserName { get; set; }
+
+        public string FromUserName { get; set; }
 
     }
 
