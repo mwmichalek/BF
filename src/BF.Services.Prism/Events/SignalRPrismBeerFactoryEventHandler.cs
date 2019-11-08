@@ -39,8 +39,6 @@ namespace BF.Services.Prism.Events {
         public virtual async Task Connect() {
             
             try {
-
-
                 //var pw = Config["BFHub:Credentials:Password"];
 
                 var credential = Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes("cock" + ":" + "ballsz"));
@@ -131,6 +129,7 @@ namespace BF.Services.Prism.Events {
         }
 
         public override void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) {
+            componentStateRequest.UserName = _applicationConfig.UserName;
             if (_connection.IsConnected()) {
                 _connection.InvokeAsync("ComponentStateRequestBroadcasted",
                                         componentStateRequest.GetType().ToString(),

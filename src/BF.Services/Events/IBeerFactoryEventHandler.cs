@@ -1,4 +1,5 @@
-﻿using BF.Common.Events;
+﻿using BF.Common.Components;
+using BF.Common.Events;
 using BF.Common.States;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,10 @@ namespace BF.Service.Events {
 
     public interface IBeerFactoryEventHandler {
 
+        ComponentState CurrentComponentState<T>(ComponentId componentId) where T : ComponentState;
+
+        IList<ComponentState> CurrentComponentStates<T>() where T : ComponentState;
+
         void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState;
 
         void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateChangeHandler,
@@ -29,5 +34,7 @@ namespace BF.Service.Events {
         void ComponentStateRequestOccured<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
                                                 ThreadType threadType = ThreadType.PublisherThread) where T : UpdateableComponentState;
     }
+
+
 
 }

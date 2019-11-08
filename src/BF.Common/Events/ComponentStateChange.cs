@@ -15,9 +15,9 @@ namespace BF.Common.Events {
 
         public T CurrentState { get; set; }
 
-    }
+        public string UserName { get; set; }
 
-    
+    }
 
     public static class ComponentStateChangeHelper {
 

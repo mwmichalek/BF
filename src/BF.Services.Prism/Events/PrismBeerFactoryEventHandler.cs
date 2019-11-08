@@ -1,4 +1,5 @@
-﻿using BF.Common.Events;
+﻿using BF.Common.Components;
+using BF.Common.Events;
 using BF.Common.States;
 using BF.Service.Events;
 using Microsoft.Extensions.Logging;
@@ -36,9 +37,23 @@ namespace BF.Service.Prism.Events {
             Logger = loggerFactory.CreateLogger<IBeerFactoryEventHandler>();
         }
 
+        private Dictionary<Tuple<Type, ComponentId>, ComponentState> _currentComponentStates = new Dictionary<Tuple<Type, ComponentId>, ComponentState>();
+
+        public virtual ComponentState CurrentComponentState<T>(ComponentId componentId) where T : ComponentState {
+            var key = Tuple.Create(typeof(T), componentId);
+            if (_currentComponentStates.ContainsKey(key))
+                return _currentComponentStates[key];
+            return null;
+        }
+
+        public IList<ComponentState> CurrentComponentStates<T>() where T : ComponentState {
+            return _currentComponentStates.Values.Where(cs => cs.GetType() == typeof(T)).ToList();
+        }
+
         //*****************************************************************************
 
         public virtual void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState {
+            _currentComponentStates[Tuple.Create(typeof(T), componentStateChange.Id)] = componentStateChange.CurrentState;
             _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Publish(componentStateChange);
         }
 
@@ -59,5 +74,6 @@ namespace BF.Service.Prism.Events {
         }
 
     }
+
 
 }

@@ -65,6 +65,7 @@ namespace BF.Server {
                         options.Realm = "BeerFactory";
                         options.Events = new BasicAuthenticationEvents {
                             OnValidatePrincipal = context => {
+                                // TODO: Read this from configuration
                                 if ((context.UserName == "raspberrypi") && (context.Password == "AoZ6WC7IMSBk!wq!e18NOCDI1!p6")) {
                                     var claims = new List<Claim> {
                                         new Claim(ClaimTypes.Name, context.UserName, context.Options.ClaimsIssuer)
@@ -88,19 +89,6 @@ namespace BF.Server {
                             }
                         };
                     });
-
-            //services.AddAuthentication(BasicAuthenticationDefaults.AuthenticationScheme)
-            //    .AddBasicAuthentication(credentials => Task.FromResult(
-            //        (credentials.username == "SomeUserName"
-            //        && credentials.password == "SomePassword") ||
-            //        (credentials.username == "cock"
-            //        && credentials.password == "ballz")));
-
-            //services.AddAuthorization(options => {
-            //    options.AddPolicy("ComponentRestricted", policy => {
-            //        policy.Requirements.Add(new ComponentRestrictedRequirement());
-            //    });
-            //});
 
             Log.Logger = loggerConfiguration.CreateLogger();
 
