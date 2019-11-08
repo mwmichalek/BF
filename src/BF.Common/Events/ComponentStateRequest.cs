@@ -26,5 +26,6 @@ namespace BF.Common.Events {
         public static string ToJson<T>(this ComponentStateRequest<T> componentStateRequest) where T : UpdateableComponentState {
             return JsonConvert.SerializeObject(componentStateRequest);
         }
+
     }
 }
