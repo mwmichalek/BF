@@ -7,6 +7,8 @@
 @using BF.Common.States
 
 <div class="content-wrapper" style="height: 100%;">
+    <h2>[ @SetPoint ]</h2>
+
     <EjsSlider Orientation="@SliderOrientation.Vertical"
                 Type=SliderType.MinRange
                 Value="@SetPoint"
@@ -20,7 +22,11 @@
                         OnChange="@SetPointChange" />
 
     </EjsSlider>
+
+
 </div>
+
+
 
 @code {
 
@@ -30,18 +36,35 @@
     [Inject]
     IBeerFactoryEventHandler _eventHandler { get; set; }
 
-    public int SetPoint { get; set; }
+    public double SetPoint { get; set; } = 60;
 
     protected override async Task OnInitializedAsync() {
+        _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (firstRender) {
+            var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
+            SetPoint = pidControllerState.SetPoint;
+            await InvokeAsync(() => StateHasChanged());
+        }
+    }
+
+    public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
+        if (componentStateChange.Id == ComponentId && 
+            SetPoint != componentStateChange.CurrentState.SetPoint) {
+            SetPoint = componentStateChange.CurrentState.SetPoint;
+            InvokeAsync(() => StateHasChanged());
+        }
     }
 
     void SetPointChange(SliderChangeEventArgs<int> eventArgs) {
-        SetPoint = eventArgs.Value;
+        //SetPoint = eventArgs.Value;
 
         _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
             Id = ComponentId.HLT,
             RequestState = new PidControllerState {
-                SetPoint = SetPoint
+                SetPoint = eventArgs.Value
             }
         });
 

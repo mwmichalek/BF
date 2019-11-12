@@ -61,7 +61,7 @@
         if (firstRender) {
             var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
             SetPoint = pidControllerState.SetPoint;
-            InvokeAsync(() => StateHasChanged());
+            await InvokeAsync(() => StateHasChanged());
         }
     }
 
