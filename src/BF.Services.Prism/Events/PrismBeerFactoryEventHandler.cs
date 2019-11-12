@@ -2,6 +2,7 @@
 using BF.Common.Events;
 using BF.Common.States;
 using BF.Service.Events;
+using BF.Services.Configuration;
 using Microsoft.Extensions.Logging;
 using Prism.Events;
 using Prism.Mvvm;
@@ -32,10 +33,23 @@ namespace BF.Service.Prism.Events {
 
         protected IEventAggregator _eventAggregator;
 
-        public PrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory) {
+        protected IApplicationConfig _applicationConfig { get; set; }
+
+        public PrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory, IApplicationConfig applicationConfig) {
             _eventAggregator = eventAggregator;
+            _applicationConfig = applicationConfig;
             Logger = loggerFactory.CreateLogger<IBeerFactoryEventHandler>();
+
+            if (_applicationConfig.Device == Device.RaspberryPi ||
+                _applicationConfig.Device == Device.RaspberryPi_PC)
+                this.ComponentStateChangeOccured<ConnectionState>(ConnectionStateHandler);
+
+            if (_applicationConfig.Device == Device.Server ||
+                _applicationConfig.Device == Device.Server_PC)
+                this.ComponentStateChangeOccured<BFState>(BFStateHandler);
         }
+
+        
 
         private Dictionary<Tuple<Type, ComponentId>, ComponentState> _currentComponentStates = new Dictionary<Tuple<Type, ComponentId>, ComponentState>();
 
@@ -48,6 +62,39 @@ namespace BF.Service.Prism.Events {
 
         public IList<ComponentState> CurrentComponentStates<T>() where T : ComponentState {
             return _currentComponentStates.Values.Where(cs => cs.GetType() == typeof(T)).ToList();
+        }
+
+        private void ConnectionStateHandler(ComponentStateChange<ConnectionState> connectionStateChange) {
+
+            var bfState = new BFState {
+                SsrStates = _currentComponentStates.ToDictionary<SsrState>(),
+                ThermometerStates = _currentComponentStates.ToDictionary<ThermometerState>(),
+                PidControllerStates = _currentComponentStates.ToDictionary<PidControllerState>(),
+                PumpStates = _currentComponentStates.ToDictionary<PumpState>()
+            };
+            ComponentStateChangeFiring(new ComponentStateChange<BFState> {
+                CurrentState = bfState
+            });
+
+            Logger.LogInformation($"Send entire buttload: {_applicationConfig.Device}");
+        }
+
+        private void BFStateHandler(ComponentStateChange<BFState> bfStateChange) {
+            
+
+            foreach (var state in bfStateChange.CurrentState.SsrStates)
+                ComponentStateChangeFiring(state.ToComponentStateChange());
+
+            foreach (var state in bfStateChange.CurrentState.ThermometerStates)
+                ComponentStateChangeFiring(state.ToComponentStateChange());
+
+            foreach (var state in bfStateChange.CurrentState.PidControllerStates)
+                ComponentStateChangeFiring(state.ToComponentStateChange());
+
+            foreach (var state in bfStateChange.CurrentState.PumpStates)
+                ComponentStateChangeFiring(state.ToComponentStateChange());
+
+            Logger.LogInformation($"Receive entire buttload : {_applicationConfig.Device}");
         }
 
         //*****************************************************************************

@@ -24,6 +24,8 @@ using BF.Common.Ids;
 using BF.Services.Components;
 using BF.Services.Configuration;
 using Windows.ApplicationModel.Resources.Core;
+using BF.Common.States;
+using BF.Common.Events;
 
 namespace BF.Appliance {
     [Windows.UI.Xaml.Data.Bindable]
@@ -98,24 +100,56 @@ namespace BF.Appliance {
                 Container.RegisterType<Thermometer>($"{componentId}",
                                                     new ContainerControlledLifetimeManager(),
                                                     new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
+                eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermometerState> {
+                    Id = componentId,
+                    CurrentState = new ThermometerState {
+                        Temperature = 0
+                    }
+                });
             }
+
+
 
             foreach (var componentId in ComponentHelper.SsrComponentIds) {
                 Container.RegisterType<Ssr>($"{componentId}",
                                             new ContainerControlledLifetimeManager(),
                                             new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
+                eventHandler.ComponentStateChangeFiring(new ComponentStateChange<SsrState> {
+                    Id = componentId,
+                    CurrentState = new SsrState {
+                        Percentage = 0,
+                        IsFiring = false,
+                        IsEngaged = false
+                    }
+                }); 
             }
 
             foreach (var componentId in ComponentHelper.PidComponentIds) {
                 Container.RegisterType<PidController>($"{componentId}",
                                                       new ContainerControlledLifetimeManager(),
                                                       new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
+
+                // TODO: We need to see the PID parameters somehow.
+
+                eventHandler.ComponentStateChangeFiring(new ComponentStateChange<PidControllerState> {
+                    Id = componentId,
+                    CurrentState = new PidControllerState {
+                        PidMode = PidMode.Temperature,
+                        SetPoint = 90
+                    }
+                });
             }
 
             foreach (var componentId in ComponentHelper.PumpComponentIds) {
                 Container.RegisterType<Pump>($"{componentId}",
                                              new ContainerControlledLifetimeManager(),
                                              new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
+                eventHandler.ComponentStateChangeFiring(new ComponentStateChange<PumpState> {
+                    Id = componentId,
+                    CurrentState = new PumpState {
+                        IsEngaged = false
+                    }
+                });
             }
 
             Container.RegisterType<BeerFactory>(new ContainerControlledLifetimeManager());

@@ -25,14 +25,14 @@ namespace BF.Services.Prism.Events {
 
         private ILogger Logger { get; set; }
 
-        private IApplicationConfig _applicationConfig { get; set; }
+        
 
         private HubConnection _connection;
 
         public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory, IApplicationConfig applicationConfig) : 
-            base(eventAggregator, loggerFactory) {
+            base(eventAggregator, loggerFactory, applicationConfig) {
             Logger = loggerFactory.CreateLogger<SignalRPrismBeerFactoryEventHandler>();
-            _applicationConfig = applicationConfig;
+            
             Task.Run(() => Connect());
         }
 

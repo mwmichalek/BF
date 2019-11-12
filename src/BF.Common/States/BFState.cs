@@ -7,13 +7,13 @@ namespace BF.Common.States {
 
     public class BFState : UpdateableComponentState {
 
-        public Dictionary<ComponentId, SsrState> SsrStates { get; set; }
+        public IDictionary<ComponentId, SsrState> SsrStates { get; set; }
 
-        public Dictionary<ComponentId, ThermometerState> ThermometerStates { get; set; }
+        public IDictionary<ComponentId, ThermometerState> ThermometerStates { get; set; }
 
-        public Dictionary<ComponentId, PidControllerState> PidControllerStates { get; set; }
+        public IDictionary<ComponentId, PidControllerState> PidControllerStates { get; set; }
 
-        public Dictionary<ComponentId, PumpState> PumpStates { get; set; }
+        public IDictionary<ComponentId, PumpState> PumpStates { get; set; }
 
     }
 }

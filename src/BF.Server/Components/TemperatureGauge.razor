@@ -12,7 +12,7 @@
                 <CircularGaugePointer Value="@Temperature">
                 </CircularGaugePointer>
                 <CircularGaugePointer Type="PointerType.RangeBar" Value="@SetPoint" Radius="60%" Color="#8BC34A" PointerWidth="7" RoundedCornerRadius="10">
-                    <CircularGaugePointerAnimation Enable="false" Duration="0">
+                    <CircularGaugePointerAnimation Enable="true" Duration="1">
                     </CircularGaugePointerAnimation>
                 </CircularGaugePointer>
             </CircularGaugePointers>
@@ -34,6 +34,10 @@
     </CircularGaugeAxes>
 </EjsCircularGauge>
 
+
+<h2>@SetPoint</h2>
+
+
 @code {
 
     [Parameter]
@@ -51,6 +55,14 @@
     protected override async Task OnInitializedAsync() {
         _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured);
         _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (firstRender) {
+            var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
+            SetPoint = pidControllerState.SetPoint;
+            InvokeAsync(() => StateHasChanged());
+        }
     }
 
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {

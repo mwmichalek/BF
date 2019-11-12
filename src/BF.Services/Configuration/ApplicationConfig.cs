@@ -17,6 +17,8 @@ namespace BF.Services.Configuration {
 
         bool IsLocal { get; }
 
+        Device Device { get; set; }
+
     }
 
     public class ApplicationConfig : IApplicationConfig {
@@ -29,6 +31,8 @@ namespace BF.Services.Configuration {
 
         public bool IsLocal { get; set;}
 
+        public Device Device { get; set; }
+
     }
 
     public static class ApplicationConfiguration {
@@ -38,7 +42,8 @@ namespace BF.Services.Configuration {
                 SignalRUrl = configuration["BFHub:Url"],
                 UserName = configuration["BFHub:Credentials:UserName"],
                 Password = configuration["BFHub:Credentials:Password"],
-                IsLocal = bool.Parse(configuration["BFHub:Local"])
+                IsLocal = bool.Parse(configuration["BFHub:Local"]),
+                Device = DeviceHelper.GetDevice()
             };
         }
 
@@ -47,7 +52,8 @@ namespace BF.Services.Configuration {
                 SignalRUrl = "https://localhost:44355/bfHub",
                 UserName = "raspberrypi",
                 Password = "BlaBlah",
-                IsLocal = true
+                IsLocal = true,
+                Device = DeviceHelper.GetDevice()
             };
         }
 
@@ -60,7 +66,8 @@ namespace BF.Services.Configuration {
                 SignalRUrl = resourceLoader.GetString("BFHub_Url"),
                 UserName = resourceLoader.GetString("BFHub_Credentials_UserName"),
                 Password = resourceLoader.GetString("BFHub_Credentials_Password"),
-                IsLocal = bool.Parse(resourceLoader.GetString("BFHub_Local"))
+                IsLocal = bool.Parse(resourceLoader.GetString("BFHub_Local")),
+                Device = DeviceHelper.GetDevice()
             };
         }
     }
