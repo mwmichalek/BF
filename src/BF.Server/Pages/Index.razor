@@ -16,37 +16,43 @@
 @using BF.Services.Components
 @using BF.Server.Components
 
-<div class="container">
-    <div class="row">
-        <div class="col-9">
-            <div class="row">
-                <div class="col-12">
-                    
-                    <TemperatureGauge ComponentId="@ComponentId.HLT" />
-                   
+    <div class="container">
+        <div class="row">
+            <div class="col-9">
+                <div class="row">
+                    <div class="col-12">
 
+                        <TemperatureGauge ComponentId="@ComponentId.HLT" />
+
+
+
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <SsrPercentageGauge ComponentId="ComponentId.HLT" />
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12">
-                    <SsrPercentageGauge ComponentId="ComponentId.HLT" />
-                </div>
+            <div class="col-3">
+                <SetPointComponent ComponentId="ComponentId.HLT" />
             </div>
         </div>
-        <div class="col-3">
-            <SetPointComponent ComponentId="ComponentId.HLT" />
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-9">
-            <EventLogger />
-        </div>
-        <div class="col-3">
-            <PumpButton />
-        </div>
+        @*<div class="row">
+            <div class="col-9">
+                <EventLogger />
+            </div>
+            <div class="col-3">
+                <PumpButton />
+            </div>
 
+        </div>*@
+        <div class="row">
+            <div class="col-12">
+                <TemperatureChart  ComponentId="ComponentId.HLT" />
+            </div>
+        </div>
     </div>
-</div>
 
 
 @code {

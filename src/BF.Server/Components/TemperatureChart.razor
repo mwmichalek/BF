@@ -1,0 +1,85 @@
+﻿@using Syncfusion.EJ2.Blazor.Charts
+@using BF.Service.Events
+@using BF.Common.Events
+@using BF.Common.Components
+@using BF.Common.States
+@using System.Collections.ObjectModel
+
+<div class="content-wrapper" style="height: 100%;">
+
+    <EjsChart @ref="Chart"
+              Title="Temperature">
+        @*<ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
+        <ChartPrimaryXAxis ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.DateTime"
+                           LabelFormat="y"
+                           IntervalType="IntervalType.Seconds"
+                           EdgeLabelPlacement="EdgeLabelPlacement.Shift">
+            <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
+        </ChartPrimaryXAxis>
+        <ChartPrimaryYAxis LabelFormat="{value}%"
+                           RangePadding="ChartRangePadding.None"
+                           Minimum="0"
+                           Maximum="100"
+                           Interval="20">
+            <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
+            <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+        </ChartPrimaryYAxis>
+        <ChartTooltipSettings Enable="true"></ChartTooltipSettings>*@
+        <ChartSeriesCollection>
+            <ChartSeries DataSource="@ThermometerStateChanges" Name="Temperature" XName="Timestamp" Width="2"
+                         Opacity="1" YName="Temperature" Type="ChartSeriesType.Line">
+                <ChartMarker Visible="true" Width="10" Height="10">
+                </ChartMarker>
+            </ChartSeries>
+
+        </ChartSeriesCollection>
+    </EjsChart>
+
+</div>
+
+
+
+@code {
+
+    [Parameter]
+    public ComponentId ComponentId { get; set; }
+
+    [Inject]
+    IBeerFactoryEventHandler _eventHandler { get; set; }
+
+    EjsChart Chart { get; set; }
+
+    public ObservableCollection<ThermometerState> ThermometerStateChanges = new ObservableCollection<ThermometerState> {
+        new ThermometerState { Temperature = 24, Timestamp = DateTime.Now.AddSeconds(-60) },
+        new ThermometerState { Temperature = 28, Timestamp = DateTime.Now.AddSeconds(-50) },
+        new ThermometerState { Temperature = 21, Timestamp = DateTime.Now.AddSeconds(-40) },
+        new ThermometerState { Temperature = 20, Timestamp = DateTime.Now.AddSeconds(-30) },
+        new ThermometerState { Temperature = 29, Timestamp = DateTime.Now.AddSeconds(-20) },
+    };
+
+    protected override async Task OnInitializedAsync() {
+        _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (firstRender) {
+            //var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
+            //SetPoint = pidControllerState.SetPoint;
+            //await InvokeAsync(() => StateHasChanged());
+        }
+    }
+
+    public void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
+        if (componentStateChange.Id == ComponentId) {
+            ThermometerStateChanges.Add(componentStateChange.CurrentState);
+            //componentStateChange.CurrentState.Timestamp
+            //    componentStateChange.CurrentState.Temperature
+
+            //Chart.Refresh();
+
+            if (ShouldRender())
+                InvokeAsync(() => StateHasChanged());
+        }
+    }
+
+}
