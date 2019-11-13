@@ -128,18 +128,6 @@ namespace BF.Appliance {
                                                       new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
 
                 // TODO: We need to see the PID parameters somehow.
-
-                eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
-                    RequestState = new PidControllerState {
-                        Id = componentId,
-                        PidMode = PidMode.Temperature,
-                        SetPoint = 90,
-                        IsEngaged = (componentId == ComponentId.HLT),
-                        GainProportional = 18,
-                        GainIntegral = 1.5,
-                        GainDerivative = 22.5
-                    }
-                });
             }
 
             foreach (var componentId in ComponentHelper.PumpComponentIds) {
@@ -165,6 +153,18 @@ namespace BF.Appliance {
             Container.ResolveAll<Ssr>();
             Container.ResolveAll<PidController>();
             Container.Resolve<BeerFactory>();
+
+            eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
+                RequestState = new PidControllerState {
+                    Id = ComponentId.HLT,
+                    PidMode = PidMode.Temperature,
+                    SetPoint = 90,
+                    IsEngaged = true,
+                    GainProportional = 18,
+                    GainIntegral = 1.5,
+                    GainDerivative = 22.5
+                }
+            });
 
             var temperatureControllerService = Container.Resolve<ITemperatureControllerService>();
 
