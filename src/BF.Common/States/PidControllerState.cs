@@ -27,6 +27,7 @@ namespace BF.Common.States {
         public static PidControllerState Clone(this PidControllerState pidControllerState) {
             if (pidControllerState == null) return null;
             return new PidControllerState {
+                Id = pidControllerState.Id,
                 IsEngaged = pidControllerState.IsEngaged,
                 PidMode = pidControllerState.PidMode,
                 SetPoint = pidControllerState.SetPoint,

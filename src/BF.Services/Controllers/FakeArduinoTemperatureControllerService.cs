@@ -42,42 +42,11 @@ namespace BF.Service.Controllers {
             Logger = loggerFactory.CreateLogger<FakeArduinoTemperatureControllerService>();
             _eventHandler = eventHandler;
 
-            _ssrStateLookup = ssrs.ToDictionary(ssr => ssr.Id, ssr => ssr.CurrentState);
-            _thermometerStateLookup = thermometers.ToDictionary(therm => therm.Id, therm => therm.CurrentState);
+            _ssrStateLookup = ssrs.ToDictionary(ssr => ssr.CurrentState.Id, ssr => ssr.CurrentState);
+            _thermometerStateLookup = thermometers.ToDictionary(therm => therm.CurrentState.Id, therm => therm.CurrentState);
 
             _eventHandler.ComponentStateChangeOccured<SsrState>(ssrStateChangeOccured);
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(thermometerStateChangeOccured);
-
-            StartFakeness();
-        }
-
-        public void StartFakeness() {
-            // Initialize all Thermometers with 70
-            foreach (var componentId in ComponentHelper.AllComponentIds) {
-                _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
-                    Id = componentId,
-                    CurrentState = new ThermocoupleState {
-                        Temperature = 70.0
-                    }
-                });
-            }
-
-            // Set HLT Pid to 90 degrees
-            _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
-                Id = ComponentId.HLT,
-                RequestState = new PidControllerState {
-                    IsEngaged = true,
-                    SetPoint = 90,
-                    GainProportional = 18,
-                    GainIntegral = 1.5,
-                    GainDerivative = 22.5
-                }
-            });
-
-            _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
-                Id = ComponentId.HLT,
-                RequestState = new PumpState { IsEngaged = true }
-            });
         }
 
         private void ssrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
@@ -110,8 +79,9 @@ namespace BF.Service.Controllers {
                                 Logger.LogInformation($"Fake: OLD: {thermometerState.Temperature} - NEW: {newTemperature}");
 
                                 _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
-                                    Id = ssrComponentId,
+                                    
                                     CurrentState = new ThermocoupleState {
+                                        Id = ssrComponentId,
                                         Temperature = newTemperature
                                     }
                                 });

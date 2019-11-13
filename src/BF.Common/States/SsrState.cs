@@ -16,6 +16,7 @@ namespace BF.Common.States {
 
         public static SsrState Clone(this SsrState ssrState) {
             return new SsrState {
+                Id = ssrState.Id,
                 Percentage = ssrState.Percentage,
                 IsFiring = ssrState.IsFiring,
                 Timestamp = ssrState.Timestamp

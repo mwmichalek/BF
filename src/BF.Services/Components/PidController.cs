@@ -23,11 +23,9 @@ namespace BF.Services.Components {
     /// process that will affect the measured value.
     /// </remarks>
     /// <see cref="https://en.wikipedia.org/wiki/PID_controller"/>
-    public class PidController : IComponent {
+    public class PidController : ComponentBase<PidControllerState> {
 
         private ILogger Logger { get; set; }
-
-        public ComponentId Id { get; private set; }
 
         private DateTime lastRun;
 
@@ -37,15 +35,13 @@ namespace BF.Services.Components {
 
         private int dutyCycleInMillis = 2000;
 
-        public PidControllerState PriorState { get; set; }
-        public PidControllerState CurrentState { get; set; } = new PidControllerState();
 
         public PidController(ComponentId id, 
                              IBeerFactoryEventHandler eventHandler, 
                              ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<PidController>();
             _eventHandler = eventHandler;
-            Id = id;
+            CurrentState = new PidControllerState { Id = id };
             RegisterEvents();
         }
 
@@ -69,9 +65,8 @@ namespace BF.Services.Components {
                 CurrentState = CurrentState.UpdateRequest(pidControllerStateRequest.RequestState);
 
                 _eventHandler.ComponentStateChangeFiring<PidControllerState>(new ComponentStateChange<PidControllerState> {
-                    Id = Id,
-                    PriorState = PriorState,
-                    CurrentState = CurrentState
+                    PriorState = PriorState.Clone(),
+                    CurrentState = CurrentState.Clone()
                 });
 
                 Process();
@@ -132,8 +127,8 @@ namespace BF.Services.Components {
         private void UpdateSsr(int percentage, string msg = "") {
             Logger.LogInformation($"Ssr Request Firing: {Id} {percentage} {msg}");
             _eventHandler.ComponentStateRequestFiring<SsrState>(new ComponentStateRequest<SsrState> {
-                Id = Id,
                 RequestState = new SsrState {
+                    Id = Id,
                     Percentage = percentage
                 }
             });

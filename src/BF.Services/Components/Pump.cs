@@ -16,11 +16,7 @@ namespace BF.Services.Components {
         BK = 21
     }
 
-    public class Pump : IComponent {
-
-        public ComponentId Id { get; set; }
-
-        public PumpState CurrentState { get; set; } = new PumpState();
+    public class Pump : ComponentBase<PumpState> {
 
         private ILogger Logger { get; set; }
 
@@ -35,7 +31,7 @@ namespace BF.Services.Components {
                     ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
             Logger = loggerFactory.CreateLogger<Pump>();
-            Id = id;
+            CurrentState = new PumpState { Id = id };
 
             Enum.TryParse(id.ToString(), out PumpPin pumpPin);
             _pinNumber = (int)pumpPin;
@@ -51,7 +47,7 @@ namespace BF.Services.Components {
         }
 
         private void PumpStateRequestOccured(ComponentStateRequest<PumpState> pumpStateRequest) {
-            if (pumpStateRequest.Id == Id && CurrentState.IsDifferent(pumpStateRequest.RequestState)) 
+            if (pumpStateRequest.Id == CurrentState.Id && CurrentState.IsDifferent(pumpStateRequest.RequestState)) 
                 UpdatePump(pumpStateRequest.RequestState);
         }
 
@@ -61,12 +57,11 @@ namespace BF.Services.Components {
             else 
                 _pin?.Write(GpioPinValue.Low);
 
-            Logger.LogInformation($"Pump: {Id} - {pumpState.IsEngaged}");
+            Logger.LogInformation($"Pump: {CurrentState.Id} - {pumpState.IsEngaged}");
             CurrentState.IsEngaged = pumpState.IsEngaged;
             CurrentState.Timestamp = DateTime.Now;
 
-            _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<PumpState> {
-                Id = Id,
+            _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<PumpState> { 
                 CurrentState = CurrentState.Clone()
             });
         }

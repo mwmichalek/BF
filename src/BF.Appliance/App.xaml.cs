@@ -101,22 +101,20 @@ namespace BF.Appliance {
                                                     new ContainerControlledLifetimeManager(),
                                                     new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
                 eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermometerState> {
-                    Id = componentId,
                     CurrentState = new ThermometerState {
+                        Id = componentId,
                         Temperature = 0
                     }
                 });
             }
-
-
 
             foreach (var componentId in ComponentHelper.SsrComponentIds) {
                 Container.RegisterType<Ssr>($"{componentId}",
                                             new ContainerControlledLifetimeManager(),
                                             new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
                 eventHandler.ComponentStateChangeFiring(new ComponentStateChange<SsrState> {
-                    Id = componentId,
                     CurrentState = new SsrState {
+                        Id = componentId,
                         Percentage = 0,
                         IsFiring = false,
                         IsEngaged = false
@@ -131,11 +129,15 @@ namespace BF.Appliance {
 
                 // TODO: We need to see the PID parameters somehow.
 
-                eventHandler.ComponentStateChangeFiring(new ComponentStateChange<PidControllerState> {
-                    Id = componentId,
-                    CurrentState = new PidControllerState {
+                eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
+                    RequestState = new PidControllerState {
+                        Id = componentId,
                         PidMode = PidMode.Temperature,
-                        SetPoint = 90
+                        SetPoint = 90,
+                        IsEngaged = (componentId == ComponentId.HLT),
+                        GainProportional = 18,
+                        GainIntegral = 1.5,
+                        GainDerivative = 22.5
                     }
                 });
             }
@@ -145,8 +147,8 @@ namespace BF.Appliance {
                                              new ContainerControlledLifetimeManager(),
                                              new InjectionConstructor(new object[] { componentId, eventHandler, loggerFactory }));
                 eventHandler.ComponentStateChangeFiring(new ComponentStateChange<PumpState> {
-                    Id = componentId,
                     CurrentState = new PumpState {
+                        Id = componentId,
                         IsEngaged = false
                     }
                 });

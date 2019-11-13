@@ -61,8 +61,8 @@ namespace BF.Service.UWP.Controllers {
 
             // Set HLT Pid to 90 degrees
             _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
-                Id = ComponentId.HLT,
                 RequestState = new PidControllerState {
+                    Id = ComponentId.HLT,
                     IsEngaged = true,
                     SetPoint = 90,
                     GainProportional = 18,
@@ -72,8 +72,10 @@ namespace BF.Service.UWP.Controllers {
             });
 
             _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
-                Id = ComponentId.HLT,
-                RequestState = new PumpState { IsEngaged = true }
+                RequestState = new PumpState {
+                    Id = ComponentId.HLT,
+                    IsEngaged = true 
+                }
             });
         }
 
@@ -167,8 +169,8 @@ namespace BF.Service.UWP.Controllers {
                         var componentId = (ComponentId)Enum.Parse(typeof(ComponentId), (index).ToString());
 
                         _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
-                            Id = componentId,
                             CurrentState = new ThermocoupleState {
+                                Id = componentId,
                                 Temperature = temperature
                             }
                         });

@@ -21,13 +21,7 @@ namespace BF.Services.Components {
     }
 
 
-    public class Ssr : IComponent {
-
-        public ComponentId Id { get; set; }
-
-        public SsrState CurrentState { get; set; } = new SsrState();
-
-        public SsrState PriorState { get; set; }
+    public class Ssr : ComponentBase<SsrState> {
 
         private ILogger Logger { get; set; }
 
@@ -36,8 +30,6 @@ namespace BF.Services.Components {
         private int _dutyCycleInMillis = 2000;
 
         private GpioPin _pin;
-
-        //private GpioPinValue _pinValue = GpioPinValue.High;
 
         private bool _isRunning = false;
 
@@ -50,8 +42,7 @@ namespace BF.Services.Components {
         public Ssr(ComponentId id, IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<Ssr>();
             _eventHandler = eventHandler;
-            Id = id;
-            //Pin = (int)id;
+            CurrentState = new SsrState { Id = id };
 
             Enum.TryParse(id.ToString(), out SsrPin ssrPin);
             _pinNumber = (int)ssrPin;
@@ -67,7 +58,7 @@ namespace BF.Services.Components {
         }
 
         private void SsrStateRequestOccured(ComponentStateRequest<SsrState> ssrStateRequest) {
-            if (ssrStateRequest.Id == Id && 
+            if (ssrStateRequest.Id == CurrentState.Id && 
                 CurrentState.IsDifferent(ssrStateRequest.RequestState)) {
                 PriorState = CurrentState;
                 CurrentState = CurrentState.UpdateRequest(ssrStateRequest.RequestState);
@@ -86,7 +77,6 @@ namespace BF.Services.Components {
 
         private void SendNotification() {
             _eventHandler.ComponentStateChangeFiring<SsrState>(new ComponentStateChange<SsrState> {
-                Id = Id,
                 CurrentState = CurrentState.Clone(),
                 PriorState = PriorState.Clone()
             });

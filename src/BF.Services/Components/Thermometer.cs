@@ -13,25 +13,18 @@ using System.Threading.Tasks;
 
 namespace BF.Services.Components {
 
-    public interface IThermometer {
+    //public interface IThermometer {
 
-        ComponentId Id { get; }
+    //    ComponentId Id { get; }
 
-        ThermometerState CurrentState { get; }
-    }
+    //    ThermometerState CurrentState { get; }
+    //}
 
-    public class Thermometer : IComponent, IThermometer {
-
-        public ThermometerState CurrentState { get; set; }
-
-        public ThermometerState PriorState { get; set; }
+    public class Thermometer : ComponentBase<ThermometerState> {
 
         public List<ThermometerState> PreviousStates { get; set; } = new List<ThermometerState>();
 
         private ILogger Logger { get; set; }
-
-
-        public ComponentId Id { get; private set; }
 
         public double Change { get; set; }
 
@@ -48,7 +41,8 @@ namespace BF.Services.Components {
                            ILoggerFactory loggerFactory) {
             _eventHandler = eventHandler;
             Logger = loggerFactory.CreateLogger<Thermometer>();
-            Id = id;
+
+            CurrentState = new ThermometerState { Id = id };
 
             _eventHandler.ComponentStateChangeOccured<ThermocoupleState>(ThermocoupleStateChangeOccured);
         }
@@ -62,7 +56,8 @@ namespace BF.Services.Components {
             _eventHandler = eventHandler;
             Logger = loggerFactory.CreateLogger<Thermometer>();
 
-            Id = id;
+            CurrentState = new ThermometerState { Id = id };
+
             _changeThreshold = changeThreshold;
             _changeWindowInMillis = changeWindowInMillis;
             _changeWindowInMillis = changeWindowInMillis;
@@ -83,6 +78,7 @@ namespace BF.Services.Components {
                 //var 
 
                 var currentState = new ThermometerState {
+                    Id = Id,
                     Temperature = thermocoupleStateChange.CurrentState.Temperature,
                     Timestamp = thermocoupleStateChange.CurrentState.Timestamp
                 };
@@ -96,7 +92,6 @@ namespace BF.Services.Components {
                 CurrentState = currentState;
 
                 _eventHandler.ComponentStateChangeFiring<ThermometerState>(new ComponentStateChange<ThermometerState> {
-                    Id = Id,
                     CurrentState = CurrentState.Clone(),
                     PriorState = PriorState.Clone()
                 });

@@ -43,24 +43,6 @@ namespace BF.Services.Components {
             _ssrs = ssrs;
             _thermometers = thermometers;
             _pumps = pumps;
-
-            _eventHandler.ComponentStateRequestOccured<BFState>((req) => BroadcastCurrentState());
-        }
-
-        public void BroadcastCurrentState() {
-
-            var currentBFState = new BFState {
-
-                PidControllerStates = _pidControllers.ToDictionary(pid => pid.Id, pid => pid.CurrentState),
-                SsrStates = _ssrs.ToDictionary(s => s.Id, s => s.CurrentState),
-                ThermometerStates = _thermometers.ToDictionary(t => t.Id, t => t.CurrentState),
-                PumpStates = _pumps.ToDictionary(p => p.Id, p => p.CurrentState)
-            };
-
-            Logger.LogInformation($"Sending BFState to Server.");
-            _eventHandler.ComponentStateChangeFiring<BFState>(new ComponentStateChange<BFState> {
-                CurrentState = currentBFState
-            });
         }
 
     }

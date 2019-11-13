@@ -15,6 +15,7 @@ namespace BF.Common.States {
         public static ThermometerState Clone(this ThermometerState thermometerState) {
             if (thermometerState == null) return null;
             return new ThermometerState {
+                Id = thermometerState.Id,
                 Temperature = thermometerState.Temperature,
                 Timestamp = thermometerState.Timestamp
             };

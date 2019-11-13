@@ -80,8 +80,8 @@
             SetPoint = eventArgs.Value;
 
             _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
-                Id = ComponentId.HLT,
                 RequestState = new PidControllerState {
+                    Id = ComponentId.HLT,
                     SetPoint = eventArgs.Value
                 }
             });

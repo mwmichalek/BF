@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using BF.Common.Events;
 using BF.Common.Components;
 using BF.Service;
@@ -28,9 +29,9 @@ namespace BF.Appliance.ViewModels {
             Logger = loggerFactory.CreateLogger<MainViewModel>();
             _eventHandler = eventHandler;
 
-            Temperature = (double)thermometers.GetById(ComponentId.HLT)?.Temperature;
-            SetPoint = (int)pidControllers.GetById(ComponentId.HLT).CurrentState.SetPoint;
-            SsrPercentage = (int)ssrs.GetById(ComponentId.HLT).CurrentState.Percentage;
+            Temperature = (double)thermometers.Single(t => t.Id == ComponentId.HLT).Temperature;
+            SetPoint = (int)pidControllers.Single(t => t.Id == ComponentId.HLT).CurrentState.SetPoint;
+            SsrPercentage = (int)ssrs.Single(t => t.Id == ComponentId.HLT).CurrentState.Percentage;
            
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured, ThreadType.UIThread);
             _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured, ThreadType.UIThread);

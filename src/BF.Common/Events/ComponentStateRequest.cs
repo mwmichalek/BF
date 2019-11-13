@@ -9,7 +9,7 @@ namespace BF.Common.Events {
 
     public class ComponentStateRequest<T> where T : UpdateableComponentState {
 
-        public ComponentId Id { get; set; }
+        public ComponentId Id => RequestState.Id;
 
         public T RequestState { get; set; }
 

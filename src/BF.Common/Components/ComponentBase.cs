@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BF.Common.Events;
+using BF.Common.States;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,9 +18,14 @@ namespace BF.Common.Components {
         FERM = 8
     }
 
-    public interface IComponent {
+    public abstract class ComponentBase<T> : IEventPayload where T : ComponentState {
 
-        ComponentId Id { get; }
+        public ComponentId Id => CurrentState.Id;
+
+        public T CurrentState { get; protected set; }
+
+        public T PriorState { get; protected set; }
+
     }
 
     public static class ComponentHelper {
@@ -51,13 +58,13 @@ namespace BF.Common.Components {
             ComponentId.BK,
         });
 
-        public static T GetById<T>(this List<T> components, ComponentId componentId) where T : IComponent {
-            return (T)components.SingleOrDefault(s => s.Id == componentId);
-        }
+        //public static ComponentBase<T> GetById<ComponentBase<T>>(this List<ComponentBase<T>> components, ComponentId componentId) where T : ComponentState {
+        //    return (T)components.SingleOrDefault(s => s.Id == componentId);
+        //}
 
-        public static T GetById<T>(this T[] components, ComponentId componentId) where T : IComponent {
-            return (T)components.SingleOrDefault(s => s.Id == componentId);
-        }
+        //public static T GetById<T>(this T[] components, ComponentId componentId) where T : ComponentBase {
+        //    return (T)components.SingleOrDefault(s => s.Id == componentId);
+        //}
 
     }
 

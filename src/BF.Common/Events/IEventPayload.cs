@@ -7,7 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace BF.Common.Events {
-    public interface IEventPayload : IComponent {
+
+    public interface IEventPayload {
 
     }
 

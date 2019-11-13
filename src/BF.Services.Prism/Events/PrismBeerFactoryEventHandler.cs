@@ -48,59 +48,48 @@ namespace BF.Service.Prism.Events {
                 _applicationConfig.Device == Device.Server_PC)
                 this.ComponentStateChangeOccured<BFState>(BFStateHandler);
         }
-
-        
-
-        private Dictionary<Tuple<Type, ComponentId>, ComponentState> _currentComponentStates = new Dictionary<Tuple<Type, ComponentId>, ComponentState>();
-
-        public virtual ComponentState CurrentComponentState<T>(ComponentId componentId) where T : ComponentState {
-            var key = Tuple.Create(typeof(T), componentId);
-            if (_currentComponentStates.ContainsKey(key))
-                return _currentComponentStates[key];
-            return null;
-        }
-
-        public IList<ComponentState> CurrentComponentStates<T>() where T : ComponentState {
-            return _currentComponentStates.Values.Where(cs => cs.GetType() == typeof(T)).ToList();
-        }
+       
+        private BFState CurrentState { get; set; } = new BFState();
 
         private void ConnectionStateHandler(ComponentStateChange<ConnectionState> connectionStateChange) {
 
-            var bfState = new BFState {
-                SsrStates = _currentComponentStates.ToDictionary<SsrState>(),
-                ThermometerStates = _currentComponentStates.ToDictionary<ThermometerState>(),
-                PidControllerStates = _currentComponentStates.ToDictionary<PidControllerState>(),
-                PumpStates = _currentComponentStates.ToDictionary<PumpState>()
-            };
             ComponentStateChangeFiring(new ComponentStateChange<BFState> {
-                CurrentState = bfState
+                CurrentState = CurrentState
             });
 
             Logger.LogInformation($"Send entire buttload: {_applicationConfig.Device}");
         }
 
         private void BFStateHandler(ComponentStateChange<BFState> bfStateChange) {
-            
+            CurrentState = bfStateChange.CurrentState;
 
-            foreach (var state in bfStateChange.CurrentState.SsrStates)
-                ComponentStateChangeFiring(state.ToComponentStateChange());
+            foreach (var stateChange in CurrentState.ComponentStateChanges<SsrState>())
+                ComponentStateChangeFiring(stateChange);
 
-            foreach (var state in bfStateChange.CurrentState.ThermometerStates)
-                ComponentStateChangeFiring(state.ToComponentStateChange());
+            foreach (var stateChange in CurrentState.ComponentStateChanges<ThermometerState>())
+                ComponentStateChangeFiring(stateChange);
 
-            foreach (var state in bfStateChange.CurrentState.PidControllerStates)
-                ComponentStateChangeFiring(state.ToComponentStateChange());
+            foreach (var stateChange in CurrentState.ComponentStateChanges<PidControllerState>())
+                ComponentStateChangeFiring(stateChange);
 
-            foreach (var state in bfStateChange.CurrentState.PumpStates)
-                ComponentStateChangeFiring(state.ToComponentStateChange());
+            foreach (var stateChange in CurrentState.ComponentStateChanges<PumpState>())
+                ComponentStateChangeFiring(stateChange);
 
             Logger.LogInformation($"Receive entire buttload : {_applicationConfig.Device}");
+        }
+
+        public ComponentState CurrentComponentState<T>(ComponentId componentId) where T : ComponentState {
+            return CurrentState.CurrentState<T>(componentId);
+        }
+
+        public IList<ComponentState> CurrentComponentStates<T>() where T : ComponentState {
+            return CurrentState.CurrentStates<T>().Values.ToList();
         }
 
         //*****************************************************************************
 
         public virtual void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState {
-            _currentComponentStates[Tuple.Create(typeof(T), componentStateChange.Id)] = componentStateChange.CurrentState;
+            CurrentState.UpdateCurrentState<T>(componentStateChange.CurrentState);
             _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Publish(componentStateChange);
         }
 
@@ -121,6 +110,5 @@ namespace BF.Service.Prism.Events {
         }
 
     }
-
 
 }

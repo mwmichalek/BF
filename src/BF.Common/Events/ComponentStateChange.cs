@@ -10,7 +10,7 @@ namespace BF.Common.Events {
 
     public class ComponentStateChange<T> where T : ComponentState {
 
-        public ComponentId Id { get; set; }
+        public ComponentId Id => CurrentState.Id;
 
         public T PriorState { get; set; }
 
@@ -23,17 +23,6 @@ namespace BF.Common.Events {
     }
 
     public static class ComponentStateHelper {
-
-        public static IDictionary<ComponentId, T> ToDictionary<T>(this Dictionary<Tuple<Type, ComponentId>, ComponentState> componentStates) where T : ComponentState {
-            return componentStates.Where(cs => cs.Value.GetType() == typeof(T)).ToDictionary(cs => cs.Key.Item2, cs => (T)cs.Value);
-        }
-
-        public static ComponentStateChange<T> ToComponentStateChange<T>(this KeyValuePair<ComponentId, T> kv) where T : ComponentState {
-            return new ComponentStateChange<T> {
-                Id = kv.Key,
-                CurrentState = kv.Value
-            };
-        }
 
         public static ComponentStateChange ToComponentStateChange<ComponentStateChange>(this string eventJson) {
             return JsonConvert.DeserializeObject<ComponentStateChange>(eventJson);

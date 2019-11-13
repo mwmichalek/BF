@@ -23,14 +23,18 @@
         if (ToggleBtnObj.Content == "Start") {
             this.Content = "Stop";
             _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
-                Id = ComponentId.HLT,
-                RequestState = new PumpState { IsEngaged = true }
+                RequestState = new PumpState { 
+                    Id = ComponentId.HLT,
+                    IsEngaged = true 
+                }
             });
         } else {
             this.Content = "Start";
             _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
-                Id = ComponentId.HLT,
-                RequestState = new PumpState { IsEngaged = false }
+                RequestState = new PumpState { 
+                    Id = ComponentId.HLT,
+                    IsEngaged = false 
+                }
             });
         }
     }
