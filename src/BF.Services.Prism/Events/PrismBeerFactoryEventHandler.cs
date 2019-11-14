@@ -52,11 +52,9 @@ namespace BF.Service.Prism.Events {
         private BFState CurrentState { get; set; } = new BFState();
 
         private void ConnectionStateHandler(ComponentStateChange<ConnectionState> connectionStateChange) {
-
             ComponentStateChangeFiring(new ComponentStateChange<BFState> {
                 CurrentState = CurrentState
             });
-
             Logger.LogInformation($"Send entire buttload: {_applicationConfig.Device}");
         }
 
@@ -78,12 +76,12 @@ namespace BF.Service.Prism.Events {
             Logger.LogInformation($"Receive entire buttload : {_applicationConfig.Device}");
         }
 
-        public ComponentState CurrentComponentState<T>(ComponentId componentId) where T : ComponentState {
-            return CurrentState.CurrentState<T>(componentId);
+        public T CurrentComponentState<T>(ComponentId componentId) where T : ComponentState {
+            return (T)CurrentState.CurrentState<T>(componentId);
         }
 
-        public IList<ComponentState> CurrentComponentStates<T>() where T : ComponentState {
-            return CurrentState.CurrentStates<T>().Values.ToList();
+        public IList<T> CurrentComponentStates<T>() where T : ComponentState {
+            return CurrentState.CurrentStates<T>();
         }
 
         //*****************************************************************************

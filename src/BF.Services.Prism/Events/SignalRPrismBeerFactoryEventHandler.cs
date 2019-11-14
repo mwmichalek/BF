@@ -26,14 +26,14 @@ namespace BF.Services.Prism.Events {
 
         private ILogger Logger { get; set; }
 
-        
+
 
         private HubConnection _connection;
 
-        public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory, IApplicationConfig applicationConfig) : 
+        public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory, IApplicationConfig applicationConfig) :
             base(eventAggregator, loggerFactory, applicationConfig) {
             Logger = loggerFactory.CreateLogger<SignalRPrismBeerFactoryEventHandler>();
-            
+
             Task.Run(() => Connect());
         }
 
@@ -77,8 +77,8 @@ namespace BF.Services.Prism.Events {
                            Type componentStateType = asm.GetType(componentStateTypeStr);
                            var componentStateChange = JsonConvert.DeserializeObject(componentStateChangeJson, componentStateType);
 
-                       // TODO: There has to be a better way.
-                       if (componentStateType == typeof(ComponentStateChange<ThermometerState>))
+                           // TODO: There has to be a better way.
+                           if (componentStateType == typeof(ComponentStateChange<ThermometerState>))
                                base.ComponentStateChangeFiring((ComponentStateChange<ThermometerState>)componentStateChange);
                            if (componentStateType == typeof(ComponentStateChange<PidControllerState>))
                                base.ComponentStateChangeFiring((ComponentStateChange<PidControllerState>)componentStateChange);
@@ -98,8 +98,8 @@ namespace BF.Services.Prism.Events {
                            Type componentStateType = asm.GetType(componentStateTypeStr);
                            var componentStateRequest = JsonConvert.DeserializeObject(componentStateRequestJson, componentStateType);
 
-                       // TODO: There has to be a better way.
-                       if (componentStateType == typeof(ComponentStateRequest<PidControllerRequestState>))
+                           // TODO: There has to be a better way.
+                           if (componentStateType == typeof(ComponentStateRequest<PidControllerRequestState>))
                                base.ComponentStateRequestFiring((ComponentStateRequest<PidControllerRequestState>)componentStateRequest);
                            if (componentStateType == typeof(ComponentStateRequest<PumpRequestState>))
                                base.ComponentStateRequestFiring((ComponentStateRequest<PumpRequestState>)componentStateRequest);
@@ -146,7 +146,7 @@ namespace BF.Services.Prism.Events {
         private bool ValidateCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
             return true;
         }
-        
+
     }
 
     public static class HubConnectionHelper {
@@ -154,7 +154,7 @@ namespace BF.Services.Prism.Events {
         public static ILogger Logger { get; set; }
 
         public static bool IsConnected(this HubConnection hubConnection) {
-            return hubConnection != null && 
+            return hubConnection != null &&
                    hubConnection.State == HubConnectionState.Connected;
         }
 

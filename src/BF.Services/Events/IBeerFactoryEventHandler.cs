@@ -20,9 +20,9 @@ namespace BF.Service.Events {
 
     public interface IBeerFactoryEventHandler {
 
-        ComponentState CurrentComponentState<T>(ComponentId componentId) where T : ComponentState;
+        T CurrentComponentState<T>(ComponentId componentId) where T : ComponentState;
 
-        IList<ComponentState> CurrentComponentStates<T>() where T : ComponentState;
+        IList<T> CurrentComponentStates<T>() where T : ComponentState;
 
         void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState;
 
