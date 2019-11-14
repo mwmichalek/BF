@@ -39,8 +39,11 @@ namespace BF.Common.States {
             };
         }
 
-        public static PidControllerRequestState ToPidControllerRequestState(this ComponentStateChange<ThermometerState> thermometerStateChange) {
-            return new PidControllerRequestState { Temperature = thermometerStateChange.CurrentState.Temperature };
+        public static PidControllerState Update(this PidControllerState pidControllerState, ComponentStateChange<ThermometerState> thermometerStateChange) {
+            if (pidControllerState == null) return null;
+            var clone = pidControllerState.Clone();
+            clone.Temperature = thermometerStateChange.CurrentState.Temperature;
+            return clone;
         }
 
         public static PidControllerState Update(this PidControllerState pidControllerState, PidControllerRequestState requestPidControllerState) {

@@ -52,7 +52,7 @@ namespace BF.Services.Components {
         private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) { 
             if (thermometerStateChange.Id == Id) {
                 PriorState = CurrentState;
-                CurrentState = CurrentState.Update(thermometerStateChange.ToPidControllerRequestState());
+                CurrentState = CurrentState.Update(thermometerStateChange);
                 Process();
             }
         }
