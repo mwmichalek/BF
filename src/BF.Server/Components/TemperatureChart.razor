@@ -45,17 +45,11 @@
     public ComponentId ComponentId { get; set; }
 
     [Inject]
-    IBeerFactoryEventHandler _eventHandler { get; set; }
+    public IBeerFactoryEventHandler _eventHandler { get; set; }
 
-    EjsChart Chart { get; set; }
+    public EjsChart Chart { get; set; }
 
-    public ObservableCollection<ThermometerState> ThermometerStateChanges = new ObservableCollection<ThermometerState> {
-        new ThermometerState { Temperature = 24, Timestamp = DateTime.Now.AddSeconds(-60) },
-        new ThermometerState { Temperature = 28, Timestamp = DateTime.Now.AddSeconds(-50) },
-        new ThermometerState { Temperature = 21, Timestamp = DateTime.Now.AddSeconds(-40) },
-        new ThermometerState { Temperature = 20, Timestamp = DateTime.Now.AddSeconds(-30) },
-        new ThermometerState { Temperature = 29, Timestamp = DateTime.Now.AddSeconds(-20) },
-    };
+    public ObservableCollection<ThermometerState> ThermometerStateChanges = new ObservableCollection<ThermometerState>();
 
     protected override async Task OnInitializedAsync() {
         _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
@@ -72,10 +66,6 @@
     public void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
         if (componentStateChange.Id == ComponentId) {
             ThermometerStateChanges.Add(componentStateChange.CurrentState);
-            //componentStateChange.CurrentState.Timestamp
-            //    componentStateChange.CurrentState.Temperature
-
-            //Chart.Refresh();
 
             if (ShouldRender())
                 InvokeAsync(() => StateHasChanged());

@@ -13,51 +13,13 @@ namespace BF.Common.States {
 
     public class BFState : ConfigurableComponentState {
 
-        public Dictionary<ComponentId, ThermometerState> TemperatureStates { get; set; } = new Dictionary<ComponentId, ThermometerState>();
+        public IList<ThermometerState> ThermometerStates { get; set; }
 
-        public Dictionary<ComponentId, SsrState> SsrStates { get; set; } = new Dictionary<ComponentId, SsrState>();
+        public IList<SsrState> SsrStates { get; set; }
 
-        public Dictionary<ComponentId, PidControllerState> PidControllerStates { get; set; } = new Dictionary<ComponentId, PidControllerState>();
+        public IList<PidControllerState> PidControllerStates { get; set; }
 
-        public Dictionary<ComponentId, PumpState> PumpStates { get; set; } = new Dictionary<ComponentId, PumpState>();
-
-        public List<T> CurrentStates<T>() where T : ComponentState {
-            if (typeof(T) == typeof(ThermometerState))
-                return TemperatureStates.Select(s => (T)(object)s.Value).ToList();
-            if (typeof(T) == typeof(SsrState))
-                return SsrStates.Select(s => (T)(object)s.Value).ToList();
-            if (typeof(T) == typeof(PidControllerState))
-                return PidControllerStates.Select(s => (T)(object)s.Value).ToList();
-            if (typeof(T) == typeof(PumpState))
-                return PumpStates.Select(s => (T)(object)s.Value).ToList();
-
-            return null;
-        }
-
-        public ComponentState CurrentState<T>(ComponentId componentId) where T : ComponentState {
-            return CurrentStates<T>().SingleOrDefault(c => c.Id == componentId);
-        }
-
-        public IList<ComponentStateChange<T>> ComponentStateChanges<T>() where T : ComponentState {
-            var currentStates = CurrentStates<T>();
-            return currentStates.Select(cs => new ComponentStateChange<T> {
-                CurrentState = (T)cs
-            }).ToList();
-        }
-
-        public void UpdateCurrentState<T>(T componentState) where T : ComponentState {
-            if (typeof(T) != GetType()) {
-                if (typeof(T) == typeof(ThermometerState))
-                    TemperatureStates[componentState.Id] = (ThermometerState)(object)componentState;
-                if (typeof(T) == typeof(SsrState))
-                    SsrStates[componentState.Id] = (SsrState)(object)componentState;
-                if (typeof(T) == typeof(PidControllerState))
-                    PidControllerStates[componentState.Id] = (PidControllerState)(object)componentState;
-                if (typeof(T) == typeof(PumpState))
-                    PumpStates[componentState.Id] = (PumpState)(object)componentState;
-
-            }
-        }
+        public IList<PumpState> PumpStates { get; set; } 
 
     }
 }

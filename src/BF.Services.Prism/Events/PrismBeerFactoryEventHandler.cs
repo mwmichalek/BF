@@ -48,46 +48,73 @@ namespace BF.Service.Prism.Events {
                 _applicationConfig.Device == Device.Server_PC)
                 this.ComponentStateChangeOccured<BFState>(BFStateHandler);
         }
-       
-        private BFState CurrentState { get; set; } = new BFState();
+
+
+        //*********************************** CACHING ******************************************
 
         private void ConnectionStateHandler(ComponentStateChange<ConnectionState> connectionStateChange) {
             ComponentStateChangeFiring(new ComponentStateChange<BFState> {
-                CurrentState = CurrentState
+                CurrentState = new BFState {
+                    SsrStates = CurrentComponentStates<SsrState>(),
+                    ThermometerStates = CurrentComponentStates<ThermometerState>(),
+                    PidControllerStates = CurrentComponentStates<PidControllerState>(),
+                    PumpStates = CurrentComponentStates<PumpState>(),
+                }
             });
             Logger.LogInformation($"Send entire buttload: {_applicationConfig.Device}");
         }
 
         private void BFStateHandler(ComponentStateChange<BFState> bfStateChange) {
-            CurrentState = bfStateChange.CurrentState;
+            var bfState = bfStateChange.CurrentState;
+            _componentStateCacheLookup[typeof(SsrState)] = bfState.SsrStates.ToDictionary(ss => ss.Id, ss => (ComponentState)ss);
+            _componentStateCacheLookup[typeof(ThermometerState)] = bfState.ThermometerStates.ToDictionary(ss => ss.Id, ss => (ComponentState)ss);
+            _componentStateCacheLookup[typeof(PidControllerState)] = bfState.PidControllerStates.ToDictionary(ss => ss.Id, ss => (ComponentState)ss);
+            _componentStateCacheLookup[typeof(PumpState)] = bfState.PumpStates.ToDictionary(ss => ss.Id, ss => (ComponentState)ss);
 
-            foreach (var stateChange in CurrentState.ComponentStateChanges<SsrState>())
-                ComponentStateChangeFiring(stateChange);
 
-            foreach (var stateChange in CurrentState.ComponentStateChanges<ThermometerState>())
-                ComponentStateChangeFiring(stateChange);
+            //CurrentState = bfStateChange.CurrentState;
 
-            foreach (var stateChange in CurrentState.ComponentStateChanges<PidControllerState>())
-                ComponentStateChangeFiring(stateChange);
+            //foreach (var stateChange in CurrentState.ComponentStateChanges<SsrState>())
+            //    ComponentStateChangeFiring(stateChange);
 
-            foreach (var stateChange in CurrentState.ComponentStateChanges<PumpState>())
-                ComponentStateChangeFiring(stateChange);
+            //foreach (var stateChange in CurrentState.ComponentStateChanges<ThermometerState>())
+            //    ComponentStateChangeFiring(stateChange);
+
+            //foreach (var stateChange in CurrentState.ComponentStateChanges<PidControllerState>())
+            //    ComponentStateChangeFiring(stateChange);
+
+            //foreach (var stateChange in CurrentState.ComponentStateChanges<PumpState>())
+            //    ComponentStateChangeFiring(stateChange);
 
             Logger.LogInformation($"Receive entire buttload : {_applicationConfig.Device}");
         }
 
+        private Dictionary<Type, Dictionary<ComponentId, ComponentState>> _componentStateCacheLookup = new Dictionary<Type, Dictionary<ComponentId, ComponentState>>();
+
         public T CurrentComponentState<T>(ComponentId componentId) where T : ComponentState {
-            return (T)CurrentState.CurrentState<T>(componentId);
+            return (T)ComponentStateCache<T>()[componentId];
         }
 
         public IList<T> CurrentComponentStates<T>() where T : ComponentState {
-            return CurrentState.CurrentStates<T>();
+            return ComponentStateCache<T>().Select(cs => (T)cs.Value).ToList();
         }
 
-        //*****************************************************************************
+        private Dictionary<ComponentId, ComponentState> ComponentStateCache<T>() {
+            if (_componentStateCacheLookup.ContainsKey(typeof(T)))
+                return _componentStateCacheLookup[typeof(T)];
+            var componentStateCache = new Dictionary<ComponentId, ComponentState>();
+            _componentStateCacheLookup[typeof(T)] = componentStateCache;
+            return componentStateCache;
+        }
+
+        private void CacheComponentStateChange<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState {
+            ComponentStateCache<T>()[componentStateChange.Id] = componentStateChange.CurrentState;
+        }
+
+        //*********************************** EVENT HANDLING ******************************************
 
         public virtual void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState {
-            CurrentState.UpdateCurrentState<T>(componentStateChange.CurrentState);
+
             _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Publish(componentStateChange);
         }
 
