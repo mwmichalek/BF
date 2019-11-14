@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BF.Service.Events;
-using BF.Common.Ids;
 using BF.Common.Events;
 using Windows.Devices.Gpio;
 using BF.Common.Components;

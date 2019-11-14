@@ -13,7 +13,6 @@ using Windows.UI.Core;
 using SerialPortLib;
 using SerialArduino;
 using System.Linq;
-using BF.Common.Ids;
 using BF.Service.Events;
 using BF.Common.Events;
 using BF.Common.Components;
@@ -47,6 +46,15 @@ namespace BF.Service.Controllers {
 
             _eventHandler.ComponentStateChangeOccured<SsrState>(ssrStateChangeOccured);
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(thermometerStateChangeOccured);
+
+            foreach (var componentId in ComponentHelper.AllComponentIds) {
+                _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
+                    CurrentState = new ThermocoupleState {
+                        Id = componentId,
+                        Temperature = 70
+                    }
+                });
+            }
         }
 
         private void ssrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {

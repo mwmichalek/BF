@@ -1,6 +1,5 @@
 ﻿using BF.Common.Components;
 using BF.Common.Events;
-using BF.Common.Ids;
 using BF.Common.States;
 using BF.Service.Events;
 using Microsoft.Extensions.Logging;
@@ -85,7 +84,7 @@ namespace BF.Services.Components {
                 UpdateSsr(0, "Pid Disengaged");
 
             if (CurrentState.IsEngaged) {
-                if (CurrentState.PidMode == PidMode.Temperature && CurrentState.Temperature != 0) {
+                if (CurrentState.PidMode == PidMode.Temperature && CurrentState.Temperature != double.MinValue) {
                     var currentTime = DateTime.Now;
                     if (lastRun == null)
                         lastRun = currentTime;

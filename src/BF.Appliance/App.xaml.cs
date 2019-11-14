@@ -1,29 +1,22 @@
 ﻿using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using BF.Service;
 using BF.Service.Controllers;
 using BF.Service.UWP.Controllers;
 using Microsoft.Practices.Unity;
-
 using Prism.Mvvm;
 using Prism.Unity.Windows;
 using Prism.Windows.AppModel;
-
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Resources;
 using Windows.UI.Xaml;
 using Serilog;
 using BF.Service.Events;
-using BF.Service.Prism.Events;
 using BF.Services.Prism.Events;
 using Microsoft.Extensions.Logging;
-using Serilog.Exceptions;
 using BF.Common.Components;
-using BF.Common.Ids;
 using BF.Services.Components;
 using BF.Services.Configuration;
-using Windows.ApplicationModel.Resources.Core;
 using BF.Common.States;
 using BF.Common.Events;
 
@@ -38,7 +31,6 @@ namespace BF.Appliance {
 
             base.ConfigureContainer();
 
-
             //var loggerConfiguration = new LoggerConfiguration()
             //                                    .MinimumLevel.Verbose()
             //                                    .MinimumLevel.Override("Microsoft.ApplicationInsights", Serilog.Events.LogEventLevel.Warning)
@@ -49,12 +41,6 @@ namespace BF.Appliance {
             //                                    //.WriteTo.Trace()
             //                                    //.WriteTo.Debug()
             //                                    .WriteTo.LiterateConsole();
-
-
-
-
-
-            
 
             var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -154,6 +140,13 @@ namespace BF.Appliance {
             Container.ResolveAll<PidController>();
             Container.Resolve<BeerFactory>();
 
+            var temperatureControllerService = Container.Resolve<ITemperatureControllerService>();
+
+            Task.Run(() => {
+                temperatureControllerService.Run();
+            });
+
+            // NOTE: Hardcoding to start the HLT PID
             eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
                 RequestState = new PidControllerRequestState {
                     Id = ComponentId.HLT,
@@ -165,13 +158,6 @@ namespace BF.Appliance {
                     GainDerivative = 22.5
                 }
             });
-
-            var temperatureControllerService = Container.Resolve<ITemperatureControllerService>();
-
-            Task.Run(() => {
-                temperatureControllerService.Run();
-            });
-
         }
 
         protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args) {

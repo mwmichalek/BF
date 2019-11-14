@@ -17,7 +17,6 @@ using SerialPortLib;
 using SerialArduino;
 using BF.Service.Events;
 using BF.Common.Events;
-using BF.Common.Ids;
 using BF.Service.Controllers;
 using BF.Common.Components;
 using Microsoft.Extensions.Logging;

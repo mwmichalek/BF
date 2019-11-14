@@ -56,6 +56,8 @@ namespace BF.Common.States {
             if (requestPidControllerState.SetPoint.HasValue)
                 clone.SetPoint = requestPidControllerState.SetPoint.Value;
 
+            // NOTE: Temperature can't be set, dawg.
+
             if (requestPidControllerState.GainDerivative.HasValue)
                 clone.GainDerivative = requestPidControllerState.GainDerivative.Value;
 
