@@ -7,7 +7,11 @@ using System.Linq;
 
 namespace BF.Common.States {
 
-    public class BFState : UpdateableComponentState {
+    public class BFRequestState : RequestedComponentState {
+
+    }
+
+    public class BFState : ConfigurableComponentState {
 
         private IDictionary<Type, IDictionary<ComponentId, ComponentState>> _currentComponentStates = new Dictionary<Type, IDictionary<ComponentId, ComponentState>>();
 

@@ -16,7 +16,7 @@ namespace BF.Services.Components {
         BK = 21
     }
 
-    public class Pump : ComponentBase<PumpState> {
+    public class Pump : ConfirgurableComponentBase<PumpState> {
 
         private ILogger Logger { get; set; }
 
@@ -43,28 +43,27 @@ namespace BF.Services.Components {
                 _pin.Write(GpioPinValue.Low);
             }
 
-            _eventHandler.ComponentStateRequestOccured<PumpState>(PumpStateRequestOccured);
+            _eventHandler.ComponentStateRequestOccured<PumpRequestState>(PumpStateRequestOccured);
         }
 
-        private void PumpStateRequestOccured(ComponentStateRequest<PumpState> pumpStateRequest) {
-            if (pumpStateRequest.Id == CurrentState.Id && CurrentState.IsDifferent(pumpStateRequest.RequestState)) 
-                UpdatePump(pumpStateRequest.RequestState);
+        private void PumpStateRequestOccured(ComponentStateRequest<PumpRequestState> pumpRequestState) {
+            if (pumpRequestState.Id == CurrentState.Id && CurrentState.IsDifferent(pumpRequestState.RequestState)) {
+                CurrentState = CurrentState.Update(pumpRequestState.RequestState);
+
+                if (CurrentState.IsEngaged)
+                    _pin?.Write(GpioPinValue.High);
+                else
+                    _pin?.Write(GpioPinValue.Low);
+
+                Logger.LogInformation($"Pump: {CurrentState.Id} - {CurrentState.IsEngaged}");
+
+                _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<PumpState> {
+                    CurrentState = CurrentState.Clone()
+                });
+            }
         }
 
-        private void UpdatePump(PumpState pumpState) {
-            if (pumpState.IsEngaged) 
-                _pin?.Write(GpioPinValue.High);
-            else 
-                _pin?.Write(GpioPinValue.Low);
 
-            Logger.LogInformation($"Pump: {CurrentState.Id} - {pumpState.IsEngaged}");
-            CurrentState.IsEngaged = pumpState.IsEngaged;
-            CurrentState.Timestamp = DateTime.Now;
-
-            _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<PumpState> { 
-                CurrentState = CurrentState.Clone()
-            });
-        }
 
     }
 }

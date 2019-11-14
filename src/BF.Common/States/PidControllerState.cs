@@ -6,7 +6,7 @@ using System.Text;
 
 namespace BF.Common.States {
 
-    public class PidControllerState : UpdateableComponentState {
+    public class PidControllerState : ConfigurableComponentState {
 
         public PidMode PidMode { get; set; } = PidMode.Temperature;
 
@@ -39,37 +39,31 @@ namespace BF.Common.States {
             };
         }
 
-        public static PidControllerState Update(this PidControllerState pidControllerState, double newTemperature) {
-            if (pidControllerState == null) return null;
-            var clone = pidControllerState.Clone();
-            clone.Temperature = newTemperature;
-            clone.Timestamp = DateTime.Now;
-            return clone;
+        public static PidControllerRequestState ToPidControllerRequestState(this ComponentStateChange<ThermometerState> thermometerStateChange) {
+            return new PidControllerRequestState { Temperature = thermometerStateChange.CurrentState.Temperature };
         }
 
-        public static PidControllerState UpdateRequest(this PidControllerState pidControllerState, PidControllerState requestPidControllerState) {
+        public static PidControllerState Update(this PidControllerState pidControllerState, PidControllerRequestState requestPidControllerState) {
             if (pidControllerState == null) return null;
             var clone = pidControllerState.Clone();
 
-            clone.IsEngaged = requestPidControllerState.IsEngaged;
+            if (requestPidControllerState.IsEngaged.HasValue)
+                clone.IsEngaged = requestPidControllerState.IsEngaged.Value;
 
-            clone.PidMode = (requestPidControllerState.PidMode != PidMode.Unknown) ?
-                requestPidControllerState.PidMode :
-                clone.PidMode;
+            if (requestPidControllerState.PidMode.HasValue)
+                clone.PidMode = requestPidControllerState.PidMode.Value;
 
-            clone.SetPoint = requestPidControllerState.SetPoint;
+            if (requestPidControllerState.SetPoint.HasValue)
+                clone.SetPoint = requestPidControllerState.SetPoint.Value;
 
-            clone.GainDerivative = requestPidControllerState.GainDerivative != double.MinValue ?
-                requestPidControllerState.GainDerivative :
-                clone.GainDerivative;
+            if (requestPidControllerState.GainDerivative.HasValue)
+                clone.GainDerivative = requestPidControllerState.GainDerivative.Value;
 
-            clone.GainIntegral = requestPidControllerState.GainIntegral != double.MinValue ?
-                requestPidControllerState.GainIntegral :
-                clone.GainIntegral;
+            if (requestPidControllerState.GainIntegral.HasValue)
+                clone.GainIntegral = requestPidControllerState.GainIntegral.Value;
 
-            clone.GainProportional = requestPidControllerState.GainProportional != double.MinValue ?
-                requestPidControllerState.GainProportional :
-                clone.GainProportional;
+            if (requestPidControllerState.GainIntegral.HasValue)
+                clone.GainProportional = requestPidControllerState.GainProportional.Value;
 
             clone.Timestamp = DateTime.Now;
 

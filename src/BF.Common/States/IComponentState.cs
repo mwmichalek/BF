@@ -14,11 +14,16 @@ namespace BF.Common.States {
 
     }
 
-    public abstract class UpdateableComponentState : ComponentState {
+    public abstract class ConfigurableComponentState : ComponentState {
 
         public bool IsEngaged { get; set; }
 
     }
 
-    
+    public abstract class RequestedComponentState : ComponentState {
+
+        public bool? IsEngaged { get; set; }
+
+    }
+
 }

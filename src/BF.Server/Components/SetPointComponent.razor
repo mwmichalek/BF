@@ -79,8 +79,8 @@
         if (SetPoint != eventArgs.Value) {
             SetPoint = eventArgs.Value;
 
-            _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
-                RequestState = new PidControllerState {
+            _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
+                RequestState = new PidControllerRequestState {
                     Id = ComponentId.HLT,
                     SetPoint = eventArgs.Value
                 }

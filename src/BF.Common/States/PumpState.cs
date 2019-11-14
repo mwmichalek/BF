@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BF.Common.States {
 
-    public class PumpState : UpdateableComponentState {
+    public class PumpState : ConfigurableComponentState {
 
     }
 
@@ -17,8 +17,18 @@ namespace BF.Common.States {
             };
         }
 
-        public static bool IsDifferent(this PumpState pumpState, PumpState requestPumpState) {
-            return pumpState.IsEngaged != requestPumpState.IsEngaged;
+        public static bool IsDifferent(this PumpState pumpState, PumpRequestState pumpRequestState) {
+            return pumpState.IsEngaged != pumpRequestState.IsEngaged;
         }
+
+        public static PumpState Update(this PumpState pumpState, PumpRequestState pumpRequestState) {
+            var clone = pumpState.Clone();
+
+            if (pumpRequestState.IsEngaged.HasValue)
+                clone.IsEngaged = pumpRequestState.IsEngaged.Value;
+
+            return clone;
+        }
+
     }
 }

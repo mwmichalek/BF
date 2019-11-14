@@ -60,8 +60,8 @@ namespace BF.Service.UWP.Controllers {
         public void StartFakeness() {
 
             // Set HLT Pid to 90 degrees
-            _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
-                RequestState = new PidControllerState {
+            _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
+                RequestState = new PidControllerRequestState {
                     Id = ComponentId.HLT,
                     IsEngaged = true,
                     SetPoint = 90,
@@ -71,8 +71,8 @@ namespace BF.Service.UWP.Controllers {
                 }
             });
 
-            _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
-                RequestState = new PumpState {
+            _eventHandler.ComponentStateRequestFiring<PumpRequestState>(new ComponentStateRequest<PumpRequestState> {
+                RequestState = new PumpRequestState {
                     Id = ComponentId.HLT,
                     IsEngaged = true 
                 }

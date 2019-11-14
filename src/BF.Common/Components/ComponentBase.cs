@@ -18,13 +18,23 @@ namespace BF.Common.Components {
         FERM = 8
     }
 
-    public abstract class ComponentBase<T> : IEventPayload where T : ComponentState {
+    public abstract class ComponentBase<TState> : IEventPayload where TState : ComponentState {
 
         public ComponentId Id => CurrentState.Id;
 
-        public T CurrentState { get; protected set; }
+        public TState CurrentState { get; protected set; }
 
-        public T PriorState { get; protected set; }
+        public TState PriorState { get; protected set; }
+
+    }
+
+    public abstract class ConfirgurableComponentBase<TState> : IEventPayload where TState : ConfigurableComponentState {
+
+        public ComponentId Id => CurrentState.Id;
+
+        public TState CurrentState { get; protected set; }
+
+        public TState PriorState { get; protected set; }
 
     }
 

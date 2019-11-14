@@ -99,14 +99,14 @@ namespace BF.Services.Prism.Events {
                            var componentStateRequest = JsonConvert.DeserializeObject(componentStateRequestJson, componentStateType);
 
                        // TODO: There has to be a better way.
-                       if (componentStateType == typeof(ComponentStateRequest<PidControllerState>))
-                               base.ComponentStateRequestFiring((ComponentStateRequest<PidControllerState>)componentStateRequest);
-                           if (componentStateType == typeof(ComponentStateRequest<PumpState>))
-                               base.ComponentStateRequestFiring((ComponentStateRequest<PumpState>)componentStateRequest);
-                           if (componentStateType == typeof(ComponentStateRequest<SsrState>))
-                               base.ComponentStateRequestFiring((ComponentStateRequest<SsrState>)componentStateRequest);
-                           if (componentStateType == typeof(ComponentStateRequest<BFState>))
-                               base.ComponentStateRequestFiring((ComponentStateRequest<BFState>)componentStateRequest);
+                       if (componentStateType == typeof(ComponentStateRequest<PidControllerRequestState>))
+                               base.ComponentStateRequestFiring((ComponentStateRequest<PidControllerRequestState>)componentStateRequest);
+                           if (componentStateType == typeof(ComponentStateRequest<PumpRequestState>))
+                               base.ComponentStateRequestFiring((ComponentStateRequest<PumpRequestState>)componentStateRequest);
+                           if (componentStateType == typeof(ComponentStateRequest<SsrRequestState>))
+                               base.ComponentStateRequestFiring((ComponentStateRequest<SsrRequestState>)componentStateRequest);
+                           if (componentStateType == typeof(ComponentStateRequest<BFRequestState>))
+                               base.ComponentStateRequestFiring((ComponentStateRequest<BFRequestState>)componentStateRequest);
                        });
 
                     _connection.Reconnected += OnConnection;

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BF.Common.States {
 
-    public class SsrState : UpdateableComponentState {
+    public class SsrState : ConfigurableComponentState {
 
         public int Percentage { get; set; } = 0;
 
@@ -37,18 +37,22 @@ namespace BF.Common.States {
             return clone;
         }
 
-        public static SsrState UpdateRequest(this SsrState ssrState, SsrState requestSsrState) {
+        public static SsrState UpdateRequest(this SsrState ssrState, SsrRequestState requestSsrState) {
             var clone = ssrState.Clone();
-            //clone.IsEngaged = requestSsrState.IsEngaged;
-            clone.Percentage = requestSsrState.Percentage;
+
+            if (requestSsrState.IsEngaged.HasValue)
+                clone.IsEngaged = requestSsrState.IsEngaged.Value;
+
+            if (requestSsrState.Percentage.HasValue)
+                clone.Percentage = requestSsrState.Percentage.Value;
+
             clone.Timestamp = DateTime.Now;
 
             return clone;
         }
 
-        public static bool IsDifferent(this SsrState ssrState, SsrState requestSsrState) {
-            return //ssrState.IsEngaged != requestSsrState.IsEngaged ||
-                ssrState.Percentage != requestSsrState.Percentage;
+        public static bool IsDifferent(this SsrState ssrState, SsrRequestState ssrRequestState) {
+            return ssrState.Percentage != ssrRequestState.Percentage;
         }
     }
 

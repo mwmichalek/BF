@@ -31,9 +31,9 @@ MESSAGES!
 
         //_beerFactoryEventHandler.ComponentStateChangeOccured<PumpState>(PumpStateChangeOccured);
 
-        _eventHandler.ComponentStateRequestOccured<PidControllerState>(PidControllerStateRequestOccured);
+        _eventHandler.ComponentStateRequestOccured<PidControllerRequestState>(PidControllerStateRequestOccured);
 
-        _eventHandler.ComponentStateRequestOccured<PumpState>(PumpStateRequestOccured);
+        _eventHandler.ComponentStateRequestOccured<PumpRequestState>(PumpStateRequestOccured);
         _eventHandler.ComponentStateChangeOccured<PumpState>(PumpStateChangeOccured);
     }
 
@@ -47,7 +47,7 @@ MESSAGES!
         InvokeAsync(() => StateHasChanged());
     }
 
-    void PidControllerStateRequestOccured(ComponentStateRequest<PidControllerState> pidControllerStateRequest) {
+    void PidControllerStateRequestOccured(ComponentStateRequest<PidControllerRequestState> pidControllerStateRequest) {
         Messages.Insert(0, $"PidControllerStateRequestOccured: {pidControllerStateRequest.Id} - {pidControllerStateRequest.RequestState.SetPoint}");
         InvokeAsync(() => StateHasChanged());
     }
@@ -62,7 +62,7 @@ MESSAGES!
         InvokeAsync(() => StateHasChanged());
     }
 
-    void PumpStateRequestOccured(ComponentStateRequest<PumpState> pumpStateRequest) {
+    void PumpStateRequestOccured(ComponentStateRequest<PumpRequestState> pumpStateRequest) {
         Messages.Insert(0, $"PumpStateRequestOccured: {pumpStateRequest.Id} - {pumpStateRequest.RequestState.IsEngaged}");
         InvokeAsync(() => StateHasChanged());
     }

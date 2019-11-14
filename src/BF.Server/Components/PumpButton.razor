@@ -22,16 +22,16 @@
     public void OnToggleClick() {
         if (ToggleBtnObj.Content == "Start") {
             this.Content = "Stop";
-            _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
-                RequestState = new PumpState { 
+            _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PumpRequestState> {
+                RequestState = new PumpRequestState { 
                     Id = ComponentId.HLT,
                     IsEngaged = true 
                 }
             });
         } else {
             this.Content = "Start";
-            _eventHandler.ComponentStateRequestFiring<PumpState>(new ComponentStateRequest<PumpState> {
-                RequestState = new PumpState { 
+            _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PumpRequestState> {
+                RequestState = new PumpRequestState { 
                     Id = ComponentId.HLT,
                     IsEngaged = false 
                 }

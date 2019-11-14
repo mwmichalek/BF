@@ -54,10 +54,10 @@ namespace BF.Services.Components {
                 _pin.Write(GpioPinValue.Low);
             }
 
-            _eventHandler.ComponentStateRequestOccured<SsrState>(SsrStateRequestOccured);
+            _eventHandler.ComponentStateRequestOccured<SsrRequestState>(SsrStateRequestOccured);
         }
 
-        private void SsrStateRequestOccured(ComponentStateRequest<SsrState> ssrStateRequest) {
+        private void SsrStateRequestOccured(ComponentStateRequest<SsrRequestState> ssrStateRequest) {
             if (ssrStateRequest.Id == CurrentState.Id && 
                 CurrentState.IsDifferent(ssrStateRequest.RequestState)) {
                 PriorState = CurrentState;

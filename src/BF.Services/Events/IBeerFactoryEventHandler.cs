@@ -29,10 +29,10 @@ namespace BF.Service.Events {
         void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateChangeHandler,
                                                 ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState;
 
-        void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) where T : UpdateableComponentState;
+        void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) where T : RequestedComponentState;
 
         void ComponentStateRequestOccured<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
-                                                ThreadType threadType = ThreadType.PublisherThread) where T : UpdateableComponentState;
+                                                ThreadType threadType = ThreadType.PublisherThread) where T : RequestedComponentState;
     }
 
 

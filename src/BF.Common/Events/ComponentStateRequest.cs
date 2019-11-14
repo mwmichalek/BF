@@ -7,7 +7,7 @@ using System.Text;
 
 namespace BF.Common.Events {
 
-    public class ComponentStateRequest<T> where T : UpdateableComponentState {
+    public class ComponentStateRequest<T> where T : RequestedComponentState {
 
         public ComponentId Id => RequestState.Id;
 
@@ -25,7 +25,7 @@ namespace BF.Common.Events {
             return JsonConvert.DeserializeObject<ComponentStateRequest>(eventJson);
         }
 
-        public static string ToJson<T>(this ComponentStateRequest<T> componentStateRequest) where T : UpdateableComponentState {
+        public static string ToJson<T>(this ComponentStateRequest<T> componentStateRequest) where T : RequestedComponentState {
             return JsonConvert.SerializeObject(componentStateRequest);
         }
 

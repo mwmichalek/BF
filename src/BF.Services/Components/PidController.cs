@@ -23,7 +23,7 @@ namespace BF.Services.Components {
     /// process that will affect the measured value.
     /// </remarks>
     /// <see cref="https://en.wikipedia.org/wiki/PID_controller"/>
-    public class PidController : ComponentBase<PidControllerState> {
+    public class PidController : ConfirgurableComponentBase<PidControllerState> {
 
         private ILogger Logger { get; set; }
 
@@ -47,22 +47,22 @@ namespace BF.Services.Components {
 
         private void RegisterEvents() {
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
-            _eventHandler.ComponentStateRequestOccured<PidControllerState>(PidControllerStateRequestOccured);
+            _eventHandler.ComponentStateRequestOccured<PidControllerRequestState>(PidControllerStateRequestOccured);
         }
 
         private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) { 
             if (thermometerStateChange.Id == Id) {
                 PriorState = CurrentState;
-                CurrentState = CurrentState.Update(thermometerStateChange.CurrentState.Temperature);
+                CurrentState = CurrentState.Update(thermometerStateChange.ToPidControllerRequestState());
                 Process();
             }
         }
 
-        private void PidControllerStateRequestOccured(ComponentStateRequest<PidControllerState> pidControllerStateRequest) {
+        private void PidControllerStateRequestOccured(ComponentStateRequest<PidControllerRequestState> pidControllerStateRequest) {
             if (pidControllerStateRequest.Id == Id) {
                 Logger.LogInformation($"Pid Request Received: {Id} {pidControllerStateRequest.RequestState.SetPoint} {pidControllerStateRequest.RequestState.IsEngaged}");
                 PriorState = CurrentState;
-                CurrentState = CurrentState.UpdateRequest(pidControllerStateRequest.RequestState);
+                CurrentState = CurrentState.Update(pidControllerStateRequest.RequestState);
 
                 _eventHandler.ComponentStateChangeFiring<PidControllerState>(new ComponentStateChange<PidControllerState> {
                     PriorState = PriorState.Clone(),
@@ -126,8 +126,8 @@ namespace BF.Services.Components {
 
         private void UpdateSsr(int percentage, string msg = "") {
             Logger.LogInformation($"Ssr Request Firing: {Id} {percentage} {msg}");
-            _eventHandler.ComponentStateRequestFiring<SsrState>(new ComponentStateRequest<SsrState> {
-                RequestState = new SsrState {
+            _eventHandler.ComponentStateRequestFiring<SsrRequestState>(new ComponentStateRequest<SsrRequestState> {
+                RequestState = new SsrRequestState {
                     Id = Id,
                     Percentage = percentage
                 }

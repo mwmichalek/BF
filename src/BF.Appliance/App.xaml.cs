@@ -154,8 +154,8 @@ namespace BF.Appliance {
             Container.ResolveAll<PidController>();
             Container.Resolve<BeerFactory>();
 
-            eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerState> {
-                RequestState = new PidControllerState {
+            eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
+                RequestState = new PidControllerRequestState {
                     Id = ComponentId.HLT,
                     PidMode = PidMode.Temperature,
                     SetPoint = 90,
