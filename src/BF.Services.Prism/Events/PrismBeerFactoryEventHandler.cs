@@ -53,13 +53,17 @@ namespace BF.Service.Prism.Events {
         //*********************************** CACHING ******************************************
 
         private void ConnectionStateHandler(ComponentStateChange<ConnectionState> connectionStateChange) {
+
+            var bfState = new BFState {
+                SsrStates = CurrentComponentStates<SsrState>(),
+                ThermometerStates = CurrentComponentStates<ThermometerState>(),
+                PidControllerStates = CurrentComponentStates<PidControllerState>(),
+                PumpStates = CurrentComponentStates<PumpState>(),
+            };
+
+
             ComponentStateChangeFiring(new ComponentStateChange<BFState> {
-                CurrentState = new BFState {
-                    SsrStates = CurrentComponentStates<SsrState>(),
-                    ThermometerStates = CurrentComponentStates<ThermometerState>(),
-                    PidControllerStates = CurrentComponentStates<PidControllerState>(),
-                    PumpStates = CurrentComponentStates<PumpState>(),
-                }
+                CurrentState = bfState
             });
             Logger.LogInformation($"Send entire buttload: {_applicationConfig.Device}");
         }
@@ -114,7 +118,7 @@ namespace BF.Service.Prism.Events {
         //*********************************** EVENT HANDLING ******************************************
 
         public virtual void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState {
-
+            CacheComponentStateChange<T>(componentStateChange);
             _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Publish(componentStateChange);
         }
 

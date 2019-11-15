@@ -77,6 +77,8 @@ namespace BF.Services.Prism.Events {
                            Type componentStateType = asm.GetType(componentStateTypeStr);
                            var componentStateChange = JsonConvert.DeserializeObject(componentStateChangeJson, componentStateType);
 
+                           Logger.LogInformation($"SignalR: {DeviceHelper.GetDevice()} {componentStateType}");
+
                            // TODO: There has to be a better way.
                            if (componentStateType == typeof(ComponentStateChange<ThermometerState>))
                                base.ComponentStateChangeFiring((ComponentStateChange<ThermometerState>)componentStateChange);
@@ -125,7 +127,8 @@ namespace BF.Services.Prism.Events {
         }
 
         public override void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) {
-            if (_connection.IsConnected()) {
+            if (_connection.IsConnected() && 
+                (typeof(T) != typeof(ThermocoupleState))) {
                 _connection.InvokeAsync("ComponentStateChangeBroadcasted",
                                         componentStateChange.GetType().ToString(),
                                         componentStateChange.ToJson());

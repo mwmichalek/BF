@@ -40,21 +40,21 @@ namespace BF.Appliance.ViewModels {
 
         private void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
             if (ssrStateChange.Id == ComponentId.HLT) {
-                Logger.LogInformation($"RaspPI: Ssr Change: {ssrStateChange.CurrentState.Percentage}");
+                //Logger.LogInformation($"RaspPI: Ssr Change: {ssrStateChange.CurrentState.Percentage}");
                 SsrPercentage = ssrStateChange.CurrentState.Percentage;
             }
         }
 
         private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
             if (thermometerStateChange.Id == ComponentId.HLT) {
-                Logger.LogInformation($"RaspPI: Thermometer Change: {thermometerStateChange.CurrentState.Temperature}");
+                //Logger.LogInformation($"RaspPI: Thermometer Change: {thermometerStateChange.CurrentState.Temperature}");
                 Temperature = thermometerStateChange.CurrentState.Temperature;
             }
         }
 
         private void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> pidControllerStateChange) {
             if (pidControllerStateChange.Id == ComponentId.HLT) {
-                Logger.LogInformation($"RaspPI: Pid Change: {pidControllerStateChange.CurrentState.SetPoint}");
+                //Logger.LogInformation($"RaspPI: Pid Change: {pidControllerStateChange.CurrentState.SetPoint}");
                 SetPoint = (int)pidControllerStateChange.CurrentState.SetPoint;
             }
         }

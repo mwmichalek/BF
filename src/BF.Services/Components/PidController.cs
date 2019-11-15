@@ -34,6 +34,8 @@ namespace BF.Services.Components {
 
         private int dutyCycleInMillis = 2000;
 
+        private int percentage = 0;
+
 
         public PidController(ComponentId id, 
                              IBeerFactoryEventHandler eventHandler, 
@@ -111,9 +113,6 @@ namespace BF.Services.Components {
 
                     lastRun = currentTime;
 
-                    Logger.LogInformation($"PID Temp: {CurrentState.Temperature}, SSR: {output}, SetPoint: {CurrentState.SetPoint}");
-
-
                     UpdateSsr((int)output);
 
                 } else if (CurrentState.PidMode == PidMode.Percentage) {
@@ -124,13 +123,17 @@ namespace BF.Services.Components {
         }
 
         private void UpdateSsr(int percentage, string msg = "") {
-            Logger.LogInformation($"Ssr Request Firing: {Id} {percentage} {msg}");
-            _eventHandler.ComponentStateRequestFiring<SsrRequestState>(new ComponentStateRequest<SsrRequestState> {
-                RequestState = new SsrRequestState {
-                    Id = Id,
-                    Percentage = percentage
-                }
-            });
+
+            if (this.percentage != percentage) {
+                Logger.LogInformation($"PID Temp: {CurrentState.Temperature}, SSR: {percentage}, SetPoint: {CurrentState.SetPoint}");
+                //Logger.LogInformation($"Ssr Request Firing: {Id} {percentage} {msg}");
+                _eventHandler.ComponentStateRequestFiring<SsrRequestState>(new ComponentStateRequest<SsrRequestState> {
+                    RequestState = new SsrRequestState {
+                        Id = Id,
+                        Percentage = percentage
+                    }
+                });
+            }
         }
 
 

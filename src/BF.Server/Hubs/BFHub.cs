@@ -17,44 +17,48 @@ namespace BF.Server.Hubs {
         private IBeerFactoryEventHandler _eventHandler;
         private ILogger logger;
 
-        public BFHub(IBeerFactoryEventHandler eventHandler, ILogger<BFHub> logger) {
-            this.logger = logger;
+        private static IList<string> userNames = new List<string>();
+
+        public BFHub(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
+            this.logger = loggerFactory.CreateLogger<BFHub>();
             _eventHandler = eventHandler;
         }
 
         public override async Task OnConnectedAsync() {
             var userName = Context.User.Identity.Name;
+            if (!userNames.Contains(userName)) {
+                userNames.Add(userName);
 
-            var componentStateChange = new ComponentStateChange<ConnectionState> {
-                FromUserName = userName,
-                CurrentState = new ConnectionState {
-                    Status = ConnectionStatus.Connected
-                }
-            };
-            logger.LogInformation($"User connected: {userName}");
-            await Clients.All.SendAsync("ComponentStateChangeReceived",
-                                           componentStateChange.GetType().ToString(),
-                                           componentStateChange.ToJson());
-
-            //return base.OnConnectedAsync();
+                var componentStateChange = new ComponentStateChange<ConnectionState> {
+                    FromUserName = userName,
+                    CurrentState = new ConnectionState {
+                        Status = ConnectionStatus.Connected
+                    }
+                };
+                logger.LogInformation($"User connected: {userName}");
+                await Clients.All.SendAsync("ComponentStateChangeReceived",
+                                               componentStateChange.GetType().ToString(),
+                                               componentStateChange.ToJson());
+            }
         }
 
         public override async Task OnDisconnectedAsync(Exception exception) {
             var userName = Context.User.Identity.Name;
+            if (userNames.Contains(userName)) {
+                userNames.Remove(userName);
 
-            var componentStateChange = new ComponentStateChange<ConnectionState> {
-                FromUserName = userName,
-                CurrentState = new ConnectionState {
-                    Status = ConnectionStatus.Disconnected
-                }
-            };
-            logger.LogInformation($"User disconnected: {userName}");
+                var componentStateChange = new ComponentStateChange<ConnectionState> {
+                    FromUserName = userName,
+                    CurrentState = new ConnectionState {
+                        Status = ConnectionStatus.Disconnected
+                    }
+                };
+                logger.LogInformation($"User disconnected: {userName}");
 
-            await Clients.All.SendAsync("ComponentStateChangeReceived",
-                                           componentStateChange.GetType().ToString(),
-                                           componentStateChange.ToJson());
-
-            //return base.OnDisconnectedAsync(exception);
+                await Clients.All.SendAsync("ComponentStateChangeReceived",
+                                               componentStateChange.GetType().ToString(),
+                                               componentStateChange.ToJson());
+            }
         }
 
         public async Task ComponentStateChangeBroadcasted(string componentStateType, string componentStateChangeJson) {

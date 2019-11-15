@@ -84,7 +84,7 @@ namespace BF.Service.Controllers {
                                 newTemperature = 70;
 
                             if (newTemperature != thermometerState.Temperature) {
-                                Logger.LogInformation($"Fake: OLD: {thermometerState.Temperature} - NEW: {newTemperature}");
+                                //Logger.LogInformation($"Fake: OLD: {thermometerState.Temperature} - NEW: {newTemperature}");
 
                                 _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {
                                     

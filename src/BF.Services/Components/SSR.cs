@@ -86,7 +86,7 @@ namespace BF.Services.Components {
             decimal fraction = ((decimal)CurrentState.Percentage / 100.0m);
             _millisOn = (int)(fraction * (decimal)_dutyCycleInMillis);
             _millisOff = _dutyCycleInMillis - _millisOn;
-            Logger.LogInformation($"SSR: {Id} - CALC PERC {CurrentState.Percentage}, FRACTION {fraction}, MILLISON {_millisOn}, MILLISOFF {_millisOff}");
+            //Logger.LogInformation($"SSR: {Id} - CALC PERC {CurrentState.Percentage}, FRACTION {fraction}, MILLISON {_millisOn}, MILLISOFF {_millisOff}");
         }
 
         private void Start() {
@@ -114,7 +114,7 @@ namespace BF.Services.Components {
 
         private void On() {
             if (!CurrentState.IsFiring) {
-                Logger.LogInformation($"SSR: {Id} - ON {_millisOn}");
+                //Logger.LogInformation($"SSR: {Id} - ON {_millisOn}");
                 _pin?.Write(GpioPinValue.High);
                 PriorState = CurrentState;
                 CurrentState = CurrentState.Fire(true);
@@ -125,7 +125,7 @@ namespace BF.Services.Components {
 
         private void Off() {
             if (CurrentState.IsFiring) {
-                Logger.LogInformation($"SSR: {Id} - OFF {_millisOff}");
+                //Logger.LogInformation($"SSR: {Id} - OFF {_millisOff}");
                 _pin?.Write(GpioPinValue.Low);
                 PriorState = CurrentState;
                 CurrentState = CurrentState.Fire(false);
