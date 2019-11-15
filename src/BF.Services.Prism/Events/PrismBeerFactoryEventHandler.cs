@@ -96,7 +96,10 @@ namespace BF.Service.Prism.Events {
         private Dictionary<Type, Dictionary<ComponentId, ComponentState>> _componentStateCacheLookup = new Dictionary<Type, Dictionary<ComponentId, ComponentState>>();
 
         public T CurrentComponentState<T>(ComponentId componentId) where T : ComponentState {
-            return (T)ComponentStateCache<T>()[componentId];
+            var cache = ComponentStateCache<T>();
+            if (cache.ContainsKey(componentId))
+                return (T)cache[componentId];
+            return null;
         }
 
         public IList<T> CurrentComponentStates<T>() where T : ComponentState {

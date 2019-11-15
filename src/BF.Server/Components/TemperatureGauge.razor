@@ -53,20 +53,20 @@
     public double SetPoint { get; set; }
 
     protected override async Task OnInitializedAsync() {
-        
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         if (firstRender) {
             var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
-            SetPoint = pidControllerState.SetPoint;
-            await InvokeAsync(() => StateHasChanged());
-
+            if (pidControllerState != null) {
+                SetPoint = pidControllerState.SetPoint;
+                await InvokeAsync(() => StateHasChanged());
+            }
+            
             _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured);
             _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
         }
-
-        
     }
 
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {

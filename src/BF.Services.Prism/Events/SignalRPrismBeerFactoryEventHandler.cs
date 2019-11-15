@@ -26,8 +26,7 @@ namespace BF.Services.Prism.Events {
 
         private ILogger Logger { get; set; }
 
-
-
+       
         private HubConnection _connection;
 
         public SignalRPrismBeerFactoryEventHandler(IEventAggregator eventAggregator, ILoggerFactory loggerFactory, IApplicationConfig applicationConfig) :
@@ -71,13 +70,13 @@ namespace BF.Services.Prism.Events {
                             .Build();
                     }
 
-                    _connection.On<string, string>("ComponentStateChangeReceived",
-                       (string componentStateTypeStr, string componentStateChangeJson) => {
+                    _connection.On<string, string, string>("ComponentStateChangeReceived",
+                       (string userName, string componentStateTypeStr, string componentStateChangeJson) => {
                            var asm = typeof(ComponentState).Assembly;
                            Type componentStateType = asm.GetType(componentStateTypeStr);
                            var componentStateChange = JsonConvert.DeserializeObject(componentStateChangeJson, componentStateType);
 
-                           Logger.LogInformation($"SignalR: {DeviceHelper.GetDevice()} {componentStateType}");
+                           Logger.LogInformation($"SignalR-Change: {userName} {_applicationConfig.Device} {componentStateType}");
 
                            // TODO: There has to be a better way.
                            if (componentStateType == typeof(ComponentStateChange<ThermometerState>))
@@ -94,11 +93,13 @@ namespace BF.Services.Prism.Events {
                                base.ComponentStateChangeFiring((ComponentStateChange<BFState>)componentStateChange);
                        });
 
-                    _connection.On<string, string>("ComponentStateRequestReceived",
-                       (string componentStateTypeStr, string componentStateRequestJson) => {
+                    _connection.On<string, string, string>("ComponentStateRequestReceived",
+                       (string userName, string componentStateTypeStr, string componentStateRequestJson) => {
                            var asm = typeof(ComponentState).Assembly;
                            Type componentStateType = asm.GetType(componentStateTypeStr);
                            var componentStateRequest = JsonConvert.DeserializeObject(componentStateRequestJson, componentStateType);
+
+                           Logger.LogInformation($"SignalR-Request: {userName} {_applicationConfig.Device} {componentStateType}");
 
                            // TODO: There has to be a better way.
                            if (componentStateType == typeof(ComponentStateRequest<PidControllerRequestState>))
@@ -127,8 +128,12 @@ namespace BF.Services.Prism.Events {
         }
 
         public override void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) {
-            if (_connection.IsConnected() && 
-                (typeof(T) != typeof(ThermocoupleState))) {
+            var isApplianceState = typeof(T) != typeof(ThermocoupleState);
+            var isServerState = typeof(T) == typeof(ConnectionState);
+
+            if (_connection.IsConnected() //&& 
+                //((isApplianceState && _applicationConfig.IsAppliance()) || (isServerState && _applicationConfig.IsServer()))
+                ) { 
                 _connection.InvokeAsync("ComponentStateChangeBroadcasted",
                                         componentStateChange.GetType().ToString(),
                                         componentStateChange.ToJson());
@@ -138,7 +143,12 @@ namespace BF.Services.Prism.Events {
 
         public override void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) {
             componentStateRequest.FromUserName = _applicationConfig.UserName;
-            if (_connection.IsConnected()) {
+
+
+            if (_connection.IsConnected() 
+                //&&
+                //_applicationConfig.IsServer()
+                ) {
                 _connection.InvokeAsync("ComponentStateRequestBroadcasted",
                                         componentStateRequest.GetType().ToString(),
                                         componentStateRequest.ToJson());

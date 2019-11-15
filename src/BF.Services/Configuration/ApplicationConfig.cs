@@ -19,6 +19,10 @@ namespace BF.Services.Configuration {
 
         Device Device { get; set; }
 
+        bool IsServer();
+
+        bool IsAppliance();
+
     }
 
     public class ApplicationConfig : IApplicationConfig {
@@ -32,6 +36,10 @@ namespace BF.Services.Configuration {
         public bool IsLocal { get; set;}
 
         public Device Device { get; set; }
+
+        public bool IsServer() => Device == Device.Server_PC || Device == Device.Server;
+
+        public bool IsAppliance() => Device == Device.RaspberryPi_PC || Device == Device.RaspberryPi;
 
     }
 

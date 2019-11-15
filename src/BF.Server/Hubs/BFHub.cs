@@ -62,11 +62,17 @@ namespace BF.Server.Hubs {
         }
 
         public async Task ComponentStateChangeBroadcasted(string componentStateType, string componentStateChangeJson) {
-            await Clients.Others.SendAsync("ComponentStateChangeReceived", componentStateType, componentStateChangeJson);
+            var userName = Context.User.Identity.Name;
+
+            await Clients.Others.SendAsync("ComponentStateChangeReceived", userName, componentStateType, componentStateChangeJson);
+            //await Clients.Client("server").SendAsync("ComponentStateChangeReceived", userName, componentStateType, componentStateChangeJson);
         }
 
         public async Task ComponentStateRequestBroadcasted(string componentStateType, string componentStateRequestJson) {
-            await Clients.Others.SendAsync("ComponentStateRequestReceived", componentStateType, componentStateRequestJson);
+            var userName = Context.User.Identity.Name;
+
+            await Clients.Others.SendAsync(userName, "ComponentStateRequestReceived", userName, componentStateType, componentStateRequestJson);
+            //await Clients.Client("raspberrypi").SendAsync(userName, "ComponentStateRequestReceived", userName, componentStateType, componentStateRequestJson);
         }
 
 
