@@ -92,7 +92,7 @@ namespace BF.Server {
                         };
                     });
 
-            Log.Logger = loggerConfiguration.CreateLogger();
+            //Log.Logger = loggerConfiguration.CreateLogger();
 
             ConfigureBeerFactory(services);
         }

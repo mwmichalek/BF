@@ -11,13 +11,18 @@ using System.Threading.Tasks;
 
 namespace BF.Server.Hubs {
 
+    public static class UserHandler {
+
+        public static HashSet<string> UserNames = new HashSet<string>();
+
+        public static HashSet<string> ConnectedIds = new HashSet<string>();
+    }
+
     [Authorize]
     public class BFHub : Hub {
 
         private IBeerFactoryEventHandler _eventHandler;
         private ILogger logger;
-
-        private static IList<string> userNames = new List<string>();
 
         public BFHub(IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
             this.logger = loggerFactory.CreateLogger<BFHub>();
@@ -25,9 +30,10 @@ namespace BF.Server.Hubs {
         }
 
         public override async Task OnConnectedAsync() {
+            UserHandler.ConnectedIds.Add(Context.ConnectionId);
+
             var userName = Context.User.Identity.Name;
-            if (!userNames.Contains(userName)) {
-                userNames.Add(userName);
+            if (UserHandler.UserNames.Add(userName)) {
 
                 var componentStateChange = new ComponentStateChange<ConnectionState> {
                     FromUserName = userName,
@@ -35,7 +41,7 @@ namespace BF.Server.Hubs {
                         Status = ConnectionStatus.Connected
                     }
                 };
-                logger.LogInformation($"User connected: {userName}");
+                logger.LogInformation($"User connected: {userName} : {UserHandler.UserNames.Count} : {UserHandler.ConnectedIds.Count}");
                 await Clients.All.SendAsync("ComponentStateChangeReceived",
                                                componentStateChange.GetType().ToString(),
                                                componentStateChange.ToJson());
@@ -43,10 +49,10 @@ namespace BF.Server.Hubs {
         }
 
         public override async Task OnDisconnectedAsync(Exception exception) {
-            var userName = Context.User.Identity.Name;
-            if (userNames.Contains(userName)) {
-                userNames.Remove(userName);
+            UserHandler.ConnectedIds.Remove(Context.ConnectionId);
 
+            var userName = Context.User.Identity.Name;
+            if (UserHandler.UserNames.Remove(userName)) {
                 var componentStateChange = new ComponentStateChange<ConnectionState> {
                     FromUserName = userName,
                     CurrentState = new ConnectionState {
@@ -62,17 +68,18 @@ namespace BF.Server.Hubs {
         }
 
         public async Task ComponentStateChangeBroadcasted(string userName, string componentStateType, string componentStateChangeJson) {
-            //var userName = Context.User.Identity.Name;
-
+            logger.LogInformation($"HUB-Change: {userName} : {componentStateType} : {UserHandler.UserNames.Count} : {UserHandler.ConnectedIds.Count}");
             await Clients.Others.SendAsync("ComponentStateChangeReceived", userName, componentStateType, componentStateChangeJson);
             //await Clients.Client("server").SendAsync("ComponentStateChangeReceived", userName, componentStateType, componentStateChangeJson);
+            //await Clients.Client("raspberrypi").SendAsync("ComponentStateChangeReceived", userName, componentStateType, componentStateChangeJson);
         }
 
         public async Task ComponentStateRequestBroadcasted(string userName, string componentStateType, string componentStateRequestJson) {
-            //var userName = Context.User.Identity.Name;
+            logger.LogInformation($"HUB-Request: {userName} : {componentStateType} : {UserHandler.UserNames.Count} : {UserHandler.ConnectedIds.Count}");
 
             await Clients.Others.SendAsync(userName, "ComponentStateRequestReceived", userName, componentStateType, componentStateRequestJson);
             //await Clients.Client("raspberrypi").SendAsync(userName, "ComponentStateRequestReceived", userName, componentStateType, componentStateRequestJson);
+            //await Clients.Client("server").SendAsync(userName, "ComponentStateRequestReceived", userName, componentStateType, componentStateRequestJson);
         }
 
 

@@ -128,7 +128,7 @@ namespace BF.Service.Prism.Events {
         public void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateChangeHandler, 
                                                 ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState {
             _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Subscribe(componentStateChangeHandler, 
-                threadType.ToThreadOption());
+                threadType.ToThreadOption(), false);
         }
 
         public virtual void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) where T : RequestedComponentState {
@@ -138,7 +138,7 @@ namespace BF.Service.Prism.Events {
         public void ComponentStateRequestOccured<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
                                                 ThreadType threadType = ThreadType.PublisherThread) where T : RequestedComponentState {
             _eventAggregator.GetEvent<ComponentStateRequestEvent<ComponentStateRequest<T>>>().Subscribe(componentStateRequestHandler,
-                threadType.ToThreadOption());
+                threadType.ToThreadOption(), false);
         }
 
     }

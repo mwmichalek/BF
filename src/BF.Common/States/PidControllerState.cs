@@ -20,6 +20,10 @@ namespace BF.Common.States {
 
         public double GainDerivative { get; set; } = 1;
 
+        public override string ToString() {
+            return $"PID - Id: {Id}, SetPoint: {SetPoint} Time: {Timestamp.Second}:{Timestamp.Millisecond}";
+        }
+
     }
 
     public static class PidControllerStateHelper {

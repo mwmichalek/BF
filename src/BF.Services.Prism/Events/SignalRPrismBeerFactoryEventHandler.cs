@@ -76,18 +76,18 @@ namespace BF.Services.Prism.Events {
                            Type componentStateType = asm.GetType(componentStateTypeStr);
                            var componentStateChange = JsonConvert.DeserializeObject(componentStateChangeJson, componentStateType);
 
-                           Logger.LogInformation($"SignalR-Change: {userName} {_applicationConfig.Device} {componentStateType}");
+                           //Logger.LogInformation($"SignalR-Change: {userName} {_applicationConfig.Device} {componentStateChange.}");
 
                            // TODO: There has to be a better way.
-                           if (componentStateType == typeof(ComponentStateChange<ThermometerState>))
-                               base.ComponentStateChangeFiring((ComponentStateChange<ThermometerState>)componentStateChange);
+                           if (componentStateType == typeof(ComponentStateChange<ThermometerState>)) 
+                               BaseComponentStateChangeFiring<ThermometerState>(componentStateChange, userName);
                            if (componentStateType == typeof(ComponentStateChange<PidControllerState>))
                                base.ComponentStateChangeFiring((ComponentStateChange<PidControllerState>)componentStateChange);
                            if (componentStateType == typeof(ComponentStateChange<PumpState>))
                                base.ComponentStateChangeFiring((ComponentStateChange<PumpState>)componentStateChange);
                            if (componentStateType == typeof(ComponentStateChange<SsrState>))
                                base.ComponentStateChangeFiring((ComponentStateChange<SsrState>)componentStateChange);
-                           if (componentStateType == typeof(ComponentStateChange<ConnectionState>))
+                           if (componentStateType == typeof(ComponentStateChange<ConnectionState>)) 
                                base.ComponentStateChangeFiring((ComponentStateChange<ConnectionState>)componentStateChange);
                            if (componentStateType == typeof(ComponentStateChange<BFState>))
                                base.ComponentStateChangeFiring((ComponentStateChange<BFState>)componentStateChange);
@@ -123,6 +123,12 @@ namespace BF.Services.Prism.Events {
             }
         }
 
+        private void BaseComponentStateChangeFiring<T>(object componentStateChangeObj, string userName) where T : ComponentState{
+            var componentStateChange = (ComponentStateChange<T>)componentStateChangeObj;
+            Logger.LogInformation($"SignalR-Change: {userName} {_applicationConfig.Device} {componentStateChange.CurrentState}");
+            base.ComponentStateChangeFiring(componentStateChange);
+        }
+
         private Task OnConnection(string arg) {
             return Task.CompletedTask;
         }
@@ -132,8 +138,8 @@ namespace BF.Services.Prism.Events {
             var isServerState = typeof(T) == typeof(ConnectionState);
             componentStateChange.FromUserName = _applicationConfig.UserName;
 
-            if (_connection.IsConnected() //&& 
-                //((isApplianceState && _applicationConfig.IsAppliance()) || (isServerState && _applicationConfig.IsServer()))
+            if (_connection.IsConnected() && 
+                ((isApplianceState && _applicationConfig.IsAppliance()) || (isServerState && _applicationConfig.IsServer()))
                 ) { 
                 _connection.InvokeAsync("ComponentStateChangeBroadcasted",
                                         componentStateChange.FromUserName,
@@ -147,13 +153,9 @@ namespace BF.Services.Prism.Events {
             componentStateRequest.FromUserName = _applicationConfig.UserName;
 
 
-            if (_connection.IsConnected() 
-                //&&
-                //_applicationConfig.IsServer()
+            if (_connection.IsConnected() &&
+                _applicationConfig.IsServer()
                 ) {
-
-
-
                 _connection.InvokeAsync("ComponentStateRequestBroadcasted",
                                         componentStateRequest.FromUserName,
                                         componentStateRequest.GetType().ToString(),

@@ -65,6 +65,9 @@
 
     public void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
         if (componentStateChange.Id == ComponentId) {
+            while (ThermometerStateChanges.Count > 20)
+                ThermometerStateChanges.RemoveAt(0);
+
             ThermometerStateChanges.Add(componentStateChange.CurrentState);
 
             if (ShouldRender())

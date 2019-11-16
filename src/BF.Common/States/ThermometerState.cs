@@ -1,12 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
 namespace BF.Common.States {
 
     public class ThermometerState : ComponentState {
 
+        private static int Count = 0;
+
         public double Temperature { get; set; }
+
+        public override string ToString() {
+            return $"Termometer - Id: {Id}, Temp: {Temperature} Time: {Timestamp.Second}:{Timestamp.Millisecond} {DateTime.Now.Millisecond} {Count++}";
+        }
 
     }
 

@@ -47,10 +47,10 @@ namespace BF.Appliance {
                 .WriteTo.Trace();
 
 
-            Log.Logger = loggerConfiguration.CreateLogger();
+            //Log.Logger = loggerConfiguration.CreateLogger();
 
             ILoggerFactory loggerFactory = new LoggerFactory();
-            loggerFactory.AddSerilog(Log.Logger);
+            loggerFactory.AddSerilog();
 
             Container.RegisterInstance<ILoggerFactory>(loggerFactory);
 

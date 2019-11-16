@@ -10,6 +10,10 @@ namespace BF.Common.States {
 
         public bool IsFiring { get; set; } = false;
 
+        public override string ToString() {
+            return $"SSR - Id: {Id}, %: {Percentage} Time: {Timestamp.Second}:{Timestamp.Millisecond}";
+        }
+
     }
 
     public static class SsrStateHelper {
