@@ -43,6 +43,7 @@ namespace BF.Server.Hubs {
                 };
                 logger.LogInformation($"User connected: {userName} : {UserHandler.UserNames.Count} : {UserHandler.ConnectedIds.Count}");
                 await Clients.All.SendAsync("ComponentStateChangeReceived",
+                                               userName,
                                                componentStateChange.GetType().ToString(),
                                                componentStateChange.ToJson());
             }
@@ -62,6 +63,7 @@ namespace BF.Server.Hubs {
                 logger.LogInformation($"User disconnected: {userName}");
 
                 await Clients.All.SendAsync("ComponentStateChangeReceived",
+                                               userName,
                                                componentStateChange.GetType().ToString(),
                                                componentStateChange.ToJson());
             }

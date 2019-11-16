@@ -15,6 +15,10 @@ namespace BF.Common.States {
 
         public ConnectionStatus Status { get; set; }
 
+        public override string ToString() {
+            return $"Connection - Id: {Id}, Status: {Status} Time: {Timestamp.Second}:{Timestamp.Millisecond}";
+        }
+
     }
 
 }

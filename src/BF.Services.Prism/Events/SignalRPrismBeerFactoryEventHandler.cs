@@ -82,15 +82,15 @@ namespace BF.Services.Prism.Events {
                     if (componentStateType == typeof(ComponentStateChange<ThermometerState>)) 
                         BaseComponentStateChangeFiring<ThermometerState>(componentStateChange, userName);
                     if (componentStateType == typeof(ComponentStateChange<PidControllerState>))
-                        base.ComponentStateChangeFiring((ComponentStateChange<PidControllerState>)componentStateChange);
+                        BaseComponentStateChangeFiring<PidControllerState>(componentStateChange, userName);
                     if (componentStateType == typeof(ComponentStateChange<PumpState>))
-                        base.ComponentStateChangeFiring((ComponentStateChange<PumpState>)componentStateChange);
+                        BaseComponentStateChangeFiring<PumpState>(componentStateChange, userName);
                     if (componentStateType == typeof(ComponentStateChange<SsrState>))
-                        base.ComponentStateChangeFiring((ComponentStateChange<SsrState>)componentStateChange);
-                    if (componentStateType == typeof(ComponentStateChange<ConnectionState>)) 
-                        base.ComponentStateChangeFiring((ComponentStateChange<ConnectionState>)componentStateChange);
+                        BaseComponentStateChangeFiring<SsrState>(componentStateChange, userName);
+                    if (componentStateType == typeof(ComponentStateChange<ConnectionState>))
+                        BaseComponentStateChangeFiring<ConnectionState>(componentStateChange, userName);
                     if (componentStateType == typeof(ComponentStateChange<BFState>))
-                        base.ComponentStateChangeFiring((ComponentStateChange<BFState>)componentStateChange);
+                        BaseComponentStateChangeFiring<BFState>(componentStateChange, userName);
                 });
 
             _connection.On<string, string, string>("ComponentStateRequestReceived",
@@ -137,7 +137,8 @@ namespace BF.Services.Prism.Events {
             var isServerState = typeof(T) == typeof(ConnectionState);
             componentStateChange.FromUserName = _applicationConfig.UserName;
 
-            if (_connection.IsConnected() && 
+            if (_connection.IsConnected()
+                && 
                 ((isApplianceState && _applicationConfig.IsAppliance()) || (isServerState && _applicationConfig.IsServer()))
                 ) { 
                 _connection.InvokeAsync("ComponentStateChangeBroadcasted",
@@ -152,7 +153,8 @@ namespace BF.Services.Prism.Events {
             componentStateRequest.FromUserName = _applicationConfig.UserName;
 
 
-            if (_connection.IsConnected() &&
+            if (_connection.IsConnected() 
+                &&
                 _applicationConfig.IsServer()
                 ) {
                 _connection.InvokeAsync("ComponentStateRequestBroadcasted",
