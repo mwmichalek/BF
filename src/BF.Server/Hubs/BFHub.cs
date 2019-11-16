@@ -68,18 +68,13 @@ namespace BF.Server.Hubs {
         }
 
         public async Task ComponentStateChangeBroadcasted(string userName, string componentStateType, string componentStateChangeJson) {
-            logger.LogInformation($"HUB-Change: {userName} : {componentStateType} : {UserHandler.UserNames.Count} : {UserHandler.ConnectedIds.Count}");
+            //logger.LogInformation($"HUB-Change: {userName} : {componentStateType} : {UserHandler.UserNames.Count} : {UserHandler.ConnectedIds.Count}");
             await Clients.Others.SendAsync("ComponentStateChangeReceived", userName, componentStateType, componentStateChangeJson);
-            //await Clients.Client("server").SendAsync("ComponentStateChangeReceived", userName, componentStateType, componentStateChangeJson);
-            //await Clients.Client("raspberrypi").SendAsync("ComponentStateChangeReceived", userName, componentStateType, componentStateChangeJson);
         }
 
         public async Task ComponentStateRequestBroadcasted(string userName, string componentStateType, string componentStateRequestJson) {
-            logger.LogInformation($"HUB-Request: {userName} : {componentStateType} : {UserHandler.UserNames.Count} : {UserHandler.ConnectedIds.Count}");
-
+            //logger.LogInformation($"HUB-Request: {userName} : {componentStateType} : {UserHandler.UserNames.Count} : {UserHandler.ConnectedIds.Count}");
             await Clients.Others.SendAsync(userName, "ComponentStateRequestReceived", userName, componentStateType, componentStateRequestJson);
-            //await Clients.Client("raspberrypi").SendAsync(userName, "ComponentStateRequestReceived", userName, componentStateType, componentStateRequestJson);
-            //await Clients.Client("server").SendAsync(userName, "ComponentStateRequestReceived", userName, componentStateType, componentStateRequestJson);
         }
 
 
@@ -93,23 +88,4 @@ namespace BF.Server.Hubs {
 
     }
 
-    //public class ComponentRestrictedRequirement : 
-    //                AuthorizationHandler<ComponentRestrictedRequirement, HubInvocationContext>,
-    //                IAuthorizationRequirement {
-
-    //    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
-    //                                                   ComponentRestrictedRequirement requirement,
-    //                                                   HubInvocationContext resource) {
-    //        if (IsComponentAllowedToDoThis(resource.HubMethodName, context.User.Identity.Name) &&
-    //            context.User.Identity.Name.EndsWith("@microsoft.com")) {
-    //            context.Succeed(requirement);
-    //        }
-    //        return Task.CompletedTask;
-    //    }
-
-    //    private bool IsComponentAllowedToDoThis(string hubMethodName, string currentUsername) {
-    //        return !(currentUsername.Equals("asdf42@microsoft.com") &&
-    //            hubMethodName.Equals("banUser", StringComparison.OrdinalIgnoreCase));
-    //    }
-    //}
 }
