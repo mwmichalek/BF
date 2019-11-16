@@ -54,7 +54,8 @@
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         if (firstRender) {
             var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
-            if (SetPoint != (int)pidControllerState.SetPoint) {
+            if (pidControllerState != null &&
+                SetPoint != (int)pidControllerState.SetPoint) {
                 // NOTE: This is a bullshit workaround.  For some reason if there is no delay the changes aren't reflected.
                 Task.Run(() => {
                     do {

@@ -130,11 +130,13 @@ namespace BF.Services.Prism.Events {
         public override void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) {
             var isApplianceState = typeof(T) != typeof(ThermocoupleState);
             var isServerState = typeof(T) == typeof(ConnectionState);
+            componentStateChange.FromUserName = _applicationConfig.UserName;
 
             if (_connection.IsConnected() //&& 
                 //((isApplianceState && _applicationConfig.IsAppliance()) || (isServerState && _applicationConfig.IsServer()))
                 ) { 
                 _connection.InvokeAsync("ComponentStateChangeBroadcasted",
+                                        componentStateChange.FromUserName,
                                         componentStateChange.GetType().ToString(),
                                         componentStateChange.ToJson());
             }
@@ -149,7 +151,11 @@ namespace BF.Services.Prism.Events {
                 //&&
                 //_applicationConfig.IsServer()
                 ) {
+
+
+
                 _connection.InvokeAsync("ComponentStateRequestBroadcasted",
+                                        componentStateRequest.FromUserName,
                                         componentStateRequest.GetType().ToString(),
                                         componentStateRequest.ToJson());
             }
