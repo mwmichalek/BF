@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
 
         <!-- ***** HEADER *****-->
-        <Border Background="Black"
+        <Border  Background="#161616"
                 
                         Margin="5"
                         Grid.Row="0">
@@ -84,7 +84,7 @@
    
 
         <!-- ***** HEADER *****-->
-        <Border Background="DarkSlateGray"
+        <Border Background="#161616"
                         Margin="5"
                         Grid.Row="1">
             <Grid>
@@ -105,7 +105,7 @@
                             HorizontalAlignment="Center" VerticalAlignment="Center"
                             FontSize="100" FontFamily="Consolas" Foreground="Red"
                                    Margin="5"
-                                   Width="260"
+                                   Width="300"
                                    TextWrapping="WrapWholeWords"
                            Text="{Binding TemperatureStr, Mode=TwoWay}" />
 

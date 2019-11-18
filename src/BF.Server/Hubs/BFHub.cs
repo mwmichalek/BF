@@ -76,7 +76,7 @@ namespace BF.Server.Hubs {
 
         public async Task ComponentStateRequestBroadcasted(string userName, string componentStateType, string componentStateRequestJson) {
             //logger.LogInformation($"HUB-Request: {userName} : {componentStateType} : {UserHandler.UserNames.Count} : {UserHandler.ConnectedIds.Count}");
-            await Clients.Others.SendAsync(userName, "ComponentStateRequestReceived", userName, componentStateType, componentStateRequestJson);
+            await Clients.Others.SendAsync("ComponentStateRequestReceived", userName, componentStateType, componentStateRequestJson);
         }
 
 
