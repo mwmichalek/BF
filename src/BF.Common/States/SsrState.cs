@@ -6,12 +6,14 @@ namespace BF.Common.States {
 
     public class SsrState : ConfigurableComponentState {
 
+        private static int Counter = 0;
+
         public int Percentage { get; set; } = 0;
 
         public bool IsFiring { get; set; } = false;
 
         public override string ToString() {
-            return $"SSR - Id: {Id}, %: {Percentage} Time: {Timestamp.Second}:{Timestamp.Millisecond}";
+            return $"SSR - Id: {Id}, %: {Percentage} IsFiring: {IsFiring}, Time: {Timestamp.Second}:{Timestamp.Millisecond} {Counter++}";
         }
 
     }

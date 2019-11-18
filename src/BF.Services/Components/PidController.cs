@@ -125,6 +125,7 @@ namespace BF.Services.Components {
         private void UpdateSsr(int percentage, string msg = "") {
 
             if (this.percentage != percentage) {
+                this.percentage = percentage;
                 Logger.LogInformation($"PID Temp: {CurrentState.Temperature}, SSR: {percentage}, SetPoint: {CurrentState.SetPoint}");
                 //Logger.LogInformation($"Ssr Request Firing: {Id} {percentage} {msg}");
                 _eventHandler.ComponentStateRequestFiring<SsrRequestState>(new ComponentStateRequest<SsrRequestState> {
