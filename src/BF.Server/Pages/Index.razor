@@ -1,44 +1,30 @@
 ﻿@page "/"
-@using Microsoft.AspNetCore.SignalR.Client
-@using BF.Common.Events
+@page "/stage/{StageId:int}"
+
 @using BF.Common.Components
-@using Newtonsoft.Json
-@using Syncfusion.EJ2.Blazor
-@using Syncfusion.EJ2.Blazor.Layouts
-@using Syncfusion.EJ2.Blazor.CircularGauge
-@using System.Net.Http;
-@using System.Security.Cryptography.X509Certificates;
-@using System.Net.Security;
-@using Syncfusion.EJ2.Blazor.Buttons
-@using Syncfusion.EJ2.Blazor.Inputs
-@using Syncfusion.EJ2.Blazor.Lists
 @using BF.Service.Events
-@using BF.Services.Components
 @using BF.Server.Components
 
-    <div class="container">
-        <div class="row">
-            <div class="col-9">
-                <div class="row">
-                    <div class="col-12">
+<h2>@Stage</h2>
 
-                        <TemperatureGauge ComponentId="@ComponentId.HLT" />
-
-
-
-                    </div>
+<div class="container">
+    <div class="row">
+        <div class="col-9">
+            <div class="row">
+                <div class="col-6">
+                    <TemperatureGauge ComponentId="@Stage" />
                 </div>
-                <div class="row">
-                    <div class="col-12">
-                        <SsrPercentageGauge ComponentId="ComponentId.HLT" />
-                    </div>
+
+                <div class="col-6">
+                    <SsrPercentageGauge ComponentId="@Stage" />
                 </div>
-            </div>
-            <div class="col-3">
-                <SetPointComponent ComponentId="ComponentId.HLT" />
             </div>
         </div>
-        @*<div class="row">
+        <div class="col-3">
+            <SetPointComponent ComponentId="@Stage" />
+        </div>
+    </div>
+    @*<div class="row">
             <div class="col-9">
                 <EventLogger />
             </div>
@@ -47,27 +33,24 @@
             </div>
 
         </div>*@
-        <div class="row">
-            <div class="col-12">
-                <TemperatureChart  ComponentId="ComponentId.HLT" />
-            </div>
+    <div class="row">
+        <div class="col-12">
+            <TemperatureChart ComponentId="@Stage" />
         </div>
     </div>
-
+</div>
 
 @code {
 
-    [Inject]
-    IBeerFactoryEventHandler _beerFactoryEventHandler { get; set; }
+    [Parameter]
+    public int StageId { get; set; } = 1;
 
-    string User = "";
-    string Message = "";
+    public ComponentId Stage { get; set; } = ComponentId.HLT;
 
-    protected override async Task OnInitializedAsync() {
-    }
-
-    async Task SendMessage() {
-        //await connection.InvokeAsync("SendMessage", User, Message);
+    protected override void OnParametersSet() {
+        if (StageId != (int)ComponentId.HLT && StageId != 0)
+            Stage = StageId.ToComponentId();
     }
 
 }
+

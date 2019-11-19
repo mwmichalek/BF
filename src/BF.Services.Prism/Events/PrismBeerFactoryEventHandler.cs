@@ -75,20 +75,17 @@ namespace BF.Service.Prism.Events {
             _componentStateCacheLookup[typeof(PidControllerState)] = bfState.PidControllerStates.ToDictionary(ss => ss.Id, ss => (ComponentState)ss);
             _componentStateCacheLookup[typeof(PumpState)] = bfState.PumpStates.ToDictionary(ss => ss.Id, ss => (ComponentState)ss);
 
+            foreach (var stateChange in bfState.SsrStates)
+                ComponentStateChangeFiring(stateChange.ToComponentStateChange());
 
-            //CurrentState = bfStateChange.CurrentState;
+            foreach (var stateChange in bfState.ThermometerStates)
+                ComponentStateChangeFiring(stateChange.ToComponentStateChange());
 
-            //foreach (var stateChange in CurrentState.ComponentStateChanges<SsrState>())
-            //    ComponentStateChangeFiring(stateChange);
+            foreach (var stateChange in bfState.PidControllerStates)
+                ComponentStateChangeFiring(stateChange.ToComponentStateChange());
 
-            //foreach (var stateChange in CurrentState.ComponentStateChanges<ThermometerState>())
-            //    ComponentStateChangeFiring(stateChange);
-
-            //foreach (var stateChange in CurrentState.ComponentStateChanges<PidControllerState>())
-            //    ComponentStateChangeFiring(stateChange);
-
-            //foreach (var stateChange in CurrentState.ComponentStateChanges<PumpState>())
-            //    ComponentStateChangeFiring(stateChange);
+            foreach (var stateChange in bfState.PumpStates)
+                ComponentStateChangeFiring(stateChange.ToComponentStateChange());
 
             Logger.LogInformation($"Receive entire buttload : {_applicationConfig.Device}");
         }

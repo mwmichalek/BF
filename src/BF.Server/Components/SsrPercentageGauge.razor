@@ -4,6 +4,8 @@
 @using BF.Common.Events
 @using BF.Common.Components
 @using BF.Common.States
+@using System.Threading
+@using Microsoft.Extensions.Logging
 
 <EjsCircularGauge>
     <CircularGaugeAxes>
@@ -17,7 +19,8 @@
             <CircularGaugeAxisMinorTicks Position="Position.Outside">
             </CircularGaugeAxisMinorTicks>
             <CircularGaugePointers>
-                <CircularGaugePointer Value="@Percentage"
+                <CircularGaugePointer @ref="CircularGauge"
+                                      Value="@Percentage"
                                       Type="PointerType.RangeBar"
                                       PointerWidth="20"
                                       Radius="95%"
@@ -48,10 +51,36 @@
     [Inject]
     IBeerFactoryEventHandler _eventHandler { get; set; }
 
-    public double Percentage;
+    [Inject]
+    ILoggerFactory _loggerFactory { get; set; }
+
+    private ILogger _logger;
+
+    public CircularGaugePointer CircularGauge { get; set; }
+
+    public int Percentage { get; set; }
 
     protected override async Task OnInitializedAsync() {
+        _logger = _loggerFactory.CreateLogger("SsrPercentageGauge");
         _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (firstRender) {
+            var ssrState = (SsrState)_eventHandler.CurrentComponentState<SsrState>(ComponentId);
+            if (ssrState != null &&
+                Percentage != ssrState.Percentage) {
+                await Task.Run(() => {
+                    do {
+                        _logger.LogInformation($" Value: {CircularGauge.Value}");
+                        Percentage = ssrState.Percentage;
+                        InvokeAsync(() => StateHasChanged());
+                        Thread.Sleep(1000);
+                    } while (CircularGauge.Value != Percentage);
+                    _logger.LogInformation($" Value: {CircularGauge.Value}");
+                });
+            }
+        }
     }
 
     void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
@@ -60,7 +89,4 @@
             InvokeAsync(() => StateHasChanged());
         }
     }
-
 }
-
-

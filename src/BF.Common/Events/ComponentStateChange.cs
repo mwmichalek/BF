@@ -28,6 +28,10 @@ namespace BF.Common.Events {
             return JsonConvert.DeserializeObject<ComponentStateChange>(eventJson);
         }
 
+        public static ComponentStateChange<T> ToComponentStateChange<T>(this T state) where T : ComponentState {
+            return new ComponentStateChange<T> { CurrentState = state };
+        }
+
         public static string ToJson<T>(this ComponentStateChange<T> componentStateChange) where T : ComponentState {
             return JsonConvert.SerializeObject(componentStateChange);
         }

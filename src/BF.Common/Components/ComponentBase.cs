@@ -68,6 +68,14 @@ namespace BF.Common.Components {
             ComponentId.BK,
         });
 
+        public static ComponentId ToComponentId(this string componentIdStr) {
+            return (ComponentId)Enum.Parse(typeof(ComponentId), componentIdStr);
+        }
+
+        public static ComponentId ToComponentId(this int componentIdInt) {
+            return ToComponentId(componentIdInt.ToString());
+        }
+
         //public static ComponentBase<T> GetById<ComponentBase<T>>(this List<ComponentBase<T>> components, ComponentId componentId) where T : ComponentState {
         //    return (T)components.SingleOrDefault(s => s.Id == componentId);
         //}

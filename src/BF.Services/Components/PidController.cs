@@ -130,7 +130,7 @@ namespace BF.Services.Components {
                 //Logger.LogInformation($"Ssr Request Firing: {Id} {percentage} {msg}");
                 _eventHandler.ComponentStateRequestFiring<SsrRequestState>(new ComponentStateRequest<SsrRequestState> {
                     RequestState = new SsrRequestState {
-                        Id = Id,
+                        Id = (Id == ComponentId.MT) ? ComponentId.HLT : Id,
                         Percentage = percentage
                     }
                 });

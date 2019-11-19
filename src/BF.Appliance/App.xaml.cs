@@ -158,6 +158,30 @@ namespace BF.Appliance {
                     GainDerivative = 22.5
                 }
             });
+
+            eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
+                RequestState = new PidControllerRequestState {
+                    Id = ComponentId.MT,
+                    PidMode = PidMode.Temperature,
+                    SetPoint = 80,
+                    IsEngaged = false,
+                    GainProportional = 18,
+                    GainIntegral = 1.5,
+                    GainDerivative = 22.5
+                }
+            });
+
+            eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
+                RequestState = new PidControllerRequestState {
+                    Id = ComponentId.BK,
+                    PidMode = PidMode.Percentage,
+                    SetPoint = 70,
+                    IsEngaged = false,
+                    GainProportional = 18,
+                    GainIntegral = 1.5,
+                    GainDerivative = 22.5
+                }
+            });
         }
 
         protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args) {

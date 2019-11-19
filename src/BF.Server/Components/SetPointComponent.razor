@@ -1,4 +1,6 @@
-﻿@using Syncfusion.EJ2.Blazor
+﻿@inherits BFComponent;
+
+@using Syncfusion.EJ2.Blazor
 @using Syncfusion.EJ2.Blazor.CircularGauge
 @using Syncfusion.EJ2.Blazor.Inputs
 @using BF.Service.Events
@@ -11,7 +13,7 @@
 <h2>[ @SetPoint ]</h2>
 
 <div class="content-wrapper" style="height: 100%;">
-    
+
 
     <EjsSlider @ref="Slider"
                Orientation="@SliderOrientation.Vertical"
@@ -46,6 +48,8 @@
 
     public EjsSlider<int> Slider { get; set; }
 
+    private bool _isInitialized = false;
+
     protected override async Task OnInitializedAsync() {
         _logger = _loggerFactory.CreateLogger("SetPointComponent");
         _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured);
@@ -53,18 +57,28 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         if (firstRender) {
-            var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
-            if (pidControllerState != null &&
-                SetPoint != (int)pidControllerState.SetPoint) {
-                // NOTE: This is a bullshit workaround.  For some reason if there is no delay the changes aren't reflected.
-                Task.Run(() => {
-                    do {
-                        SetPoint = (int)pidControllerState.SetPoint;
-                        InvokeAsync(() => StateHasChanged());
-                        Thread.Sleep(50);
-                    } while (Slider.Value != SetPoint);
-                });
-            } 
+            Setup();
+            _isInitialized = true;
+        }
+    }
+
+    protected override void OnParametersSet() {
+        if (_isInitialized)
+            Setup();
+    }
+
+    private void Setup() {
+        var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
+        if (pidControllerState != null &&
+            SetPoint != (int)pidControllerState.SetPoint) {
+            // NOTE: This is a bullshit workaround.  For some reason if there is no delay the changes aren't reflected.
+            Task.Run(() => {
+                do {
+                    SetPoint = (int)pidControllerState.SetPoint;
+                    InvokeAsync(() => StateHasChanged());
+                    Thread.Sleep(50);
+                } while (Slider.Value != SetPoint);
+            });
         }
     }
 
@@ -87,7 +101,7 @@
                 }
             });
 
-        } 
+        }
     }
 
 }
