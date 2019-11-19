@@ -30,13 +30,13 @@ namespace BF.Services.Components {
 
         private GpioPin _pin;
 
-        private bool _isRunning = false;
-
         private int _millisOn = 0;
 
         private int _millisOff = 2000;
 
         private IBeerFactoryEventHandler _eventHandler;
+
+        private SsrState ProposedState;
 
         public Ssr(ComponentId id, IBeerFactoryEventHandler eventHandler, ILoggerFactory loggerFactory) {
             Logger = loggerFactory.CreateLogger<Ssr>();
@@ -59,18 +59,23 @@ namespace BF.Services.Components {
         private void SsrStateRequestOccured(ComponentStateRequest<SsrRequestState> ssrStateRequest) {
             if (ssrStateRequest.Id == CurrentState.Id && 
                 CurrentState.IsDifferent(ssrStateRequest.RequestState)) {
-                PriorState = CurrentState;
-                CurrentState = CurrentState.UpdateRequest(ssrStateRequest.RequestState);
 
-                CalculateDurations();
+                var stopIt = ssrStateRequest.RequestState.Percentage == 0 && CurrentState.IsEngaged;
+                var startIt = ssrStateRequest.RequestState.Percentage > 0 && !CurrentState.IsEngaged;
 
-                if (CurrentState.Percentage > 0 && !_isRunning)
-                    Start();
+                if (stopIt || startIt) {
+                    PriorState = CurrentState;
+                    CurrentState = CurrentState.UpdateRequest(ssrStateRequest.RequestState);
+                    CalculateDurations();
+                }
 
-                if (CurrentState.Percentage == 0 && _isRunning)
-                    Stop();
+                if (startIt) Start();
+                if (stopIt) Stop();
 
-                SendNotification();
+                if (stopIt || startIt)
+                    SendNotification();
+                else
+                    ProposedState = CurrentState.UpdateRequest(ssrStateRequest.RequestState);
             }
         }
 
@@ -96,6 +101,7 @@ namespace BF.Services.Components {
 
         private void Stop() {
             CurrentState = CurrentState.Engage(false);
+            ProposedState = null;
         }
 
         private void Run() {
@@ -108,6 +114,14 @@ namespace BF.Services.Components {
                 if (CurrentState.Percentage != 100 && _millisOff > 0) {
                     Off();
                     Thread.Sleep(_millisOff);
+                }
+
+                if (ProposedState != null) {
+                    PriorState = CurrentState;
+                    CurrentState = ProposedState;
+                    ProposedState = null;
+                    CalculateDurations();
+                    SendNotification();
                 }
             }
         }

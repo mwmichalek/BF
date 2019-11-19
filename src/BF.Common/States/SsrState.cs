@@ -25,6 +25,7 @@ namespace BF.Common.States {
                 Id = ssrState.Id,
                 Percentage = ssrState.Percentage,
                 IsFiring = ssrState.IsFiring,
+                IsEngaged = ssrState.IsEngaged,
                 Timestamp = ssrState.Timestamp
             };
         }

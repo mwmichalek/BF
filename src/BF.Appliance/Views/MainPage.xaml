@@ -38,7 +38,7 @@
                            Text="PHASE:" />
 
                 <TextBlock Grid.Column="0" 
-                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
                             FontSize="40" FontFamily="Consolas" Foreground="Red"
                                    Margin="5"
                                    Width="170"
@@ -54,7 +54,7 @@
                            Text="ELAPSE TIME:" />
 
                 <TextBlock Grid.Column="1" 
-                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
                             FontSize="40" FontFamily="Consolas" Foreground="Red"
                                    Margin="5"
                                    Width="140"
@@ -70,7 +70,7 @@
                            Text="SETPOINT:" />
 
                 <TextBlock Grid.Column="2" 
-                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
                             FontSize="40" FontFamily="Consolas" Foreground="Red"
                                    Margin="5"
                                    Width="90"
