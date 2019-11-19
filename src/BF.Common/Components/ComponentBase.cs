@@ -8,6 +8,7 @@ using System.Text;
 namespace BF.Common.Components {
 
     public enum ComponentId {
+        UNDEFINED = 0,
         HLT = 1,
         MT_IN = 2,
         MT = 3,

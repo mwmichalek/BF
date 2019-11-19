@@ -33,30 +33,25 @@ namespace BF.Appliance.ViewModels {
             SetPoint = (int)pidControllers.Single(t => t.Id == ComponentId.HLT).CurrentState.SetPoint;
             SsrPercentage = (int)ssrs.Single(t => t.Id == ComponentId.HLT).CurrentState.Percentage;
            
-            _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured, ThreadType.UIThread);
-            _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured, ThreadType.UIThread);
-            _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured, ThreadType.UIThread);
+            _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
+            _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
+            _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
         }
 
         private void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
-            if (ssrStateChange.Id == ComponentId.HLT) {
-                //Logger.LogInformation($"RaspPI: Ssr Change: {ssrStateChange.CurrentState.Percentage}");
-                SsrPercentage = ssrStateChange.CurrentState.Percentage;
-            }
+            //Logger.LogInformation($"RaspPI: Ssr Change: {ssrStateChange.CurrentState.Percentage}");
+            SsrPercentage = ssrStateChange.CurrentState.Percentage;
+     
         }
 
         private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
-            if (thermometerStateChange.Id == ComponentId.HLT) {
-                //Logger.LogInformation($"RaspPI: Thermometer Change: {thermometerStateChange.CurrentState.Temperature}");
-                Temperature = thermometerStateChange.CurrentState.Temperature;
-            }
+            //Logger.LogInformation($"RaspPI: Thermometer Change: {thermometerStateChange.CurrentState.Temperature}");
+            Temperature = thermometerStateChange.CurrentState.Temperature;
         }
 
         private void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> pidControllerStateChange) {
-            if (pidControllerStateChange.Id == ComponentId.HLT) {
-                //Logger.LogInformation($"RaspPI: Pid Change: {pidControllerStateChange.CurrentState.SetPoint}");
-                SetPoint = (int)pidControllerStateChange.CurrentState.SetPoint;
-            }
+            //Logger.LogInformation($"RaspPI: Pid Change: {pidControllerStateChange.CurrentState.SetPoint}");
+            SetPoint = (int)pidControllerStateChange.CurrentState.SetPoint;
         }
 
         private bool _engaged;

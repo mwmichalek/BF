@@ -75,17 +75,17 @@ namespace BF.Service.Prism.Events {
             _componentStateCacheLookup[typeof(PidControllerState)] = bfState.PidControllerStates.ToDictionary(ss => ss.Id, ss => (ComponentState)ss);
             _componentStateCacheLookup[typeof(PumpState)] = bfState.PumpStates.ToDictionary(ss => ss.Id, ss => (ComponentState)ss);
 
-            foreach (var stateChange in bfState.SsrStates)
-                ComponentStateChangeFiring(stateChange.ToComponentStateChange());
+            //foreach (var stateChange in bfState.SsrStates)
+            //    ComponentStateChangeFiring(stateChange.ToComponentStateChange());
 
-            foreach (var stateChange in bfState.ThermometerStates)
-                ComponentStateChangeFiring(stateChange.ToComponentStateChange());
+            //foreach (var stateChange in bfState.ThermometerStates)
+            //    ComponentStateChangeFiring(stateChange.ToComponentStateChange());
 
-            foreach (var stateChange in bfState.PidControllerStates)
-                ComponentStateChangeFiring(stateChange.ToComponentStateChange());
+            //foreach (var stateChange in bfState.PidControllerStates)
+            //    ComponentStateChangeFiring(stateChange.ToComponentStateChange());
 
-            foreach (var stateChange in bfState.PumpStates)
-                ComponentStateChangeFiring(stateChange.ToComponentStateChange());
+            //foreach (var stateChange in bfState.PumpStates)
+            //    ComponentStateChangeFiring(stateChange.ToComponentStateChange());
 
             Logger.LogInformation($"Receive entire buttload : {_applicationConfig.Device}");
         }
@@ -123,9 +123,13 @@ namespace BF.Service.Prism.Events {
         }
 
         public void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateChangeHandler, 
-                                                ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState {
+                                                   ComponentId componentId = ComponentId.UNDEFINED,
+                                                   ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState {
+            Predicate<ComponentStateChange<T>> filter = null;
+            if (componentId != ComponentId.UNDEFINED)
+                filter = chg => chg.Id == componentId;
             _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Subscribe(componentStateChangeHandler, 
-                threadType.ToThreadOption(), false);
+                threadType.ToThreadOption(), false, filter);
         }
 
         public virtual void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) where T : RequestedComponentState {
@@ -133,9 +137,13 @@ namespace BF.Service.Prism.Events {
         }
 
         public void ComponentStateRequestOccured<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
-                                                ThreadType threadType = ThreadType.PublisherThread) where T : RequestedComponentState {
+                                                    ComponentId componentId = ComponentId.UNDEFINED,
+                                                    ThreadType threadType = ThreadType.PublisherThread) where T : RequestedComponentState {
+            Predicate<ComponentStateRequest<T>> filter = null;
+            if (componentId != ComponentId.UNDEFINED)
+                filter = chg => chg.Id == componentId; 
             _eventAggregator.GetEvent<ComponentStateRequestEvent<ComponentStateRequest<T>>>().Subscribe(componentStateRequestHandler,
-                threadType.ToThreadOption(), false);
+                threadType.ToThreadOption(), false, filter);
         }
 
     }
