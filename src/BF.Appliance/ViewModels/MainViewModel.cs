@@ -32,25 +32,25 @@ namespace BF.Appliance.ViewModels {
             Temperature = (double)thermometers.Single(t => t.Id == ComponentId.HLT).Temperature;
             SetPoint = (int)pidControllers.Single(t => t.Id == ComponentId.HLT).CurrentState.SetPoint;
             SsrPercentage = (int)ssrs.Single(t => t.Id == ComponentId.HLT).CurrentState.Percentage;
-           
+
             _eventHandler.SubscribeToComponentStateChange<ThermometerState>(ThermometerStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
             _eventHandler.SubscribeToComponentStateChange<SsrState>(SsrStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
             _eventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
         }
 
         private void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
-            //Logger.LogInformation($"RaspPI: Ssr Change: {ssrStateChange.CurrentState.Percentage}");
+            Logger.LogInformation($"RaspPI: Ssr Change: {ssrStateChange.CurrentState.Percentage}");
             SsrPercentage = ssrStateChange.CurrentState.Percentage;
      
         }
 
         private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {
-            //Logger.LogInformation($"RaspPI: Thermometer Change: {thermometerStateChange.CurrentState.Temperature}");
+            Logger.LogInformation($"RaspPI: Thermometer Change: {thermometerStateChange.CurrentState.Temperature}");
             Temperature = thermometerStateChange.CurrentState.Temperature;
         }
 
         private void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> pidControllerStateChange) {
-            //Logger.LogInformation($"RaspPI: Pid Change: {pidControllerStateChange.CurrentState.SetPoint}");
+            Logger.LogInformation($"RaspPI: Pid Change: {pidControllerStateChange.CurrentState.SetPoint}");
             SetPoint = (int)pidControllerStateChange.CurrentState.SetPoint;
         }
 

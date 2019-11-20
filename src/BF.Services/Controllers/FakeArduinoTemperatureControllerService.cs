@@ -77,7 +77,7 @@ namespace BF.Service.Controllers {
                             var thermometerState = _thermometerStateLookup[ssrComponentId];
 
                             var newTemperature = (ssrState.Percentage == 0) ?
-                                thermometerState.Temperature - 0.2 :
+                                thermometerState.Temperature - 0.05 :
                                 thermometerState.Temperature + (ssrState.Percentage * .01);
 
                             if (newTemperature < 70)

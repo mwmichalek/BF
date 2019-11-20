@@ -52,7 +52,7 @@
     }
 
     private void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
-        if (Percentage != ssrStateChange.CurrentState.Percentage) {
+        //if (Percentage != ssrStateChange.CurrentState.Percentage) {
             //RepeatUntilComplete(() => {
             //    Percentage = ssrStateChange.CurrentState.Percentage;
             //    return PercentageGaugePointer.Value == (int)ssrStateChange.CurrentState.Percentage;
@@ -62,7 +62,7 @@
                 Percentage = ssrStateChange.CurrentState.Percentage;
                 StateHasChanged();
             });
-        }
+        //}
     }
 
 }

@@ -60,22 +60,22 @@
     }
 
     private void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
-        if (SetPoint != componentStateChange.CurrentState.SetPoint) {
+        //if (SetPoint != componentStateChange.CurrentState.SetPoint) {
             InvokeAsync(() => {
                 SetPoint = componentStateChange.CurrentState.SetPoint;
                 StateHasChanged();
             });
-        }
+        //}
     }
 
     private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
-        if (Temperature != componentStateChange.CurrentState.Temperature) {
+        //if (Temperature != componentStateChange.CurrentState.Temperature) {
             InvokeAsync(() => {
                 Temperature = componentStateChange.CurrentState.Temperature;
                 TemperatureStr = componentStateChange.CurrentState.Temperature.ToString("0.0");
                 StateHasChanged();
             });
-        }
+        //}
     }
 
 }
