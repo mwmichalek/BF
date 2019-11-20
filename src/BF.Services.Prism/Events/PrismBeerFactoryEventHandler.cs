@@ -128,6 +128,8 @@ namespace BF.Service.Prism.Events {
             Predicate<ComponentStateChange<T>> filter = null;
             if (componentId != ComponentId.UNDEFINED)
                 filter = chg => chg.Id == componentId;
+
+            _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Unsubscribe(componentStateChangeHandler);
             _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Subscribe(componentStateChangeHandler, 
                 threadType.ToThreadOption(), false, filter);
 

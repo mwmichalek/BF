@@ -33,41 +33,11 @@
 
 @code {
 
-    [Parameter]
-    public ComponentId ComponentId { get; set; }
-
-    [Inject]
-    IBeerFactoryEventHandler _eventHandler { get; set; }
-
-    [Inject]
-    ILoggerFactory _loggerFactory { get; set; }
-
-    private ILogger _logger;
-
     public int SetPoint { get; set; } = 60;
 
     public EjsSlider<int> Slider { get; set; }
 
-    private bool _isInitialized = false;
-
-    protected override async Task OnInitializedAsync() {
-        _logger = _loggerFactory.CreateLogger("SetPointComponent");
-
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        if (firstRender) {
-            Setup();
-            //    _isInitialized = true;
-        }
-    }
-
-    protected override void OnParametersSet() {
-        //if (_isInitialized)
-        //    Setup();
-    }
-
-    private void Setup() {
+    public override void Initialize() {
         _eventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured,
                                                                           ComponentId,
                                                                           ThreadType.UIThread);
@@ -88,7 +58,7 @@
 
             _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
                 RequestState = new PidControllerRequestState {
-                    Id = ComponentId.HLT,
+                    Id = ComponentId,
                     SetPoint = eventArgs.Value
                 }
             });
