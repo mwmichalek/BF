@@ -52,41 +52,38 @@
 
     protected override async Task OnInitializedAsync() {
         _logger = _loggerFactory.CreateLogger("SetPointComponent");
-        _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured);
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {
         if (firstRender) {
             Setup();
-            _isInitialized = true;
+            //    _isInitialized = true;
         }
     }
 
     protected override void OnParametersSet() {
-        if (_isInitialized)
-            Setup();
+        //if (_isInitialized)
+        //    Setup();
     }
 
     private void Setup() {
-        var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
-        if (pidControllerState != null &&
-            SetPoint != (int)pidControllerState.SetPoint) {
-            // NOTE: This is a bullshit workaround.  For some reason if there is no delay the changes aren't reflected.
-            Task.Run(() => {
-                do {
-                    SetPoint = (int)pidControllerState.SetPoint;
-                    InvokeAsync(() => StateHasChanged());
-                    Thread.Sleep(50);
-                } while (Slider.Value != SetPoint);
-            });
-        }
+        _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured,
+                                                                      ComponentId,
+                                                                      ThreadType.UIThread);
     }
 
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
-        if (componentStateChange.Id == ComponentId ||
-            SetPoint != (int)componentStateChange.CurrentState.SetPoint) {
-            SetPoint = (int)componentStateChange.CurrentState.SetPoint;
-            InvokeAsync(() => StateHasChanged());
+        if (SetPoint != (int)componentStateChange.CurrentState.SetPoint) {
+            Task.Run(() => {
+                while (Slider.Value != (int)componentStateChange.CurrentState.SetPoint) {
+                    SetPoint = (int)componentStateChange.CurrentState.SetPoint;
+                    InvokeAsync(() => StateHasChanged());
+                    if (Slider.Value != (int)componentStateChange.CurrentState.SetPoint) Thread.Sleep(50);
+                } 
+            });
+
+            //Motherfucker(out SetPoint, (int)componentStateChange.CurrentState.SetPoint, () => Slider.Value);
         }
     }
 
@@ -100,7 +97,6 @@
                     SetPoint = eventArgs.Value
                 }
             });
-
         }
     }
 
