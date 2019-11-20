@@ -26,13 +26,13 @@ namespace BF.Service.Events {
 
         void ComponentStateChangeFiring<T>(ComponentStateChange<T> componentStateChange) where T : ComponentState;
 
-        void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateChangeHandler,
+        void SubscribeToComponentStateChange<T>(Action<ComponentStateChange<T>> componentStateChangeHandler,
                                             ComponentId componentId = ComponentId.UNDEFINED,
                                             ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState;
 
         void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) where T : RequestedComponentState;
 
-        void ComponentStateRequestOccured<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
+        void SubscribeToComponentStateRequest<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
                                              ComponentId componentId = ComponentId.UNDEFINED,
                                              ThreadType threadType = ThreadType.PublisherThread) where T : RequestedComponentState;
     }

@@ -52,7 +52,7 @@
     public ObservableCollection<ThermometerState> ThermometerStateChanges = new ObservableCollection<ThermometerState>();
 
     protected override async Task OnInitializedAsync() {
-        _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
+        _eventHandler.SubscribeToComponentStateChange<ThermometerState>(ThermometerStateChangeOccured);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {

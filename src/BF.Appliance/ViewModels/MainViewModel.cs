@@ -33,9 +33,9 @@ namespace BF.Appliance.ViewModels {
             SetPoint = (int)pidControllers.Single(t => t.Id == ComponentId.HLT).CurrentState.SetPoint;
             SsrPercentage = (int)ssrs.Single(t => t.Id == ComponentId.HLT).CurrentState.Percentage;
            
-            _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
-            _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
-            _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
+            _eventHandler.SubscribeToComponentStateChange<ThermometerState>(ThermometerStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
+            _eventHandler.SubscribeToComponentStateChange<SsrState>(SsrStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
+            _eventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured, ComponentId.HLT, ThreadType.UIThread);
         }
 
         private void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {

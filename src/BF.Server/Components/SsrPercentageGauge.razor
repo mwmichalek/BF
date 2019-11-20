@@ -62,7 +62,7 @@
 
     protected override async Task OnInitializedAsync() {
         _logger = _loggerFactory.CreateLogger("SsrPercentageGauge");
-        _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured);
+        _eventHandler.SubscribeToComponentStateChange<SsrState>(SsrStateChangeOccured);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender) {

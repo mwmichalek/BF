@@ -44,8 +44,8 @@ namespace BF.Service.Controllers {
             _ssrStateLookup = ssrs.ToDictionary(ssr => ssr.CurrentState.Id, ssr => ssr.CurrentState);
             _thermometerStateLookup = thermometers.ToDictionary(therm => therm.CurrentState.Id, therm => therm.CurrentState);
 
-            _eventHandler.ComponentStateChangeOccured<SsrState>(ssrStateChangeOccured);
-            _eventHandler.ComponentStateChangeOccured<ThermometerState>(thermometerStateChangeOccured);
+            _eventHandler.SubscribeToComponentStateChange<SsrState>(ssrStateChangeOccured);
+            _eventHandler.SubscribeToComponentStateChange<ThermometerState>(thermometerStateChangeOccured);
 
             foreach (var componentId in ComponentHelper.AllComponentIds) {
                 _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<ThermocoupleState> {

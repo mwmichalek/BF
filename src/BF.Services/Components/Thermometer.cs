@@ -43,7 +43,7 @@ namespace BF.Services.Components {
 
             CurrentState = new ThermometerState { Id = id };
 
-            _eventHandler.ComponentStateChangeOccured<ThermocoupleState>(ThermocoupleStateChangeOccured);
+            _eventHandler.SubscribeToComponentStateChange<ThermocoupleState>(ThermocoupleStateChangeOccured);
         }
 
         public Thermometer(ComponentId id, 
@@ -61,7 +61,7 @@ namespace BF.Services.Components {
             _changeWindowInMillis = changeWindowInMillis;
             _changeWindowInMillis = changeWindowInMillis;
 
-            _eventHandler.ComponentStateChangeOccured<ThermocoupleState>(ThermocoupleStateChangeOccured);
+            _eventHandler.SubscribeToComponentStateChange<ThermocoupleState>(ThermocoupleStateChangeOccured);
         }
 
         public double Temperature {

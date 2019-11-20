@@ -23,18 +23,18 @@ MESSAGES!
 
     protected override async Task OnInitializedAsync() {
 
-        _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
-        _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured);
-        _eventHandler.ComponentStateChangeOccured<SsrState>(SsrStateChangeOccured);
-        _eventHandler.ComponentStateChangeOccured<ConnectionState>(ConnectionStateChangeOccured);
+        _eventHandler.SubscribeToComponentStateChange<ThermometerState>(ThermometerStateChangeOccured);
+        _eventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured);
+        _eventHandler.SubscribeToComponentStateChange<SsrState>(SsrStateChangeOccured);
+        _eventHandler.SubscribeToComponentStateChange<ConnectionState>(ConnectionStateChangeOccured);
 
 
-        //_beerFactoryEventHandler.ComponentStateChangeOccured<PumpState>(PumpStateChangeOccured);
+        //_beerFactoryEventHandler.SubscribeToComponentStateChange<PumpState>(PumpStateChangeOccured);
 
-        _eventHandler.ComponentStateRequestOccured<PidControllerRequestState>(PidControllerStateRequestOccured);
+        _eventHandler.SubscribeToComponentStateRequest<PidControllerRequestState>(PidControllerStateRequestOccured);
 
-        _eventHandler.ComponentStateRequestOccured<PumpRequestState>(PumpStateRequestOccured);
-        _eventHandler.ComponentStateChangeOccured<PumpState>(PumpStateChangeOccured);
+        _eventHandler.SubscribeToComponentStateRequest<PumpRequestState>(PumpStateRequestOccured);
+        _eventHandler.SubscribeToComponentStateChange<PumpState>(PumpStateChangeOccured);
     }
 
     void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) {

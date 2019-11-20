@@ -68,9 +68,9 @@
     }
 
     private void Setup() {
-        _eventHandler.ComponentStateChangeOccured<PidControllerState>(PidControllerStateChangeOccured,
-                                                                      ComponentId,
-                                                                      ThreadType.UIThread);
+        _eventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured,
+                                                                          ComponentId,
+                                                                          ThreadType.UIThread);
     }
 
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {

@@ -10,8 +10,8 @@ namespace BF.Server.Components {
 
         protected void RepeatUntilComplete(Func<bool> func) {
             Task.Run(() => {
+                func();
                 do {
-                    func();
                     InvokeAsync(() => StateHasChanged());
                     if (!func())
                         Thread.Sleep(50);

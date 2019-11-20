@@ -53,7 +53,7 @@ namespace BF.Services.Components {
                 _pin.Write(GpioPinValue.Low);
             }
 
-            _eventHandler.ComponentStateRequestOccured<SsrRequestState>(SsrStateRequestOccured);
+            _eventHandler.SubscribeToComponentStateRequest<SsrRequestState>(SsrStateRequestOccured);
         }
 
         private void SsrStateRequestOccured(ComponentStateRequest<SsrRequestState> ssrStateRequest) {

@@ -43,7 +43,7 @@ namespace BF.Services.Components {
                 _pin.Write(GpioPinValue.Low);
             }
 
-            _eventHandler.ComponentStateRequestOccured<PumpRequestState>(PumpStateRequestOccured);
+            _eventHandler.SubscribeToComponentStateRequest<PumpRequestState>(PumpStateRequestOccured);
         }
 
         private void PumpStateRequestOccured(ComponentStateRequest<PumpRequestState> pumpRequestState) {

@@ -47,8 +47,8 @@ namespace BF.Services.Components {
         }
 
         private void RegisterEvents() {
-            _eventHandler.ComponentStateChangeOccured<ThermometerState>(ThermometerStateChangeOccured);
-            _eventHandler.ComponentStateRequestOccured<PidControllerRequestState>(PidControllerStateRequestOccured);
+            _eventHandler.SubscribeToComponentStateChange<ThermometerState>(ThermometerStateChangeOccured);
+            _eventHandler.SubscribeToComponentStateRequest<PidControllerRequestState>(PidControllerStateRequestOccured);
         }
 
         private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> thermometerStateChange) { 

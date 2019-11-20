@@ -42,11 +42,11 @@ namespace BF.Service.Prism.Events {
 
             if (_applicationConfig.Device == Device.RaspberryPi ||
                 _applicationConfig.Device == Device.RaspberryPi_PC)
-                this.ComponentStateChangeOccured<ConnectionState>(ConnectionStateHandler);
+                this.SubscribeToComponentStateChange<ConnectionState>(ConnectionStateHandler);
 
             if (_applicationConfig.Device == Device.Server ||
                 _applicationConfig.Device == Device.Server_PC)
-                this.ComponentStateChangeOccured<BFState>(BFStateHandler);
+                this.SubscribeToComponentStateChange<BFState>(BFStateHandler);
         }
 
 
@@ -122,7 +122,7 @@ namespace BF.Service.Prism.Events {
             _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Publish(componentStateChange);
         }
 
-        public void ComponentStateChangeOccured<T>(Action<ComponentStateChange<T>> componentStateChangeHandler, 
+        public void SubscribeToComponentStateChange<T>(Action<ComponentStateChange<T>> componentStateChangeHandler, 
                                                    ComponentId componentId = ComponentId.UNDEFINED,
                                                    ThreadType threadType = ThreadType.PublisherThread) where T : ComponentState {
             Predicate<ComponentStateChange<T>> filter = null;
@@ -139,7 +139,7 @@ namespace BF.Service.Prism.Events {
             _eventAggregator.GetEvent<ComponentStateRequestEvent<ComponentStateRequest<T>>>().Publish(componentStateRequest);
         }
 
-        public void ComponentStateRequestOccured<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
+        public void SubscribeToComponentStateRequest<T>(Action<ComponentStateRequest<T>> componentStateRequestHandler,
                                                     ComponentId componentId = ComponentId.UNDEFINED,
                                                     ThreadType threadType = ThreadType.PublisherThread) where T : RequestedComponentState {
             Predicate<ComponentStateRequest<T>> filter = null;
