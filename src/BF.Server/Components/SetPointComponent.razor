@@ -1,20 +1,12 @@
 ﻿@inherits BFComponent;
 
-@using Syncfusion.EJ2.Blazor
-@using Syncfusion.EJ2.Blazor.CircularGauge
 @using Syncfusion.EJ2.Blazor.Inputs
-@using BF.Service.Events
 @using BF.Common.Events
-@using BF.Common.Components
 @using BF.Common.States
-@using Microsoft.Extensions.Logging
-@using System.Threading
 
 <h2>[ @SetPoint ]</h2>
 
 <div class="content-wrapper" style="height: 100%;">
-
-
     <EjsSlider @ref="Slider"
                Orientation="@SliderOrientation.Vertical"
                Type=SliderType.MinRange
@@ -38,9 +30,8 @@
     public EjsSlider<int> Slider { get; set; }
 
     public override void Initialize() {
-        _eventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured,
-                                                                          ComponentId,
-                                                                          ThreadType.UIThread);
+        EventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured,
+                                                                         ComponentId);
     }
 
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
@@ -52,11 +43,11 @@
         }
     }
 
-    void SetPoint_ValueChange(SliderChangeEventArgs<int> eventArgs) {
+    private void SetPoint_ValueChange(SliderChangeEventArgs<int> eventArgs) {
         if (SetPoint != eventArgs.Value) {
             SetPoint = eventArgs.Value;
 
-            _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
+            EventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
                 RequestState = new PidControllerRequestState {
                     Id = ComponentId,
                     SetPoint = eventArgs.Value

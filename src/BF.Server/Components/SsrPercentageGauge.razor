@@ -1,11 +1,8 @@
-﻿@using Syncfusion.EJ2.Blazor
+﻿@inherits BFComponent;
+
 @using Syncfusion.EJ2.Blazor.CircularGauge
-@using BF.Service.Events
 @using BF.Common.Events
-@using BF.Common.Components
 @using BF.Common.States
-@using System.Threading
-@using Microsoft.Extensions.Logging
 
 <EjsCircularGauge>
     <CircularGaugeAxes>
@@ -19,7 +16,7 @@
             <CircularGaugeAxisMinorTicks Position="Position.Outside">
             </CircularGaugeAxisMinorTicks>
             <CircularGaugePointers>
-                <CircularGaugePointer @ref="CircularGauge"
+                <CircularGaugePointer @ref="PercentageGaugePointer"
                                       Value="@Percentage"
                                       Type="PointerType.RangeBar"
                                       PointerWidth="20"
@@ -45,48 +42,27 @@
 
 @code {
 
-    [Parameter]
-    public ComponentId ComponentId { get; set; }
-
-    [Inject]
-    IBeerFactoryEventHandler _eventHandler { get; set; }
-
-    [Inject]
-    ILoggerFactory _loggerFactory { get; set; }
-
-    private ILogger _logger;
-
-    public CircularGaugePointer CircularGauge { get; set; }
+    public CircularGaugePointer PercentageGaugePointer { get; set; }
 
     public int Percentage { get; set; }
 
-    protected override async Task OnInitializedAsync() {
-        _logger = _loggerFactory.CreateLogger("SsrPercentageGauge");
-        _eventHandler.SubscribeToComponentStateChange<SsrState>(SsrStateChangeOccured);
+    public override void Initialize() {
+        EventHandler.SubscribeToComponentStateChange<SsrState>(SsrStateChangeOccured,
+                                                               ComponentId);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        if (firstRender) {
-            var ssrState = (SsrState)_eventHandler.CurrentComponentState<SsrState>(ComponentId);
-            if (ssrState != null &&
-                Percentage != ssrState.Percentage) {
-                await Task.Run(() => {
-                    do {
-                        _logger.LogInformation($" Value: {CircularGauge.Value}");
-                        Percentage = ssrState.Percentage;
-                        InvokeAsync(() => StateHasChanged());
-                        Thread.Sleep(1000);
-                    } while (CircularGauge.Value != Percentage);
-                    _logger.LogInformation($" Value: {CircularGauge.Value}");
-                });
-            }
+    private void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
+        if (Percentage != ssrStateChange.CurrentState.Percentage) {
+            //RepeatUntilComplete(() => {
+            //    Percentage = ssrStateChange.CurrentState.Percentage;
+            //    return PercentageGaugePointer.Value == (int)ssrStateChange.CurrentState.Percentage;
+            //});
+
+            InvokeAsync(() => {
+                Percentage = ssrStateChange.CurrentState.Percentage;
+                StateHasChanged();
+            });
         }
     }
 
-    void SsrStateChangeOccured(ComponentStateChange<SsrState> ssrStateChange) {
-        if (ssrStateChange.Id == ComponentId) {
-            Percentage = ssrStateChange.CurrentState.Percentage;
-            InvokeAsync(() => StateHasChanged());
-        }
-    }
 }

@@ -1,7 +1,7 @@
-﻿@using Syncfusion.EJ2.Blazor.Charts
-@using BF.Service.Events
+﻿@inherits BFComponent;
+
+@using Syncfusion.EJ2.Blazor.Charts
 @using BF.Common.Events
-@using BF.Common.Components
 @using BF.Common.States
 @using System.Collections.ObjectModel
 
@@ -10,21 +10,21 @@
     <EjsChart @ref="Chart"
               Title="Temperature">
         @*<ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
-        <ChartPrimaryXAxis ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.DateTime"
-                           LabelFormat="y"
-                           IntervalType="IntervalType.Seconds"
-                           EdgeLabelPlacement="EdgeLabelPlacement.Shift">
-            <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
-        </ChartPrimaryXAxis>
-        <ChartPrimaryYAxis LabelFormat="{value}%"
-                           RangePadding="ChartRangePadding.None"
-                           Minimum="0"
-                           Maximum="100"
-                           Interval="20">
-            <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
-            <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
-        </ChartPrimaryYAxis>
-        <ChartTooltipSettings Enable="true"></ChartTooltipSettings>*@
+            <ChartPrimaryXAxis ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.DateTime"
+                               LabelFormat="y"
+                               IntervalType="IntervalType.Seconds"
+                               EdgeLabelPlacement="EdgeLabelPlacement.Shift">
+                <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
+            </ChartPrimaryXAxis>
+            <ChartPrimaryYAxis LabelFormat="{value}%"
+                               RangePadding="ChartRangePadding.None"
+                               Minimum="0"
+                               Maximum="100"
+                               Interval="20">
+                <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
+                <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+            </ChartPrimaryYAxis>
+            <ChartTooltipSettings Enable="true"></ChartTooltipSettings>*@
         <ChartSeriesCollection>
             <ChartSeries DataSource="@ThermometerStateChanges" Name="Temperature" XName="Timestamp" Width="2"
                          Opacity="1" YName="Temperature" Type="ChartSeriesType.Line">
@@ -41,38 +41,24 @@
 
 @code {
 
-    [Parameter]
-    public ComponentId ComponentId { get; set; }
-
-    [Inject]
-    public IBeerFactoryEventHandler _eventHandler { get; set; }
-
     public EjsChart Chart { get; set; }
 
     public ObservableCollection<ThermometerState> ThermometerStateChanges = new ObservableCollection<ThermometerState>();
 
-    protected override async Task OnInitializedAsync() {
-        _eventHandler.SubscribeToComponentStateChange<ThermometerState>(ThermometerStateChangeOccured);
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        if (firstRender) {
-            //var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
-            //SetPoint = pidControllerState.SetPoint;
-            //await InvokeAsync(() => StateHasChanged());
-        }
+    public override void Initialize() {
+        EventHandler.SubscribeToComponentStateChange<ThermometerState>(ThermometerStateChangeOccured,
+                                                                       ComponentId);
     }
 
     public void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
-        if (componentStateChange.Id == ComponentId) {
+
+        InvokeAsync(() => {
             while (ThermometerStateChanges.Count > 20)
                 ThermometerStateChanges.RemoveAt(0);
 
             ThermometerStateChanges.Add(componentStateChange.CurrentState);
-
-            if (ShouldRender())
-                InvokeAsync(() => StateHasChanged());
-        }
+            StateHasChanged();
+        });
     }
 
 }

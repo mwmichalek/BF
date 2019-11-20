@@ -133,8 +133,11 @@ namespace BF.Service.Prism.Events {
             _eventAggregator.GetEvent<ComponentStateChangeEvent<ComponentStateChange<T>>>().Subscribe(componentStateChangeHandler, 
                 threadType.ToThreadOption(), false, filter);
 
-            if (componentId != ComponentId.UNDEFINED) 
-                componentStateChangeHandler(CurrentComponentState<T>(componentId).ToComponentStateChange());
+            if (componentId != ComponentId.UNDEFINED) {
+                var currentComponentState = CurrentComponentState<T>(componentId);
+                if (currentComponentState != null)
+                    componentStateChangeHandler(currentComponentState.ToComponentStateChange());
+            }
         }
 
         public virtual void ComponentStateRequestFiring<T>(ComponentStateRequest<T> componentStateRequest) where T : RequestedComponentState {

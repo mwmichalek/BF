@@ -15,7 +15,7 @@ namespace BF.Server.Components {
         public ComponentId ComponentId { get; set; }
 
         [Inject]
-        protected IBeerFactoryEventHandler _eventHandler { get; set; }
+        protected IBeerFactoryEventHandler EventHandler { get; set; }
 
         [Inject]
         protected ILoggerFactory _loggerFactory { get; set; }

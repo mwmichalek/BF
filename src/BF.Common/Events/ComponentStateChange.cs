@@ -29,7 +29,9 @@ namespace BF.Common.Events {
         }
 
         public static ComponentStateChange<T> ToComponentStateChange<T>(this T state) where T : ComponentState {
-            return new ComponentStateChange<T> { CurrentState = state };
+            return new ComponentStateChange<T> { 
+                CurrentState = state 
+            };
         }
 
         public static string ToJson<T>(this ComponentStateChange<T> componentStateChange) where T : ComponentState {

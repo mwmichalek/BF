@@ -1,17 +1,23 @@
-﻿@using Syncfusion.EJ2.Blazor
+﻿@inherits BFComponent;
+
 @using Syncfusion.EJ2.Blazor.CircularGauge
-@using BF.Service.Events
 @using BF.Common.Events
-@using BF.Common.Components
 @using BF.Common.States
 
 <EjsCircularGauge Width="100%" Height="100%">
     <CircularGaugeAxes>
         <CircularGaugeAxis Minimum="20" Maximum="220" StartAngle="240" EndAngle="120" Radius="90%">
             <CircularGaugePointers>
-                <CircularGaugePointer Value="@Temperature">
+                <CircularGaugePointer @ref="TemperatureGaugePointer" 
+                                      Value="@Temperature">
                 </CircularGaugePointer>
-                <CircularGaugePointer Type="PointerType.RangeBar" Value="@SetPoint" Radius="60%" Color="#8BC34A" PointerWidth="7" RoundedCornerRadius="10">
+                <CircularGaugePointer @ref="SetPointGaugePointer"
+                                      Type="PointerType.RangeBar" 
+                                      Value="@SetPoint" 
+                                      Radius="60%" 
+                                      Color="#8BC34A" 
+                                      PointerWidth="7" 
+                                      RoundedCornerRadius="10">
                     <CircularGaugePointerAnimation Enable="true" Duration="1">
                     </CircularGaugePointerAnimation>
                 </CircularGaugePointer>
@@ -29,18 +35,16 @@
                 <CircularGaugeRange Start="20" End="32" Color="Blue" />
                 <CircularGaugeRange Start="212" End="220" Color="Red" />
             </CircularGaugeRanges>
-            
+
         </CircularGaugeAxis>
     </CircularGaugeAxes>
 </EjsCircularGauge>
 
 @code {
 
-    [Parameter]
-    public ComponentId ComponentId { get; set; }
+    public CircularGaugePointer TemperatureGaugePointer { get; set; }
 
-    [Inject]
-    IBeerFactoryEventHandler _eventHandler { get; set; }
+    public CircularGaugePointer SetPointGaugePointer { get; set; }
 
     public string TemperatureStr { get; set; }
 
@@ -48,38 +52,29 @@
 
     public double SetPoint { get; set; }
 
-    protected override async Task OnInitializedAsync() {
-
+    public override void Initialize() {
+        EventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured,
+                                                                         ComponentId);
+        EventHandler.SubscribeToComponentStateChange<ThermometerState>(ThermometerStateChangeOccured,
+                                                                       ComponentId);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        if (firstRender) {
-            var pidControllerState = (PidControllerState)_eventHandler.CurrentComponentState<PidControllerState>(ComponentId);
-            if (pidControllerState != null) {
-                SetPoint = pidControllerState.SetPoint;
-                await InvokeAsync(() => StateHasChanged());
-            }
-            
-            _eventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured);
-            _eventHandler.SubscribeToComponentStateChange<ThermometerState>(ThermometerStateChangeOccured);
+    private void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
+        if (SetPoint != componentStateChange.CurrentState.SetPoint) {
+            InvokeAsync(() => {
+                SetPoint = componentStateChange.CurrentState.SetPoint;
+                StateHasChanged();
+            });
         }
     }
 
-    public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
-        if (componentStateChange.Id == ComponentId) {
-            SetPoint = componentStateChange.CurrentState.SetPoint;
-            if (ShouldRender())
-                InvokeAsync(() => StateHasChanged());
-        }
-    }
-
-    public void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
-        if (componentStateChange.Id == ComponentId) {
-            Temperature = componentStateChange.CurrentState.Temperature;
-            TemperatureStr = componentStateChange.CurrentState.Temperature.ToString("0.0");
-
-            if (ShouldRender())
-                InvokeAsync(() => StateHasChanged());
+    private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState> componentStateChange) {
+        if (Temperature != componentStateChange.CurrentState.Temperature) {
+            InvokeAsync(() => {
+                Temperature = componentStateChange.CurrentState.Temperature;
+                TemperatureStr = componentStateChange.CurrentState.Temperature.ToString("0.0");
+                StateHasChanged();
+            });
         }
     }
 
