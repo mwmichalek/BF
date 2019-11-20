@@ -48,8 +48,7 @@
     public ComponentId Stage { get; set; } = ComponentId.HLT;
 
     protected override void OnParametersSet() {
-        if (StageId != (int)ComponentId.HLT && StageId != 0)
-            Stage = StageId.ToComponentId();
+        Stage = (StageId == 0) ? ComponentId.HLT : StageId.ToComponentId();
     }
 
 }
