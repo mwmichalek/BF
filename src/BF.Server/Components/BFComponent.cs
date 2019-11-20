@@ -8,18 +8,16 @@ using Microsoft.AspNetCore.Components;
 namespace BF.Server.Components {
     public abstract class BFComponent : ComponentBase {
 
-        protected string Balls { get; set; }
+        protected void RepeatUntilComplete(Func<bool> func) {
+            Task.Run(() => {
+                do {
+                    func();
+                    InvokeAsync(() => StateHasChanged());
+                    if (!func())
+                        Thread.Sleep(50);
+                } while (!func());
+            });
+        }
 
-
-        //public async Task Motherfucker(out int target, int source, Func<int> pred) {
-        //    await Task.Run(() => {
-        //        do {
-        //            target = source;
-        //            InvokeAsync(() => StateHasChanged());
-        //            if (pred() != source)
-        //                Thread.Sleep(50);
-        //        } while (pred() != source);
-        //    });
-        //}
     }
 }

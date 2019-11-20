@@ -75,15 +75,10 @@
 
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
         if (SetPoint != (int)componentStateChange.CurrentState.SetPoint) {
-            Task.Run(() => {
-                while (Slider.Value != (int)componentStateChange.CurrentState.SetPoint) {
-                    SetPoint = (int)componentStateChange.CurrentState.SetPoint;
-                    InvokeAsync(() => StateHasChanged());
-                    if (Slider.Value != (int)componentStateChange.CurrentState.SetPoint) Thread.Sleep(50);
-                } 
+            RepeatUntilComplete(() => {
+                SetPoint = (int)componentStateChange.CurrentState.SetPoint;
+                return Slider.Value == (int)componentStateChange.CurrentState.SetPoint;
             });
-
-            //Motherfucker(out SetPoint, (int)componentStateChange.CurrentState.SetPoint, () => Slider.Value);
         }
     }
 
