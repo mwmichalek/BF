@@ -4,23 +4,36 @@
 @using BF.Common.Events
 @using BF.Common.States
 
-<h2>[ @SetPoint ]</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-6">
+            <h2>
+                <span class="badge badge-pill badge-primary">
+                    @SetPoint
+                </span>
+            </h2>
+        </div>
+    </div>
+    <div class="row justify-content-center h-75">
+        <div class="col-3">
+            <div class="content-wrapper" style="background-color:green;">
+                <EjsSlider @ref="Slider"
+                            Orientation="@SliderOrientation.Vertical"
+                            Type=SliderType.MinRange
+                            Value="SetPoint"
+                            Min="40" Max="212">
+                    <SliderTooltipData IsVisible="true" Placement="TooltipPlacement.Before" ShowOn="TooltipShowOn.Always" />
+                    <SliderTicksData Placement="Placement.After"
+                                        ShowSmallTicks="false"
+                                        LargeStep="10"
+                                        SmallStep="1" />
+                    <SliderEvents TValue="int"
+                                    ValueChange="@SetPoint_ValueChange" />
 
-<div class="content-wrapper" style="height: 100%;">
-    <EjsSlider @ref="Slider"
-               Orientation="@SliderOrientation.Vertical"
-               Type=SliderType.MinRange
-               Value="SetPoint"
-               Min="40" Max="212">
-        <SliderTooltipData IsVisible="true" Placement="TooltipPlacement.Before" ShowOn="TooltipShowOn.Always" />
-        <SliderTicksData Placement="Placement.After"
-                         ShowSmallTicks="false"
-                         LargeStep="10"
-                         SmallStep="1" />
-        <SliderEvents TValue="int"
-                      ValueChange="@SetPoint_ValueChange" />
-
-    </EjsSlider>
+                </EjsSlider>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
@@ -31,7 +44,7 @@
 
     public override void Initialize() {
         EventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured,
-                                                                         ComponentId);
+                                                                            ComponentId);
     }
 
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {

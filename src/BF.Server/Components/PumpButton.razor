@@ -1,7 +1,6 @@
 ﻿@inherits BFComponent;
 
 @using Syncfusion.EJ2.Blazor.Buttons
-@using BF.Service.Events
 @using BF.Common.Events
 @using BF.Common.Components
 @using BF.Common.States
@@ -15,29 +14,27 @@
 </EjsButton>
 
 @code {
-    EjsButton ToggleBtnObj;
+    public EjsButton ToggleBtnObj;
 
-    string Content = "Start";
+    public string Content { get; set;} = "Start";
 
-    //TODO: (Need to rework this to handle switching between Phases
+    public override void Initialize() {
+        EventHandler.SubscribeToComponentStateChange<PumpState>(PumpStateChangeOccured,
+                                                                         ComponentId);
+    }
+
+    private void PumpStateChangeOccured(ComponentStateChange<PumpState> componentStateChange) {
+        Content = (componentStateChange.CurrentState.IsEngaged) ? "Stop" : "Start";
+    }
 
     public void OnToggleClick() {
-        if (ToggleBtnObj.Content == "Start") {
-            this.Content = "Stop";
-            EventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PumpRequestState> {
-                RequestState = new PumpRequestState {
-                    Id = ComponentId,
-                    IsEngaged = true
-                }
-            });
-        } else {
-            this.Content = "Start";
-            EventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PumpRequestState> {
-                RequestState = new PumpRequestState {
-                    Id = ComponentId,
-                    IsEngaged = false
-                }
-            });
-        }
+        Content = (ToggleBtnObj.Content == "Start") ? "Stop" : "Start";
+
+        EventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PumpRequestState> {
+            RequestState = new PumpRequestState {
+                Id = ComponentId,
+                IsEngaged = (Content == "Stop")
+            }
+        });
     }
 }
