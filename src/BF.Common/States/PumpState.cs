@@ -16,6 +16,7 @@ namespace BF.Common.States {
 
         public static PumpState Clone(this PumpState pumpState) {
             return new PumpState {
+                Id = pumpState.Id,
                 IsEngaged = pumpState.IsEngaged,
                 Timestamp = pumpState.Timestamp
             };

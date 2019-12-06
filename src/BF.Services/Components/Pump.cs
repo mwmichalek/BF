@@ -47,6 +47,7 @@ namespace BF.Services.Components {
         }
 
         private void PumpStateRequestOccured(ComponentStateRequest<PumpRequestState> pumpRequestState) {
+            bool correctPump = pumpRequestState.Id == CurrentState.Id;
             if (pumpRequestState.Id == CurrentState.Id && CurrentState.IsDifferent(pumpRequestState.RequestState)) {
                 CurrentState = CurrentState.Update(pumpRequestState.RequestState);
 
