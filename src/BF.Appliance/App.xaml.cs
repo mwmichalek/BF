@@ -152,7 +152,7 @@ namespace BF.Appliance {
                     Id = ComponentId.HLT,
                     PidMode = PidMode.Temperature,
                     SetPoint = 90,
-                    IsEngaged = true,
+                    IsEngaged = false,
                     GainProportional = 18,
                     GainIntegral = 1.5,
                     GainDerivative = 22.5

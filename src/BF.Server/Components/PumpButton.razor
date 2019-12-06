@@ -5,36 +5,48 @@
 @using BF.Common.Components
 @using BF.Common.States
 
-<EjsButton CssClass="e-flat" 
-           IsPrimary="true" 
-           Content="@Content" 
-           IsToggle="true" 
-           OnClick="OnToggleClick" 
-           
-           @ref="ToggleBtnObj">
-</EjsButton>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col">
+            Pump @ComponentId
+        </div>
+        <div class="col">
+            <EjsButton CssClass="e-flat"
+                        IsPrimary="true"
+                        Content="@Content"
+                        IsToggle="true"
+                        OnClick="OnToggleClick"
+                        @ref="ToggleBtnObj">
+            </EjsButton>
+        </div>
+    </div>
+</div>
+                
 
 @code {
     public EjsButton ToggleBtnObj;
 
-    public string Content { get; set;} = "Start";
+    private const string Start = "Start";
+    private const string Stop = "Stop";
+
+    public string Content { get; set; } = Start;
 
     public override void Initialize() {
         EventHandler.SubscribeToComponentStateChange<PumpState>(PumpStateChangeOccured,
-                                                                         ComponentId);
+                                                                            ComponentId);
     }
 
     private void PumpStateChangeOccured(ComponentStateChange<PumpState> componentStateChange) {
-        Content = (componentStateChange.CurrentState.IsEngaged) ? "Stop" : "Start";
+        Content = (componentStateChange.CurrentState.IsEngaged) ? Stop : Start;
     }
 
     public void OnToggleClick() {
-        Content = (ToggleBtnObj.Content == "Start") ? "Stop" : "Start";
+        Content = (ToggleBtnObj.Content == Start) ? Stop : Start;
 
         EventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PumpRequestState> {
             RequestState = new PumpRequestState {
                 Id = ComponentId,
-                IsEngaged = (Content == "Stop")
+                IsEngaged = (Content == Stop)
             }
         });
     }

@@ -1,12 +1,22 @@
 ﻿@inherits BFComponent;
 
 @using Syncfusion.EJ2.Blazor.Inputs
+@using Syncfusion.EJ2.Blazor.Buttons
 @using BF.Common.Events
 @using BF.Common.States
 
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-2">
+        <div class="col-1">
+            <EjsButton CssClass="e-flat"
+                       IsPrimary="true"
+                       Content="@Content"
+                       IsToggle="true"
+                       OnClick="OnToggleClick"
+                       @ref="ToggleBtnObj">
+            </EjsButton>
+        </div>
+        <div class="col-1">
             <h2>
                 <span class="badge badge-pill badge-primary">
                     @SetPoint
@@ -14,27 +24,34 @@
             </h2>
         </div>
         <div class="col-10">
-            
+
             <EjsSlider @ref="Slider"
-                        Orientation="@SliderOrientation.Horizontal"
-                        Type=SliderType.MinRange
-                        Value="SetPoint"
-                        Min="40" Max="212">
+                       Orientation="@SliderOrientation.Horizontal"
+                       Type=SliderType.MinRange
+                       Value="SetPoint"
+                       Min="40" Max="212">
                 <SliderTooltipData IsVisible="true" Placement="TooltipPlacement.Before" ShowOn="TooltipShowOn.Always" />
                 <SliderTicksData Placement="Placement.After"
-                                    ShowSmallTicks="false"
-                                    LargeStep="10"
-                                    SmallStep="1" />
+                                 ShowSmallTicks="false"
+                                 LargeStep="10"
+                                 SmallStep="1" />
                 <SliderEvents TValue="int"
-                                ValueChange="@SetPoint_ValueChange" />
+                              ValueChange="@SetPoint_ValueChange" />
 
             </EjsSlider>
-        
+
         </div>
     </div>
 </div>
 
 @code {
+
+    public EjsButton ToggleBtnObj;
+
+    private const string Start = "Start";
+    private const string Stop = "Stop";
+
+    public string Content { get; set; } = Start;
 
     public int SetPoint { get; set; } = 60;
 
@@ -45,7 +62,21 @@
                                                                             ComponentId);
     }
 
+    public void OnToggleClick() {
+        Content = (ToggleBtnObj.Content == Start) ? Stop : Start;
+
+        EventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
+            RequestState = new PidControllerRequestState {
+                Id = ComponentId,
+                IsEngaged = (Content == Stop)
+            }
+        });
+    }
+
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
+
+        Content = (componentStateChange.CurrentState.IsEngaged) ? Stop : Start;
+
         if (SetPoint != (int)componentStateChange.CurrentState.SetPoint) {
             RepeatUntilComplete(() => {
                 SetPoint = (int)componentStateChange.CurrentState.SetPoint;

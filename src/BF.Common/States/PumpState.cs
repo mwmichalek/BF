@@ -7,7 +7,7 @@ namespace BF.Common.States {
     public class PumpState : ConfigurableComponentState {
 
         public override string ToString() {
-            return $"Pump - Id: {Id}, Time: {Timestamp.Second}:{Timestamp.Millisecond}";
+            return $"Pump - Id: {Id}, IsEngaged: {IsEngaged}, Time: {Timestamp.Second}:{Timestamp.Millisecond}";
         }
 
     }
