@@ -62,10 +62,27 @@ namespace BF.Services.Components {
         private void PidControllerStateRequestOccured(ComponentStateRequest<PidControllerRequestState> pidControllerStateRequest) {
             if (pidControllerStateRequest.Id == Id) {
                 Logger.LogInformation($"Pid Request Received: {Id} {pidControllerStateRequest.RequestState.SetPoint} {pidControllerStateRequest.RequestState.IsEngaged}");
+
+                if (!CurrentState.IsEngaged && 
+                    pidControllerStateRequest.RequestState.IsEngaged.HasValue &&
+                    pidControllerStateRequest.RequestState.IsEngaged.Value) {
+                    // PID is getting engaged, disengage the others.
+                    var pidsToDisengage = ComponentHelper.PidComponentIds.Where(p => p != CurrentState.Id).ToList();
+
+                    foreach (var pidToDisengage in pidsToDisengage) {
+                        _eventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
+                            RequestState = new PidControllerRequestState {
+                                Id = pidToDisengage,
+                                IsEngaged = false
+                            }
+                        });
+                    }
+                }
+
                 PriorState = CurrentState;
                 CurrentState = CurrentState.Update(pidControllerStateRequest.RequestState);
 
-                _eventHandler.ComponentStateChangeFiring<PidControllerState>(new ComponentStateChange<PidControllerState> {
+                _eventHandler.ComponentStateChangeFiring(new ComponentStateChange<PidControllerState> {
                     PriorState = PriorState.Clone(),
                     CurrentState = CurrentState.Clone()
                 });

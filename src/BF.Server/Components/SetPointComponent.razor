@@ -4,28 +4,33 @@
 @using Syncfusion.EJ2.Blazor.Buttons
 @using BF.Common.Events
 @using BF.Common.States
+@using BF.Common.Components
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-1">
-            <EjsButton CssClass="e-flat"
+            <EjsButton @ref="PidControllerEnableButton" 
+                       CssClass="e-flat"
                        IsPrimary="true"
                        Content="@Content"
                        IsToggle="true"
-                       OnClick="OnToggleClick"
-                       @ref="ToggleBtnObj">
+                       OnClick="OnPidControllerEnableChange">
             </EjsButton>
         </div>
-        <div class="col-1">
-            <h2>
-                <span class="badge badge-pill badge-primary">
-                    @SetPoint
-                </span>
-            </h2>
-        </div>
-        <div class="col-10">
+        @if (ComponentId == ComponentId.MT) {
+            <div class="col-2">
+                <EjsSwitch @ref="PidControllerModeSwitch"
+                           CssClass="tempPercSwitch" 
+                           OffLabel="TEMPERATURE" 
+                           OnLabel="PERCENTAGE"
+                           OnChange="OnPidControllerModeChange">
 
-            <EjsSlider @ref="Slider"
+                </EjsSwitch>
+            </div>
+        }
+        <div class="@(ComponentId == ComponentId.MT ? "col-8" : "col-10")">
+
+            <EjsSlider @ref="SetPointSlider"
                        Orientation="@SliderOrientation.Horizontal"
                        Type=SliderType.MinRange
                        Value="SetPoint"
@@ -41,12 +46,28 @@
             </EjsSlider>
 
         </div>
+
+        <div class="col-1">
+            <h2>
+                <span class="badge badge-pill badge-primary">
+                    @SetPoint
+                </span>
+            </h2>
+        </div>
     </div>
 </div>
 
+<style>
+
+    .e-switch-wrapper.tempPercSwitch {
+      width: 120px;
+    }
+
+</style>
+
 @code {
 
-    public EjsButton ToggleBtnObj;
+
 
     private const string Start = "Start";
     private const string Stop = "Stop";
@@ -55,15 +76,24 @@
 
     public int SetPoint { get; set; } = 60;
 
-    public EjsSlider<int> Slider { get; set; }
+    public int LowPoint { get; set; } = 40;
+
+    public int HighPoint { get; set; } = 212;
+
+    public EjsSlider<int> SetPointSlider { get; set; }
+
+    public EjsButton PidControllerEnableButton { get; set; }
+
+    public EjsSwitch PidControllerModeSwitch { get; set; }
+
 
     public override void Initialize() {
         EventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured,
                                                                             ComponentId);
     }
 
-    public void OnToggleClick() {
-        Content = (ToggleBtnObj.Content == Start) ? Stop : Start;
+    public void OnPidControllerEnableChange() {
+        Content = (PidControllerEnableButton.Content == Start) ? Stop : Start;
 
         EventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
             RequestState = new PidControllerRequestState {
@@ -73,14 +103,25 @@
         });
     }
 
+    public void OnPidControllerModeChange() {
+
+    }
+
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
 
         Content = (componentStateChange.CurrentState.IsEngaged) ? Stop : Start;
 
+        if (ComponentId == ComponentId.MT) {
+            var something = PidControllerModeSwitch.Value;
+
+        }
+
+        //if (componentStateChange.CurrentState.)
+
         if (SetPoint != (int)componentStateChange.CurrentState.SetPoint) {
             RepeatUntilComplete(() => {
                 SetPoint = (int)componentStateChange.CurrentState.SetPoint;
-                return Slider.Value == (int)componentStateChange.CurrentState.SetPoint;
+                return SetPointSlider.Value == (int)componentStateChange.CurrentState.SetPoint;
             });
         }
     }

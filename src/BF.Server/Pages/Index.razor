@@ -9,11 +9,18 @@
 
 <div class="container" style="background-color: yellow; height: 100%;">
     <div class="row" style="background-color: brown;">
-
-        <div class="col">
-            <TemperatureGauge ComponentId="@Stage" />
-        </div>
-
+        @if (Stage == ComponentId.MT) {
+            <div class="col">
+                <TemperatureGauge ComponentId="ComponentId.HLT" />
+            </div>
+            <div class="col">
+                <TemperatureGauge ComponentId="ComponentId.MT" />
+            </div>
+        } else {
+            <div class="col">
+                <TemperatureGauge ComponentId="@Stage" />
+            </div>
+        }
         <div class="col">
             <SsrPercentageGauge ComponentId="@Stage" />
         </div>

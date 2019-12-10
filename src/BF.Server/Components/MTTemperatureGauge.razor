@@ -1,0 +1,127 @@
+﻿@inherits BFComponent;
+
+@using Syncfusion.EJ2.Blazor.CircularGauge
+@using BF.Common.Events
+@using BF.Common.States
+
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col">
+                <EjsCircularGauge Width="100%" Height="100%">
+                    <CircularGaugeAxes>
+                        <CircularGaugeAxis Minimum="20" Maximum="220" StartAngle="240" EndAngle="120" Radius="90%">
+                            <CircularGaugePointers>
+                                <CircularGaugePointer @ref="TemperatureGaugePointer"
+                                                      Value="@Temperature">
+                                </CircularGaugePointer>
+                                <CircularGaugePointer @ref="SetPointGaugePointer"
+                                                      Type="PointerType.RangeBar"
+                                                      Value="@SetPoint"
+                                                      Radius="60%"
+                                                      Color="#8BC34A"
+                                                      PointerWidth="7"
+                                                      RoundedCornerRadius="10">
+                                    <CircularGaugePointerAnimation Enable="true" Duration="1">
+                                    </CircularGaugePointerAnimation>
+                                </CircularGaugePointer>
+                            </CircularGaugePointers>
+                            <CircularGaugeAnnotations>
+                                <CircularGaugeAnnotation Angle="180"
+                                                         Radius="20%"
+                                                         ZIndex="1">
+                                    <ContentTemplate>
+                                        <div style="width:150px;margin:auto auto; margin-left:-65px; font-size: 40px; text-align:center;">@TemperatureStr&deg;F</div>
+                                    </ContentTemplate>
+                                </CircularGaugeAnnotation>
+                            </CircularGaugeAnnotations>
+                            <CircularGaugeRanges>
+                                <CircularGaugeRange Start="20" End="32" Color="Blue" />
+                                <CircularGaugeRange Start="212" End="220" Color="Red" />
+                            </CircularGaugeRanges>
+
+                        </CircularGaugeAxis>
+                    </CircularGaugeAxes>
+                </EjsCircularGauge>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col">
+                <EjsCircularGauge Width="100%" Height="100%">
+                    <CircularGaugeAxes>
+                        <CircularGaugeAxis Minimum="20" Maximum="220" StartAngle="240" EndAngle="120" Radius="90%">
+                            <CircularGaugePointers>
+                                <CircularGaugePointer @ref="TemperatureGaugePointer"
+                                                      Value="@Temperature">
+                                </CircularGaugePointer>
+                                <CircularGaugePointer @ref="SetPointGaugePointer"
+                                                      Type="PointerType.RangeBar"
+                                                      Value="@SetPoint"
+                                                      Radius="60%"
+                                                      Color="#8BC34A"
+                                                      PointerWidth="7"
+                                                      RoundedCornerRadius="10">
+                                    <CircularGaugePointerAnimation Enable="true" Duration="1">
+                                    </CircularGaugePointerAnimation>
+                                </CircularGaugePointer>
+                            </CircularGaugePointers>
+                            <CircularGaugeAnnotations>
+                                <CircularGaugeAnnotation Angle="180"
+                                                         Radius="20%"
+                                                         ZIndex="1">
+                                    <ContentTemplate>
+                                        <div style="width:150px;margin:auto auto; margin-left:-65px; font-size: 40px; text-align:center;">@TemperatureStr&deg;F</div>
+                                    </ContentTemplate>
+                                </CircularGaugeAnnotation>
+                            </CircularGaugeAnnotations>
+                            <CircularGaugeRanges>
+                                <CircularGaugeRange Start="20" End="32" Color="Blue" />
+                                <CircularGaugeRange Start="212" End="220" Color="Red" />
+                            </CircularGaugeRanges>
+
+                        </CircularGaugeAxis>
+                    </CircularGaugeAxes>
+                </EjsCircularGauge>
+            </div>
+        </div>
+    </div>
+
+@code {
+
+    public CircularGaugePointer TemperatureGaugePointer { get; set; }
+
+    public CircularGaugePointer SetPointGaugePointer { get; set; }
+
+    public string TemperatureStr { get; set; }
+
+    public double Temperature { get; set; }
+
+    public double SetPoint { get; set; }
+
+    public override void Initialize() {
+        EventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured, ComponentId);
+        EventHandler.SubscribeToComponentStateChange<ThermometerState>(ThermometerStateChangeOccured, ComponentId);
+    }
+
+    private void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState>
+        componentStateChange) {
+        //if (SetPoint != componentStateChange.CurrentState.SetPoint) {
+        InvokeAsync(() => {
+            SetPoint = componentStateChange.CurrentState.SetPoint;
+            StateHasChanged();
+        });
+        //}
+    }
+
+    private void ThermometerStateChangeOccured(ComponentStateChange<ThermometerState>
+        componentStateChange) {
+        //if (Temperature != componentStateChange.CurrentState.Temperature) {
+        InvokeAsync(() => {
+            Temperature = componentStateChange.CurrentState.Temperature;
+            TemperatureStr = componentStateChange.CurrentState.Temperature.ToString("0.0");
+            StateHasChanged();
+        });
+        //}
+    }
+
+}
