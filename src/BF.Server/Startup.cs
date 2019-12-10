@@ -119,9 +119,8 @@ namespace BF.Server {
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseAuthentication();
-            app.UseAuthorization();
             app.UseRouting();
-
+            app.UseAuthorization();
             app.UseEndpoints(endpoints => {
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
