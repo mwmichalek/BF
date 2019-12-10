@@ -14,7 +14,7 @@
                        IsPrimary="true"
                        Content="@Content"
                        IsToggle="true"
-                       OnClick="OnPidControllerEnableChange">
+                       OnClick="@OnPidControllerEnableChange">
             </EjsButton>
         </div>
         @if (ComponentId == ComponentId.MT) {
@@ -23,7 +23,8 @@
                            CssClass="tempPercSwitch" 
                            OffLabel="TEMPERATURE" 
                            OnLabel="PERCENTAGE"
-                           OnChange="OnPidControllerModeChange">
+                           ValueChange="@OnPidControllerModeChange"
+                           >
 
                 </EjsSwitch>
             </div>
@@ -34,7 +35,7 @@
                        Orientation="@SliderOrientation.Horizontal"
                        Type=SliderType.MinRange
                        Value="SetPoint"
-                       Min="40" Max="212">
+                       Min="@LowPoint" Max="@HighPoint">
                 <SliderTooltipData IsVisible="true" Placement="TooltipPlacement.Before" ShowOn="TooltipShowOn.Always" />
                 <SliderTicksData Placement="Placement.After"
                                  ShowSmallTicks="false"
@@ -103,8 +104,17 @@
         });
     }
 
-    public void OnPidControllerModeChange() {
+    public void OnPidControllerModeChange(Syncfusion.EJ2.Blazor.Buttons.ChangeEventArgs args) {
 
+        EventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
+            RequestState = new PidControllerRequestState {
+                Id = ComponentId,
+                PidMode = args.Checked ? PidMode.Percentage : PidMode.Temperature
+            }
+        });
+
+
+        var nutz = PidControllerModeSwitch?.Value;
     }
 
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
@@ -112,8 +122,10 @@
         Content = (componentStateChange.CurrentState.IsEngaged) ? Stop : Start;
 
         if (ComponentId == ComponentId.MT) {
-            var something = PidControllerModeSwitch.Value;
+            LowPoint = componentStateChange.CurrentState.PidMode == PidMode.Temperature ? 40 : 0;
+            HighPoint = componentStateChange.CurrentState.PidMode == PidMode.Temperature ? 212 : 100;
 
+            var something = PidControllerModeSwitch?.Value;
         }
 
         //if (componentStateChange.CurrentState.)
