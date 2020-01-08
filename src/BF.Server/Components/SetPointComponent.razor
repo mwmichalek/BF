@@ -17,7 +17,7 @@
                        OnClick="@OnPidControllerEnableChange">
             </EjsButton>
         </div>
-        @if (ComponentId == ComponentId.MT) {
+        @if (ComponentId == ComponentId.BK) {
             <div class="col-2">
                 <EjsSwitch @ref="PidControllerModeSwitch"
                            CssClass="tempPercSwitch" 
@@ -29,7 +29,7 @@
                 </EjsSwitch>
             </div>
         }
-        <div class="@(ComponentId == ComponentId.MT ? "col-8" : "col-10")">
+        <div class="@(ComponentId == ComponentId.BK ? "col-8" : "col-10")">
 
             <EjsSlider @ref="SetPointSlider"
                        Orientation="@SliderOrientation.Horizontal"
@@ -106,10 +106,16 @@
 
     public void OnPidControllerModeChange(Syncfusion.EJ2.Blazor.Buttons.ChangeEventArgs args) {
 
+        LowPoint = !args.Checked ? 40 : 0;
+        HighPoint = !args.Checked ? 212 : 100;
+
+        
+        
         EventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
             RequestState = new PidControllerRequestState {
                 Id = ComponentId,
-                PidMode = args.Checked ? PidMode.Percentage : PidMode.Temperature
+                PidMode = args.Checked ? PidMode.Percentage : PidMode.Temperature,
+                SetPoint = SetPoint
             }
         });
 
@@ -136,6 +142,8 @@
                 return SetPointSlider.Value == (int)componentStateChange.CurrentState.SetPoint;
             });
         }
+
+
     }
 
     private void SetPoint_ValueChange(SliderChangeEventArgs<int> eventArgs) {
