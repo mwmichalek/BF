@@ -24,6 +24,7 @@ using ZNetCS.AspNetCore.Authentication.Basic;
 using ZNetCS.AspNetCore.Authentication.Basic.Events;
 using System.Security.Claims;
 using BF.Services.Configuration;
+using Syncfusion.EJ2.Blazor;
 
 namespace BF.Server {
     public class Startup {
@@ -51,6 +52,7 @@ namespace BF.Server {
             services.AddRazorPages();
             services.AddSignalR();
             services.AddServerSideBlazor();
+            services.AddSyncfusionBlazor();
             services.AddTransient<HubConnectionBuilder>();
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<IEventAggregator, EventAggregator>();
@@ -66,7 +68,7 @@ namespace BF.Server {
                         options.Events = new BasicAuthenticationEvents {
                             OnValidatePrincipal = context => {
 
-                                if ((context.UserName == Configuration["BFAppliance:Credentials:UserName"]) && 
+                                if ((context.UserName == Configuration["BFAppliance:Credentials:UserName"]) &&
                                     (context.Password == Configuration["BFAppliance:Credentials:Password"])) {
                                     var claims = new List<Claim> {
                                         new Claim(ClaimTypes.Name, context.UserName, context.Options.ClaimsIssuer)
@@ -74,7 +76,7 @@ namespace BF.Server {
 
                                     var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, context.Scheme.Name));
                                     context.Principal = principal;
-                                } else if ((context.UserName == Configuration["BFHub:Credentials:UserName"]) && 
+                                } else if ((context.UserName == Configuration["BFHub:Credentials:UserName"]) &&
                                            (context.Password == Configuration["BFHub:Credentials:Password"])) {
                                     var claims = new List<Claim> {
                                         new Claim(ClaimTypes.Name, context.UserName, context.Options.ClaimsIssuer)

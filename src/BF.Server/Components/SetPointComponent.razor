@@ -10,7 +10,7 @@
     <div class="row justify-content-center">
         <div class="col-1">
             <EjsButton @ref="PidControllerEnableButton" 
-                       CssClass="e-flat"
+                       CssClass="e-outline"
                        IsPrimary="true"
                        Content="@Content"
                        IsToggle="true"
@@ -19,14 +19,25 @@
         </div>
         @if (ComponentId == ComponentId.BK) {
             <div class="col-2">
-                <EjsSwitch @ref="PidControllerModeSwitch"
-                           CssClass="tempPercSwitch" 
-                           OffLabel="TEMPERATURE" 
-                           OnLabel="PERCENTAGE"
-                           ValueChange="@OnPidControllerModeChange"
-                           >
-
-                </EjsSwitch>
+                <div class="control-section">
+                    <div class="radio-control">
+                        <div class="row">
+                            <EjsRadioButton Label="TEMPERATURE" 
+                                            Name="PidControllerMode" 
+                                            Value="Temperature" 
+                                            Checked="true"
+                                            OnChange="OnPidControllerModeChange">
+                            </EjsRadioButton>
+                        </div>
+                        <div class="row">
+                            <EjsRadioButton Label="PERCENTAGE" 
+                                            Name="PidControllerMode" 
+                                            Value="Percentage"
+                                            OnChange="OnPidControllerModeChange">
+                            </EjsRadioButton>
+                        </div>
+                    </div>
+                </div>
             </div>
         }
         <div class="@(ComponentId == ComponentId.BK ? "col-8" : "col-10")">
@@ -85,8 +96,6 @@
 
     public EjsButton PidControllerEnableButton { get; set; }
 
-    public EjsSwitch PidControllerModeSwitch { get; set; }
-
 
     public override void Initialize() {
         EventHandler.SubscribeToComponentStateChange<PidControllerState>(PidControllerStateChangeOccured,
@@ -104,23 +113,18 @@
         });
     }
 
-    public void OnPidControllerModeChange(Syncfusion.EJ2.Blazor.Buttons.ChangeEventArgs args) {
+    public void OnPidControllerModeChange(Microsoft.AspNetCore.Components.ChangeEventArgs args) {
 
-        LowPoint = !args.Checked ? 40 : 0;
-        HighPoint = !args.Checked ? 212 : 100;
+        LowPoint = args.Value.ToString() == PidMode.Temperature.ToString() ? 40 : 0;
+        HighPoint = args.Value.ToString() == PidMode.Temperature.ToString() ? 212 : 100;
 
-        
-        
         EventHandler.ComponentStateRequestFiring(new ComponentStateRequest<PidControllerRequestState> {
             RequestState = new PidControllerRequestState {
                 Id = ComponentId,
-                PidMode = args.Checked ? PidMode.Percentage : PidMode.Temperature,
+                PidMode = (args.Value.ToString() == PidMode.Temperature.ToString()) ? PidMode.Temperature : PidMode.Percentage,
                 SetPoint = SetPoint
             }
         });
-
-
-        var nutz = PidControllerModeSwitch?.Value;
     }
 
     public void PidControllerStateChangeOccured(ComponentStateChange<PidControllerState> componentStateChange) {
@@ -130,8 +134,6 @@
         if (ComponentId == ComponentId.MT) {
             LowPoint = componentStateChange.CurrentState.PidMode == PidMode.Temperature ? 40 : 0;
             HighPoint = componentStateChange.CurrentState.PidMode == PidMode.Temperature ? 212 : 100;
-
-            var something = PidControllerModeSwitch?.Value;
         }
 
         //if (componentStateChange.CurrentState.)

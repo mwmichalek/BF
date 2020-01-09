@@ -20,7 +20,7 @@
     <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
     <PackageReference Include="Serilog.Sinks.Trace" Version="2.1.0" />
-    <PackageReference Include="Syncfusion.EJ2.Blazor" Version="17.3.0.29-beta" />
+    <PackageReference Include="Syncfusion.EJ2.Blazor" Version="17.4.0.42" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
     <PackageReference Include="ZNetCS.AspNetCore.Authentication.Basic" Version="3.0.2" />
   </ItemGroup>
